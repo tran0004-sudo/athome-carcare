@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 480" role="img" aria-label="차량 외부 세차 전">
+<defs><linearGradient id="car" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5e6667"/><stop offset="1" stop-color="#2d3434"/></linearGradient></defs>
+<rect width="700" height="480" fill="#d4d0c7"/><rect y="330" width="700" height="150" fill="#aaa69f"/>
+<path d="M85 310c15-80 80-138 170-156 87-18 217-4 277 35 40 26 64 65 76 121l40 16v55H52v-48z" fill="url(#car)"/>
+<path d="M242 170h224c39 0 72 26 94 72H181c17-33 36-55 61-72z" fill="#8da1a4" opacity=".75"/>
+<circle cx="180" cy="368" r="64" fill="#222"/><circle cx="180" cy="368" r="30" fill="#737777"/><circle cx="536" cy="368" r="64" fill="#222"/><circle cx="536" cy="368" r="30" fill="#737777"/>
+<g fill="#805c43" opacity=".7"><path d="M102 266c50-24 92-9 122 16l-37 26-78-6z"/><path d="M342 235c74-18 129-8 177 31l-32 30-147-14z"/><circle cx="278" cy="318" r="18"/><circle cx="425" cy="325" r="12"/></g>
+<text x="28" y="52" font-family="Arial,sans-serif" font-size="30" font-weight="700" fill="#fff">BEFORE · 오염된 도장면</text>
+</svg>
