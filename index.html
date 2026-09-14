@@ -14,202 +14,28 @@
 <body>
   <div class="app-shell">
     <header class="topbar">
-      <button class="brand" data-go="home" aria-label="홈으로">
-        <img src="icons/icon.svg" alt="앳홈 카케어 로고" />
-        <span><strong>문앞세차-앳홈 카케어</strong><small>At Home Car Care</small></span>
-      </button>
-      <div class="top-actions">
-        <a id="topCallBtn" class="ghost-btn call-btn" href="tel:01083918999" data-call aria-label="전화 문의">☎ <span data-phone-text>010-8391-8999</span></a>
-        <button id="installBtn" class="ghost-btn hidden">앱 설치</button>
-        <button class="icon-btn" data-go="admin" aria-label="콘텐츠 관리">⚙️</button>
-      </div>
+      <button class="brand" data-go="home" aria-label="홈으로"><img src="icons/icon.svg" alt="앳홈 카케어 로고" /><span><strong>문앞세차-앳홈 카케어</strong><small>At Home Car Care</small></span></button>
+      <div class="top-actions"><a id="topCallBtn" class="ghost-btn call-btn" href="tel:01083918999" data-call>☎ <span data-phone-text>010-8391-8999</span></a><button id="installBtn" class="ghost-btn hidden">앱 설치</button><button class="icon-btn" data-go="admin">⚙️</button></div>
     </header>
-
     <main>
       <section id="home" class="page active">
-        <div class="hero">
-          <img class="hero-image" src="assets/hero.svg" alt="프리미엄 아파트 방문세차 이미지" />
-          <div class="hero-overlay"></div>
-          <div class="hero-content">
-            <span class="eyebrow">오늘도, 더 깨끗한 하루</span>
-            <h1>주차만 해두면 끝.<br><em>문앞으로 찾아가는</em><br>프리미엄 방문세차</h1>
-            <p>아파트·주차장 방문세차 · 출장비 무료 · 경산·대구 전지역</p>
-            <div class="location-pill">📍 경산 중산지구 · 사월동 · 시지 · 신매동 집중관리</div>
-            <div class="hero-buttons">
-              <button class="primary-btn" data-kakao>💬 카카오채널 문의</button>
-              <a class="secondary-btn button-link" href="tel:01083918999" data-call>☎ 전화 문의</a><button class="secondary-btn" data-go="booking">📅 예약하기</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="benefits-strip">
-          <div><span>🚚</span><b>출장비 무료</b><small>추가비용 없이</small></div>
-          <div><span>👑</span><b>월회원 가능</b><small>꾸준한 차량관리</small></div>
-          <div><span>🛡️</span><b>비대면 가능</b><small>주차만 해두세요</small></div>
-          <div><span>🕒</span><b>오후 2시~새벽 2시</b><small>바쁜 일상도 OK</small></div>
-        </div>
-
-        <section class="content-section">
-          <div class="section-head"><div><span class="section-kicker">SERVICE</span><h2>서비스 소개</h2></div><button class="text-link" data-go="menu">요금표 보기 →</button></div>
-          <div class="service-grid">
-            <article class="service-card mint"><span class="service-icon">🚗</span><h3>외부세차</h3><p>맑은 광택, 깨끗한 첫인상</p><ul><li>도장세정</li><li>유리·휠 표면세정</li><li>타이어·간편 왁스 코팅</li></ul></article>
-            <article class="service-card cream"><span class="service-icon">💺</span><h3>내부세차</h3><p>쾌적한 공간, 기분 좋은 드라이브</p><ul><li>매트 흙·먼지 제거</li><li>간단 진공청소</li><li>대시보드·내측 유리 정리</li></ul></article>
-            <article class="service-card mint"><span class="service-icon">📆</span><h3>월세차</h3><p>꾸준한 관리로 항상 깨끗하게</p><ul><li>월 2회 / 월 4회 선택</li><li>월 1회 기본 실내관리</li><li>지역 우선예약</li></ul></article>
-            <article class="service-card cream"><span class="service-icon">✨</span><h3>일일세차</h3><p>필요할 때 한 번만도 OK</p><ul><li>차종별 맞춤 세차</li><li>아파트·주차장 방문</li><li>빠르고 꼼꼼한 작업</li></ul></article>
-          </div>
-        </section>
-
-        <section class="content-section">
-          <div class="section-head"><div><span class="section-kicker">BEFORE & AFTER</span><h2>세차 전 · 후 비교</h2></div><button class="text-link" data-go="gallery">더 보기 →</button></div>
-          <div id="homeComparisons" class="comparison-grid"></div>
-        </section>
-
-        <section class="content-section soft-bg">
-          <div class="section-head"><div><span class="section-kicker">REVIEWS</span><h2>고객 사용후기</h2></div><button class="text-link" data-go="reviews">후기 전체보기 →</button></div>
-          <div id="homeReviews" class="review-grid"></div>
-        </section>
-
-        <section class="content-section">
-          <div class="section-head"><div><span class="section-kicker">CAR CARE</span><h2>세차 카테고리 & 세차 팁</h2></div><button class="text-link" data-go="tips">전체 글 보기 →</button></div>
-          <div id="homeTips" class="tip-grid"></div>
-        </section>
-
-        <section class="quick-book-card">
-          <div><span class="bubble">💬</span><h2>간편 문의 / 예약</h2><p>아파트명 · 차종 · 월 2회 또는 월 4회를 보내주시면 빠르게 안내해드립니다.</p></div>
-          <button class="primary-btn" data-go="booking">상담 요청 →</button>
-        </section>
+        <div class="hero"><img class="hero-image" src="assets/gv80-main.png.png" alt="GV80 앳홈 카케어 프리미엄 방문세차" /><div class="hero-overlay"></div><div class="hero-content"><span class="eyebrow">오늘도, 더 깨끗한 하루</span><h1>주차만 해두면 끝.<br><em>문앞으로 찾아가는</em><br>프리미엄 방문세차</h1><p>아파트·주차장 방문세차 · 출장비 무료 · 경산·대구 전지역</p><div class="location-pill">📍 경산 중산지구 · 사월동 · 시지 · 신매동 집중관리</div><div class="hero-buttons"><button class="primary-btn" data-kakao>💬 카카오채널 문의</button><a class="secondary-btn button-link" href="tel:01083918999" data-call>☎ 전화 문의</a><button class="secondary-btn" data-go="booking">📅 예약하기</button></div></div></div>
+        <div class="benefits-strip"><div><span>🚚</span><b>출장비 무료</b><small>추가비용 없이</small></div><div><span>👑</span><b>월회원 가능</b><small>꾸준한 차량관리</small></div><div><span>🛡️</span><b>비대면 가능</b><small>주차만 해두세요</small></div><div><span>🕒</span><b>오후 2시~새벽 2시</b><small>바쁜 일상도 OK</small></div></div>
+        <section class="content-section"><div class="section-head"><div><span class="section-kicker">SERVICE</span><h2>서비스 소개</h2></div><button class="text-link" data-go="menu">요금표 보기 →</button></div><div class="service-grid"><article class="service-card mint"><span class="service-icon">🚗</span><h3>외부세차</h3><p>맑은 광택, 깨끗한 첫인상</p><ul><li>도장세정</li><li>유리·휠 표면세정</li><li>타이어·간편 왁스 코팅</li></ul></article><article class="service-card cream"><span class="service-icon">💺</span><h3>내부세차</h3><p>쾌적한 공간, 기분 좋은 드라이브</p><ul><li>매트 흙·먼지 제거</li><li>간단 진공청소</li><li>대시보드·내측 유리 정리</li></ul></article><article class="service-card mint"><span class="service-icon">📆</span><h3>월세차</h3><p>꾸준한 관리로 항상 깨끗하게</p><ul><li>월 2회 / 월 4회 선택</li><li>월 1회 기본 실내관리</li><li>지역 우선예약</li></ul></article><article class="service-card cream"><span class="service-icon">✨</span><h3>일일세차</h3><p>필요할 때 한 번만도 OK</p><ul><li>차종별 맞춤 세차</li><li>아파트·주차장 방문</li><li>빠르고 꼼꼼한 작업</li></ul></article></div></section>
+        <section class="content-section"><div class="section-head"><div><span class="section-kicker">BEFORE & AFTER</span><h2>세차 전 · 후 비교</h2></div><button class="text-link" data-go="gallery">더 보기 →</button></div><div id="homeComparisons" class="comparison-grid"></div></section>
+        <section class="content-section soft-bg"><div class="section-head"><div><span class="section-kicker">REVIEWS</span><h2>고객 사용후기</h2></div><button class="text-link" data-go="reviews">후기 전체보기 →</button></div><div id="homeReviews" class="review-grid"></div></section>
+        <section class="content-section"><div class="section-head"><div><span class="section-kicker">CAR CARE</span><h2>세차 카테고리 & 세차 팁</h2></div><button class="text-link" data-go="tips">전체 글 보기 →</button></div><div id="homeTips" class="tip-grid"></div></section>
+        <section class="quick-book-card"><div><span class="bubble">💬</span><h2>간편 문의 / 예약</h2><p>아파트명 · 차종 · 월 2회 또는 월 4회를 보내주시면 빠르게 안내해드립니다.</p></div><button class="primary-btn" data-go="booking">상담 요청 →</button></section>
       </section>
-
-      <section id="menu" class="page">
-        <div class="page-title"><span>PRICE</span><h1>월세차 실제 메뉴판</h1><p>월 1회 기본 실내관리 포함 · 사월동/시지/신매동/중산지구 우선예약</p></div>
-        <div class="pricing-card">
-          <table>
-            <thead><tr><th>차종 구분</th><th>월 2회</th><th>월 4회</th></tr></thead>
-            <tbody>
-              <tr><td>경차·소형</td><td>45,000원</td><td>60,000원</td></tr>
-              <tr><td>준중형 세단</td><td>49,000원</td><td>65,000원</td></tr>
-              <tr><td>중형·준대형 세단</td><td>55,000원</td><td>69,000원</td></tr>
-              <tr><td>소형 SUV</td><td>55,000원</td><td>69,000원</td></tr>
-              <tr><td>중형 SUV</td><td>59,000원</td><td>75,000원</td></tr>
-              <tr><td>대형 SUV</td><td>69,000원</td><td>89,000원</td></tr>
-              <tr><td>카니발·스타리아·대형 MPV</td><td>69,000원~</td><td>99,000원~</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="two-col">
-          <article class="panel"><h2>추가 옵션</h2><div class="option-list"><div><span>휠 철분·집중세정</span><b>+10,000원~</b></div><div><span>고급 왁스·실런트</span><b>+20,000원~</b></div><div><span>실내 진공·먼지관리</span><b>+15,000원~</b></div><div><span>실내 집중세차</span><b>+30,000원~</b></div><div><span>트렁크 청소</span><b>+10,000원~</b></div><div><span>벌레·타르 제거</span><b>+10,000원~</b></div></div></article>
-          <article class="panel promo"><h2>오픈 혜택</h2><ul class="check-list"><li>첫 달 월 4회 <b>10,000원 할인</b></li><li>첫 달 월 2회 <b>5,000원 할인</b></li><li>가족·지인 소개 시 <b>외부세차 1회</b></li><li>같은 아파트 5대 이상 <b>차량당 5,000원 할인</b></li></ul></article>
-        </div>
-        <button class="sticky-cta primary-btn" data-go="booking">이 가격으로 예약 문의하기</button>
-      </section>
-
-      <section id="gallery" class="page">
-        <div class="page-title"><span>BEFORE & AFTER</span><h1>세차 전 · 후 갤러리</h1><p>사진을 좌우로 밀어서 변화를 확인하세요.</p></div>
-        <div id="galleryList" class="gallery-list"></div>
-      </section>
-
-      <section id="reviews" class="page">
-        <div class="page-title"><span>REVIEWS</span><h1>고객 사용후기</h1><p>실제 이용후기를 모아 서비스 품질을 보여주세요.</p></div>
-        <div id="reviewList" class="review-grid big"></div>
-        <article class="panel form-panel">
-          <h2>후기 남기기</h2>
-          <form id="reviewForm" class="form-grid">
-            <label>지역/이름<input name="author" placeholder="예: 사월동 고객" required></label>
-            <label>차종<input name="car" placeholder="예: GV80"></label>
-            <label>별점<select name="rating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
-            <label class="span-2">후기<textarea name="text" rows="4" placeholder="이용후기를 적어주세요." required></textarea></label>
-            <button class="primary-btn span-2" type="submit">후기 등록</button>
-          </form>
-        </article>
-      </section>
-
-      <section id="tips" class="page">
-        <div class="page-title"><span>CAR CARE</span><h1>세차 카테고리 & 세차 팁</h1><p>차를 더 오래, 더 깨끗하게 관리하는 방법을 정리했습니다.</p></div>
-        <div id="tipFilters" class="chips"></div>
-        <div id="tipList" class="tip-grid big"></div>
-      </section>
-
-      <section id="booking" class="page">
-        <div class="page-title"><span>BOOKING</span><h1>문의 / 예약</h1><p>입력한 내용을 카카오채널 문의 메시지로 바로 활용할 수 있습니다. 전화 문의 <a class="inline-call" href="tel:01083918999" data-call data-phone-text>010-8391-8999</a></p></div>
-        <article class="panel form-panel">
-          <form id="bookingForm" class="form-grid">
-            <label>아파트명<input name="apartment" placeholder="예: 중산지구 ○○아파트" required></label>
-            <label>차종<input name="car" placeholder="예: GV80" required></label>
-            <label>희망 서비스<select name="service"><option>월 2회</option><option>월 4회</option><option>일일 외부세차</option><option>외부+내부세차</option><option>기타 상담</option></select></label>
-            <label>연락처<input name="phone" inputmode="tel" placeholder="010-0000-0000" required></label>
-            <label class="span-2">요청사항<textarea name="memo" rows="4" placeholder="주차 위치, 가능한 요일, 추가 옵션 등을 적어주세요."></textarea></label>
-            <button type="submit" class="primary-btn span-2">문의 내용 만들기</button>
-          </form>
-          <div id="bookingResult" class="booking-result hidden"></div>
-        </article>
-      </section>
-
-      <section id="admin" class="page">
-        <div class="page-title"><span>MANAGE</span><h1>콘텐츠 관리</h1><p>사진·후기·세차팁·연락처를 수정하고 GitHub Pages용 공개 데이터 파일로 내보낼 수 있습니다.</p></div>
-        <div class="admin-warning">💡 여기서 수정한 내용은 먼저 이 기기에 저장됩니다. 모두에게 공개하려면 아래 <b>공개용 content.json 내보내기</b>를 눌러 GitHub의 <code>data/content.json</code> 파일을 교체한 뒤 커밋하세요.</div>
-
-        <article class="panel form-panel">
-          <h2>업체 설정</h2>
-          <form id="settingsForm" class="form-grid">
-            <label>전화번호<input name="phone" value="010-8391-8999" placeholder="010-0000-0000"></label>
-            <label>카카오채널 URL<input name="kakaoUrl" placeholder="https://pf.kakao.com/..." inputmode="url"></label>
-            <label class="span-2">서비스지역<input name="area" value="경산 중산지구 · 사월동 · 시지 · 신매동 · 대구"></label>
-            <button class="primary-btn span-2" type="submit">설정 저장</button>
-          </form>
-        </article>
-
-        <article class="panel form-panel">
-          <h2>세차 전·후 사진 추가</h2>
-          <form id="galleryForm" class="form-grid">
-            <label>제목<input name="title" placeholder="예: 휠 세척 전후" required></label>
-            <label>세차 전 사진<input name="before" type="file" accept="image/*" required></label>
-            <label>세차 후 사진<input name="after" type="file" accept="image/*" required></label>
-            <label>설명<input name="note" placeholder="예: 철분·분진 집중 세정"></label>
-            <button class="primary-btn span-2" type="submit">전후 사진 등록</button>
-          </form>
-        </article>
-
-        <article class="panel form-panel">
-          <h2>고객 후기 추가</h2>
-          <form id="adminReviewForm" class="form-grid">
-            <label>지역/이름<input name="author" placeholder="예: 사월동 고객" required></label>
-            <label>차종<input name="car" placeholder="예: GV80"></label>
-            <label>별점<select name="rating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
-            <label class="span-2">후기<textarea name="text" rows="4" placeholder="게시할 고객 후기를 입력하세요." required></textarea></label>
-            <button class="primary-btn span-2" type="submit">후기 등록</button>
-          </form>
-        </article>
-
-        <article class="panel form-panel">
-          <h2>세차 팁 추가</h2>
-          <form id="tipForm" class="form-grid">
-            <label>카테고리<select name="category"><option>외부세차 팁</option><option>내부세차 팁</option><option>휠세정 팁</option><option>계절관리 팁</option><option>기타</option></select></label>
-            <label>제목<input name="title" placeholder="팁 제목" required></label>
-            <label class="span-2">내용<textarea name="body" rows="5" placeholder="고객에게 보여줄 세차 관리 팁을 작성하세요." required></textarea></label>
-            <button class="primary-btn span-2" type="submit">세차 팁 등록</button>
-          </form>
-        </article>
-
-        <article class="panel">
-          <h2>GitHub 공개 / 백업 데이터 관리</h2>
-          <div class="admin-buttons"><button id="exportBtn" class="primary-btn">공개용 content.json 내보내기</button><label class="secondary-btn file-label">JSON 가져오기<input id="importInput" type="file" accept="application/json"></label><button id="resetBtn" class="danger-btn">GitHub 공개 데이터로 되돌리기</button></div>
-          <div id="inquiryAdmin" class="inquiry-list"></div>
-        </article>
-      </section>
+      <section id="menu" class="page"><div class="page-title"><span>PRICE</span><h1>월세차 실제 메뉴판</h1><p>월 1회 기본 실내관리 포함 · 사월동/시지/신매동/중산지구 우선예약</p></div><div class="pricing-card"><table><thead><tr><th>차종 구분</th><th>월 2회</th><th>월 4회</th></tr></thead><tbody><tr><td>경차·소형</td><td>45,000원</td><td>60,000원</td></tr><tr><td>준중형 세단</td><td>49,000원</td><td>65,000원</td></tr><tr><td>중형·준대형 세단</td><td>55,000원</td><td>69,000원</td></tr><tr><td>소형 SUV</td><td>55,000원</td><td>69,000원</td></tr><tr><td>중형 SUV</td><td>59,000원</td><td>75,000원</td></tr><tr><td>대형 SUV</td><td>69,000원</td><td>89,000원</td></tr><tr><td>카니발·스타리아·대형 MPV</td><td>69,000원~</td><td>99,000원~</td></tr></tbody></table></div><button class="sticky-cta primary-btn" data-go="booking">이 가격으로 예약 문의하기</button></section>
+      <section id="gallery" class="page"><div class="page-title"><span>BEFORE & AFTER</span><h1>세차 전 · 후 갤러리</h1><p>사진을 좌우로 밀어서 변화를 확인하세요.</p></div><div id="galleryList" class="gallery-list"></div></section>
+      <section id="reviews" class="page"><div class="page-title"><span>REVIEWS</span><h1>고객 사용후기</h1></div><div id="reviewList" class="review-grid big"></div><article class="panel form-panel"><h2>후기 남기기</h2><form id="reviewForm" class="form-grid"><label>지역/이름<input name="author" required></label><label>차종<input name="car"></label><label>별점<select name="rating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label><label class="span-2">후기<textarea name="text" rows="4" required></textarea></label><button class="primary-btn span-2" type="submit">후기 등록</button></form></article></section>
+      <section id="tips" class="page"><div class="page-title"><span>CAR CARE</span><h1>세차 카테고리 & 세차 팁</h1></div><div id="tipFilters" class="chips"></div><div id="tipList" class="tip-grid big"></div></section>
+      <section id="booking" class="page"><div class="page-title"><span>BOOKING</span><h1>문의 / 예약</h1><p>전화 문의 <a class="inline-call" href="tel:01083918999" data-call data-phone-text>010-8391-8999</a></p></div><article class="panel form-panel"><form id="bookingForm" class="form-grid"><label>아파트명<input name="apartment" required></label><label>차종<input name="car" required></label><label>희망 서비스<select name="service"><option>월 2회</option><option>월 4회</option><option>일일 외부세차</option><option>외부+내부세차</option><option>기타 상담</option></select></label><label>연락처<input name="phone" inputmode="tel" required></label><label class="span-2">요청사항<textarea name="memo" rows="4"></textarea></label><button type="submit" class="primary-btn span-2">예약 접수</button></form><div id="bookingResult" class="booking-result hidden"></div></article></section>
+      <section id="admin" class="page"><div class="page-title"><span>MANAGE</span><h1>관리자</h1></div><div id="supabaseAdminPanel"></div><div id="adminLegacy"></div></section>
     </main>
-
-    <nav class="bottom-nav" aria-label="하단 메뉴">
-      <button data-go="home" class="active"><span>⌂</span><small>홈</small></button>
-      <button data-go="menu"><span>₩</span><small>요금</small></button>
-      <button data-go="gallery"><span>◫</span><small>전후</small></button>
-      <button data-go="tips"><span>✦</span><small>세차팁</small></button>
-      <button data-go="booking"><span>✉</span><small>예약</small></button>
-    </nav>
-    <a class="floating-call" href="tel:01083918999" data-call aria-label="전화 문의">☎ <span data-phone-text>010-8391-8999</span></a>
+    <nav class="bottom-nav"><button data-go="home" class="active">🏠<span>홈</span></button><button data-go="menu">💳<span>요금</span></button><button data-go="gallery">✨<span>전후비교</span></button><button data-go="tips">🧽<span>세차팁</span></button><button data-go="booking">📅<span>예약</span></button></nav>
   </div>
-
-  <div id="toast" class="toast" role="status"></div>
-  <script src="app.js"></script>
-  <script src="supabase-integration.js"></script>
+  <script src="app.js"></script><script src="supabase-integration.js"></script>
 </body>
 </html>
