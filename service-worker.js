@@ -1,7 +1,7 @@
-const CACHE = 'athome-carcare-v7';
+const CACHE = 'athome-carcare-v8';
 const ASSETS = [
   './', './index.html', './styles.css', './app.js', './supabase-integration.js', './manifest.webmanifest', './data/content.json',
-  './icons/icon.svg', './assets/gv80-main.png.png',
+  './icons/icon.svg', './assets/gv80-main.png.png?v=20260915-1',
   './assets/wheel-before.svg', './assets/wheel-after.svg', './assets/body-before.svg', './assets/body-after.svg',
   './assets/interior-before.svg', './assets/interior-after.svg'
 ];
