@@ -1,6 +1,6 @@
-const CACHE = 'athome-carcare-v3';
+const CACHE = 'athome-carcare-v4';
 const ASSETS = [
-  './', './index.html', './styles.css', './app.js', './manifest.webmanifest', './data/content.json',
+  './', './index.html', './styles.css', './app.js', './supabase-integration.js', './manifest.webmanifest', './data/content.json',
   './icons/icon.svg', './assets/hero.svg',
   './assets/wheel-before.svg', './assets/wheel-after.svg', './assets/body-before.svg', './assets/body-after.svg',
   './assets/interior-before.svg', './assets/interior-after.svg'
@@ -18,10 +18,38 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+async function withSupabaseIntegration(response) {
+  if (!response) return response;
+  const html = await response.text();
+  if (html.includes('supabase-integration.js')) return new Response(html, response);
+  const injected = html.replace('</body>', '  <script src="supabase-integration.js"></script>\n</body>');
+  const headers = new Headers(response.headers);
+  headers.delete('content-length');
+  headers.delete('content-encoding');
+  return new Response(injected, { status: response.status, statusText: response.statusText, headers });
+}
+
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
+
+  // Never cache Supabase or any other cross-origin request, especially authenticated admin data.
+  if (url.origin !== self.location.origin) return;
+
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-store' })
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE).then((cache) => cache.put('./index.html', copy));
+          return withSupabaseIntegration(response);
+        })
+        .catch(async () => withSupabaseIntegration(await caches.match('./index.html')))
+    );
+    return;
+  }
+
   if (url.pathname.endsWith('/data/content.json')) {
     event.respondWith(
       fetch(event.request, { cache: 'no-store' })
@@ -40,6 +68,6 @@ self.addEventListener('fetch', (event) => {
       const copy = response.clone();
       caches.open(CACHE).then((cache) => cache.put(event.request, copy));
       return response;
-    }).catch(() => caches.match('./index.html')))
+    }))
   );
 });
