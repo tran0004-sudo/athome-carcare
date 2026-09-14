@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 480" role="img" aria-label="휠 세척 후">
+<defs><radialGradient id="bg"><stop stop-color="#eef3f3"/><stop offset=".65" stop-color="#aeb9bb"/><stop offset="1" stop-color="#6d7778"/></radialGradient></defs>
+<rect width="700" height="480" fill="#eef4f2"/><rect y="330" width="700" height="150" fill="#dce5e2"/>
+<circle cx="350" cy="250" r="190" fill="#202827"/><circle cx="350" cy="250" r="145" fill="url(#bg)" stroke="#d9e0e0" stroke-width="20"/>
+<g stroke="#f3f8f7" stroke-width="24" stroke-linecap="round"><path d="M350 250V120"/><path d="M350 250l105-77"/><path d="M350 250l124 40"/><path d="M350 250l65 113"/><path d="M350 250l-65 113"/><path d="M350 250l-124 40"/><path d="M350 250l-105-77"/></g>
+<circle cx="350" cy="250" r="48" fill="#d7dfdf"/><g fill="#9ce1d0"><circle cx="514" cy="115" r="8"/><circle cx="550" cy="150" r="5"/><circle cx="485" cy="95" r="4"/></g>
+<path d="M520 88l10 23 23 10-23 10-10 23-10-23-23-10 23-10z" fill="#f5ad14"/>
+<text x="32" y="54" font-family="Arial,sans-serif" font-size="30" font-weight="700" fill="#087c68">AFTER · 세차 후</text>
+</svg>
