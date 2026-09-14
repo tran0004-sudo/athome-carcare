@@ -12,9 +12,9 @@
     else console.log(message);
   };
 
-  const apiHeaders = (token = SUPABASE_KEY, extra = {}) => ({
+  const apiHeaders = (token = null, extra = {}) => ({
     apikey: SUPABASE_KEY,
-    Authorization: `Bearer ${token}`,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...extra
   });
 
@@ -95,7 +95,7 @@
     try {
       const response = await fetch(`${SUPABASE_URL}/rest/v1/reservations`, {
         method: 'POST',
-        headers: apiHeaders(SUPABASE_KEY, {
+        headers: apiHeaders(null, {
           'Content-Type': 'application/json',
           Prefer: 'return=minimal'
         }),
