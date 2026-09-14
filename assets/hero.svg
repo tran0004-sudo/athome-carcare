@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 760" role="img" aria-label="아파트 주차장과 프리미엄 SUV 일러스트">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#dff7ff"/><stop offset="1" stop-color="#f6fffb"/></linearGradient>
+    <linearGradient id="car" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#092e2b"/><stop offset=".55" stop-color="#0b5a4c"/><stop offset="1" stop-color="#061b19"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#bdeaf0"/><stop offset="1" stop-color="#4f7783"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#0a332d" flood-opacity=".25"/></filter>
+  </defs>
+  <rect width="1200" height="760" fill="url(#sky)"/>
+  <circle cx="1035" cy="96" r="52" fill="#fff2a6" opacity=".9"/>
+  <g opacity=".92">
+    <rect x="110" y="120" width="210" height="390" rx="10" fill="#eef5f4"/><rect x="350" y="72" width="240" height="440" rx="10" fill="#f8fbfb"/><rect x="625" y="135" width="170" height="360" rx="10" fill="#eef5f4"/>
+    <g fill="#bcd5d3"><rect x="140" y="160" width="42" height="62"/><rect x="205" y="160" width="42" height="62"/><rect x="270" y="160" width="26" height="62"/><rect x="140" y="255" width="42" height="62"/><rect x="205" y="255" width="42" height="62"/><rect x="270" y="255" width="26" height="62"/><rect x="140" y="350" width="42" height="62"/><rect x="205" y="350" width="42" height="62"/><rect x="270" y="350" width="26" height="62"/>
+      <rect x="385" y="118" width="50" height="68"/><rect x="465" y="118" width="50" height="68"/><rect x="385" y="220" width="50" height="68"/><rect x="465" y="220" width="50" height="68"/><rect x="385" y="322" width="50" height="68"/><rect x="465" y="322" width="50" height="68"/>
+      <rect x="660" y="180" width="38" height="58"/><rect x="720" y="180" width="38" height="58"/><rect x="660" y="270" width="38" height="58"/><rect x="720" y="270" width="38" height="58"/></g>
+  </g>
+  <rect x="0" y="515" width="1200" height="245" fill="#eaf2ef"/><path d="M0 642h1200" stroke="#d2dfdc" stroke-width="3"/><path d="M160 760l260-245M520 760l160-245M890 760l-20-245" stroke="#d7e5e1" stroke-width="5"/>
+  <g fill="#5c9d70"><circle cx="88" cy="440" r="86"/><circle cx="1080" cy="420" r="98"/></g><g fill="#9bc58d"><circle cx="58" cy="454" r="45"/><circle cx="1130" cy="445" r="50"/></g>
+  <g filter="url(#shadow)" transform="translate(560 270)">
+    <path d="M82 244c15-74 52-126 113-160 61-34 189-48 282-22 55 15 94 52 124 112l18 36 63 23c34 13 55 44 55 78v44c0 26-21 47-47 47H102c-36 0-65-29-65-65v-38c0-29 18-55 45-65z" fill="url(#car)"/>
+    <path d="M211 101c47-34 165-41 246-20 41 10 72 36 97 78H159c15-24 31-43 52-58z" fill="url(#glass)" stroke="#d8ffff" stroke-width="7"/>
+    <path d="M159 159h395" stroke="#d7ece8" stroke-width="6" opacity=".8"/>
+    <path d="M90 255h590" stroke="#143f39" stroke-width="12"/>
+    <rect x="255" y="238" width="235" height="85" rx="26" fill="#0d2825" stroke="#d6e1df" stroke-width="5"/>
+    <path d="M289 255h168M287 277h172M299 299h148" stroke="#b9c9c6" stroke-width="5" opacity=".8"/>
+    <rect x="100" y="253" width="97" height="27" rx="13" fill="#f7ffff"/><rect x="575" y="253" width="100" height="27" rx="13" fill="#f7ffff"/>
+    <circle cx="183" cy="386" r="66" fill="#132521"/><circle cx="183" cy="386" r="38" fill="#d8dfde"/><circle cx="595" cy="386" r="66" fill="#132521"/><circle cx="595" cy="386" r="38" fill="#d8dfde"/>
+    <circle cx="183" cy="386" r="15" fill="#677774"/><circle cx="595" cy="386" r="15" fill="#677774"/>
+    <rect x="320" y="328" width="146" height="44" rx="12" fill="#111c1c"/><text x="393" y="357" text-anchor="middle" font-size="24" font-family="Arial,sans-serif" fill="#fff" font-weight="700">GV80</text>
+    <path d="M619 214l75 23" stroke="#f4b41f" stroke-width="8" stroke-linecap="round"/><path d="M94 218l63-22" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <g fill="#f5ad14"><path d="M940 175l13 31 31 13-31 13-13 31-13-31-31-13 31-13z"/><path d="M1012 232l8 19 19 8-19 8-8 19-8-19-19-8 19-8z"/></g>
+</svg>
