@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 480" role="img" aria-label="휠 세척 전">
+<defs><radialGradient id="bg"><stop stop-color="#777"/><stop offset="1" stop-color="#333"/></radialGradient></defs>
+<rect width="700" height="480" fill="#c9c6c0"/><rect y="330" width="700" height="150" fill="#aaa59e"/>
+<circle cx="350" cy="250" r="190" fill="#222"/><circle cx="350" cy="250" r="145" fill="url(#bg)" stroke="#5d5a55" stroke-width="20"/>
+<g stroke="#aaa59d" stroke-width="24" stroke-linecap="round"><path d="M350 250V120"/><path d="M350 250l105-77"/><path d="M350 250l124 40"/><path d="M350 250l65 113"/><path d="M350 250l-65 113"/><path d="M350 250l-124 40"/><path d="M350 250l-105-77"/></g>
+<circle cx="350" cy="250" r="48" fill="#6d6860"/><g fill="#8b4a31" opacity=".7"><circle cx="260" cy="150" r="18"/><circle cx="445" cy="178" r="12"/><circle cx="407" cy="338" r="15"/><circle cx="238" cy="306" r="14"/><circle cx="343" cy="108" r="10"/></g>
+<text x="32" y="54" font-family="Arial,sans-serif" font-size="30" font-weight="700" fill="#fff">BEFORE · 세차 전</text>
+</svg>
