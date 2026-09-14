@@ -31,15 +31,21 @@ jobs:
           manifest = m.read_text(encoding='utf-8')
           manifest = manifest.replace('''  "icons": [\n    {"src":"icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},\n    {"src":"icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}\n  ]''', '''  "icons": [\n    {"src":"icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}\n  ]''')
           m.write_text(manifest, encoding='utf-8')
+
+          s = Path('supabase-integration.js')
+          js = s.read_text(encoding='utf-8')
+          js = js.replace("const apiHeaders = (token = SUPABASE_KEY, extra = {}) => ({\n    apikey: SUPABASE_KEY,\n    Authorization: `Bearer ${token}`,\n    ...extra\n  });", "const apiHeaders = (token = null, extra = {}) => ({\n    apikey: SUPABASE_KEY,\n    ...(token ? { Authorization: `Bearer ${token}` } : {}),\n    ...extra\n  });")
+          js = js.replace("headers: apiHeaders(SUPABASE_KEY, {", "headers: apiHeaders(null, {")
+          s.write_text(js, encoding='utf-8')
           PY
       - name: Commit patch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html manifest.webmanifest
+          git add index.html manifest.webmanifest supabase-integration.js
           if git diff --cached --quiet; then
             echo "Nothing to patch"
           else
-            git commit -m "Enable Supabase booking and admin UI"
+            git commit -m "Harden Supabase browser requests"
             git push
           fi
