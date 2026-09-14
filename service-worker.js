@@ -1,9 +1,9 @@
-const CACHE = 'athome-carcare-v2';
+const CACHE = 'athome-carcare-v3';
 const ASSETS = [
   './', './index.html', './styles.css', './app.js', './manifest.webmanifest', './data/content.json',
-  './icons/icon-192.png', './icons/icon-512.png', './assets/hero.jpg',
-  './assets/wheel-before.jpg', './assets/wheel-after.jpg', './assets/body-before.jpg', './assets/body-after.jpg',
-  './assets/interior-before.jpg', './assets/interior-after.jpg'
+  './icons/icon.svg', './assets/hero.svg',
+  './assets/wheel-before.svg', './assets/wheel-after.svg', './assets/body-before.svg', './assets/body-after.svg',
+  './assets/interior-before.svg', './assets/interior-after.svg'
 ];
 
 self.addEventListener('install', (event) => {
