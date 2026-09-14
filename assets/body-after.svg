@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 480" role="img" aria-label="차량 외부 세차 후">
+<defs><linearGradient id="car" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b6f5d"/><stop offset=".6" stop-color="#063d35"/><stop offset="1" stop-color="#092521"/></linearGradient><linearGradient id="shine" x1="0" x2="1"><stop stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+<rect width="700" height="480" fill="#edf9f6"/><rect y="330" width="700" height="150" fill="#d6e9e4"/>
+<path d="M85 310c15-80 80-138 170-156 87-18 217-4 277 35 40 26 64 65 76 121l40 16v55H52v-48z" fill="url(#car)"/>
+<path d="M242 170h224c39 0 72 26 94 72H181c17-33 36-55 61-72z" fill="#bde4e2" opacity=".9"/>
+<circle cx="180" cy="368" r="64" fill="#19221f"/><circle cx="180" cy="368" r="30" fill="#d4dfdc"/><circle cx="536" cy="368" r="64" fill="#19221f"/><circle cx="536" cy="368" r="30" fill="#d4dfdc"/>
+<path d="M140 265h395" stroke="url(#shine)" stroke-width="13" stroke-linecap="round"/><path d="M466 106l11 26 26 11-26 11-11 26-11-26-26-11 26-11z" fill="#f5ad14"/>
+<text x="28" y="52" font-family="Arial,sans-serif" font-size="30" font-weight="700" fill="#087c68">AFTER · 맑은 광택</text>
+</svg>
