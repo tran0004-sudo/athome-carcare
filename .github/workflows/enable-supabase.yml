@@ -1,4 +1,4 @@
-name: Apply GV80 hero safely
+name: Refresh GV80 hero safely
 
 on:
   push:
@@ -14,25 +14,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch only hero image and cache
+      - name: Patch only hero cache-buster and service worker
         run: |
           python - <<'PY'
           from pathlib import Path
 
           p = Path('index.html')
           text = p.read_text(encoding='utf-8')
-          old = 'src="assets/hero.svg" alt="프리미엄 아파트 방문세차 이미지"'
-          new = 'src="assets/gv80-main.png.png" alt="GV80 프리미엄 아파트 방문세차 이미지"'
-          if old not in text:
-              raise SystemExit('Expected hero markup not found; refusing broad edit')
-          text = text.replace(old, new, 1)
+          old = 'src="assets/gv80-main.png.png" alt="GV80 프리미엄 아파트 방문세차 이미지"'
+          new = 'src="assets/gv80-main.png.png?v=20260915-1" alt="GV80 프리미엄 아파트 방문세차 이미지"'
+          if old in text:
+              text = text.replace(old, new, 1)
+          elif new not in text:
+              raise SystemExit('Expected GV80 hero markup not found; refusing broad edit')
           p.write_text(text, encoding='utf-8')
 
           sw = Path('service-worker.js')
           s = sw.read_text(encoding='utf-8')
-          s = s.replace("const CACHE = 'athome-carcare-v6';", "const CACHE = 'athome-carcare-v7';")
-          s = s.replace("const CACHE = 'athome-carcare-v5';", "const CACHE = 'athome-carcare-v7';")
-          s = s.replace("'./icons/icon.svg', './assets/hero.svg',", "'./icons/icon.svg', './assets/gv80-main.png.png',")
+          for v in ('v5','v6','v7'):
+              s = s.replace(f"const CACHE = 'athome-carcare-{v}';", "const CACHE = 'athome-carcare-v8';")
+          s = s.replace("'./icons/icon.svg', './assets/gv80-main.png.png',", "'./icons/icon.svg', './assets/gv80-main.png.png?v=20260915-1',")
           sw.write_text(s, encoding='utf-8')
           PY
       - name: Commit patch
@@ -43,6 +44,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Nothing to patch"
           else
-            git commit -m "Use uploaded GV80 image for home hero"
+            git commit -m "Force refresh GV80 home hero"
             git push
           fi
