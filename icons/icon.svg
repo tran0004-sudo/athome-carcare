@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="문앞세차 앳홈 카케어 아이콘">
+  <defs><linearGradient id="g" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#087c68"/><stop offset="1" stop-color="#0aa487"/></linearGradient></defs>
+  <rect width="512" height="512" rx="110" fill="#f5fffc"/>
+  <path d="M114 235V151L256 62l142 89v84" fill="none" stroke="url(#g)" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="109" y="212" width="294" height="205" rx="58" fill="url(#g)"/>
+  <path d="M167 290l28-57h122l28 57" fill="none" stroke="#fff" stroke-width="24" stroke-linecap="round"/>
+  <rect x="153" y="278" width="206" height="76" rx="30" fill="#fff"/>
+  <circle cx="185" cy="354" r="27" fill="#10283a"/><circle cx="327" cy="354" r="27" fill="#10283a"/>
+  <circle cx="405" cy="108" r="18" fill="#f5ad14"/><path d="M405 55v32M405 129v32M352 108h32M426 108h32" stroke="#f5ad14" stroke-width="14" stroke-linecap="round"/>
+</svg>
