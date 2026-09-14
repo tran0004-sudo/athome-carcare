@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 480" role="img" aria-label="실내 세차 전">
+<rect width="700" height="480" fill="#d8d3ca"/><path d="M0 120h700v360H0z" fill="#aaa39a"/><path d="M105 110h490l48 140H57z" fill="#4d5353"/><path d="M140 142h150l-30 95H110zM410 142h150l30 95H440z" fill="#7f8b8d"/>
+<rect x="245" y="90" width="210" height="165" rx="38" fill="#363b3b"/><rect x="286" y="130" width="128" height="92" rx="22" fill="#222"/>
+<path d="M0 300c98-16 157-9 229 11 76 22 157 23 242 4 85-19 153-19 229-4v169H0z" fill="#6f675e"/>
+<g fill="#b38e61" opacity=".85"><ellipse cx="122" cy="366" rx="55" ry="18"/><ellipse cx="311" cy="390" rx="72" ry="22"/><ellipse cx="525" cy="350" rx="43" ry="15"/><circle cx="220" cy="338" r="9"/><circle cx="458" cy="408" r="12"/></g>
+<path d="M78 329h170v118H78zM452 329h170v118H452z" fill="#4b4540" stroke="#272522" stroke-width="9"/>
+<text x="28" y="52" font-family="Arial,sans-serif" font-size="30" font-weight="700" fill="#fff">BEFORE · 먼지와 흙</text>
+</svg>
