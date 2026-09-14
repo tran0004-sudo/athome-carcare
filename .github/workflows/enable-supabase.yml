@@ -1,0 +1,45 @@
+name: Enable Supabase frontend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/enable-supabase.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch public app
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p = Path('index.html')
+          text = p.read_text(encoding='utf-8')
+          text = text.replace('icons/icon-192.png', 'icons/icon.svg')
+          text = text.replace('assets/hero.jpg', 'assets/hero.svg')
+          if 'supabase-integration.js' not in text:
+              text = text.replace('  <script src="app.js"></script>', '  <script src="app.js"></script>\n  <script src="supabase-integration.js"></script>')
+          p.write_text(text, encoding='utf-8')
+
+          m = Path('manifest.webmanifest')
+          manifest = m.read_text(encoding='utf-8')
+          manifest = manifest.replace('''  "icons": [\n    {"src":"icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},\n    {"src":"icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}\n  ]''', '''  "icons": [\n    {"src":"icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}\n  ]''')
+          m.write_text(manifest, encoding='utf-8')
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html manifest.webmanifest
+          if git diff --cached --quiet; then
+            echo "Nothing to patch"
+          else
+            git commit -m "Enable Supabase booking and admin UI"
+            git push
+          fi
