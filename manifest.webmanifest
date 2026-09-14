@@ -1,0 +1,17 @@
+{
+  "name": "문앞세차-앳홈 카케어",
+  "short_name": "앳홈 카케어",
+  "description": "경산 중산지구·사월동·시지·신매동 중심 아파트 방문세차 예약과 차량관리 앱",
+  "lang": "ko-KR",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F6FAF9",
+  "theme_color": "#087C68",
+  "categories": ["business", "lifestyle", "utilities"],
+  "icons": [
+    {"src":"icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ]
+}
