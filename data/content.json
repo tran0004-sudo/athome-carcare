@@ -8,23 +8,23 @@
     {
       "id": "g1",
       "title": "휠 세척 전후",
-      "note": "브레이크 분진과 묵은 오염을 깔끔하게 관리",
-      "before": "assets/wheel-before.jpg",
-      "after": "assets/wheel-after.jpg"
+      "note": "브레이크 분진과 묵은 오염을 깔끔하게 관리한 전후 비교",
+      "before": "assets/wheel-before.svg",
+      "after": "assets/wheel-after.svg"
     },
     {
       "id": "g2",
-      "title": "차량 외부 전후",
-      "note": "도장면 오염을 정리하고 깨끗한 광택으로",
-      "before": "assets/body-before.jpg",
-      "after": "assets/body-after.jpg"
+      "title": "차량 외부 세차 전후",
+      "note": "도장면 오염을 정리하고 깨끗한 광택으로 변한 전후 비교",
+      "before": "assets/body-before.svg",
+      "after": "assets/body-after.svg"
     },
     {
       "id": "g3",
-      "title": "실내 매트 전후",
-      "note": "흙·먼지를 제거해 쾌적한 실내로",
-      "before": "assets/interior-before.jpg",
-      "after": "assets/interior-after.jpg"
+      "title": "실내 매트 세차 전후",
+      "note": "흙·먼지를 제거해 쾌적하게 관리한 실내 전후 비교",
+      "before": "assets/interior-before.svg",
+      "after": "assets/interior-after.svg"
     }
   ],
   "reviews": [
