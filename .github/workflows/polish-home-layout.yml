@@ -1,0 +1,62 @@
+name: Polish home layout
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/polish-home-layout.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add responsive home polish overrides
+        run: |
+          cat >> styles.css <<'CSS'
+
+/* 2026-09-15 clean hero layout: keep copy clear of vehicle and benefits */
+.hero{height:520px;min-height:520px;background:#edf8f5;overflow:hidden}
+.hero-image{object-fit:cover;object-position:center center}
+.hero-overlay{background:linear-gradient(90deg,rgba(249,255,253,.99) 0%,rgba(249,255,253,.93) 36%,rgba(249,255,253,.48) 56%,rgba(249,255,253,.06) 78%)}
+.hero-content{width:54%;max-width:590px;padding:56px 50px 42px}
+.hero h1{font-size:46px;line-height:1.08;margin:13px 0 15px}
+.hero p{font-size:16px;line-height:1.5;margin:0 0 10px}
+.location-pill{font-size:13px;padding:10px 16px;margin:4px 0 16px;white-space:normal}
+.hero-buttons{gap:9px}
+.benefits-strip{margin-top:-20px}
+.benefits-strip>div{min-width:0}
+.benefits-strip b,.benefits-strip small{overflow:hidden;text-overflow:ellipsis}
+@media(max-width:760px){
+  .hero{height:auto;min-height:700px}
+  .hero-image{height:100%;object-position:62% center}
+  .hero-overlay{background:linear-gradient(180deg,rgba(249,255,253,.99) 0%,rgba(249,255,253,.96) 46%,rgba(249,255,253,.64) 67%,rgba(249,255,253,.10) 100%)}
+  .hero-content{width:100%;max-width:none;padding:38px 20px 285px}
+  .hero h1{font-size:36px;line-height:1.08}
+  .hero p{font-size:14px;max-width:430px}
+  .benefits-strip{margin-top:-14px}
+}
+@media(max-width:430px){
+  .hero{min-height:735px}
+  .hero-content{padding:32px 17px 315px}
+  .hero h1{font-size:32px;letter-spacing:-1.5px}
+  .hero-buttons .primary-btn,.hero-buttons .secondary-btn{padding:12px 10px;font-size:13px}
+  .benefits-strip>div{padding:13px 9px}
+  .benefits-strip b{font-size:12px}.benefits-strip small{font-size:10px}
+}
+CSS
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('service-worker.js')
+          s=p.read_text(encoding='utf-8')
+          import re
+          s=re.sub(r"const CACHE = 'athome-carcare-v\d+';", "const CACHE = 'athome-carcare-v10';", s, count=1)
+          p.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add styles.css service-worker.js
+          git commit -m "Polish home hero spacing and responsive layout" || exit 0
+          git push
