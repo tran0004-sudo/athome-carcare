@@ -14,20 +14,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Link home polish stylesheet
+      - name: Force-load rebuilt hero stylesheet
         run: |
-          python -c "from pathlib import Path; p=Path('index.html'); s=p.read_text(encoding='utf-8'); old='<link rel=\"stylesheet\" href=\"styles.css\" />'; new=old+'\n  <link rel=\"stylesheet\" href=\"home-polish.css?v=20260915-2\" />'; s=s if 'home-polish.css' in s else s.replace(old,new,1); p.write_text(s,encoding='utf-8')"
-      - name: Refresh PWA cache
-        run: |
-          python -c "from pathlib import Path; import re; p=Path('service-worker.js'); s=p.read_text(encoding='utf-8'); s=re.sub(r\"const CACHE = 'athome-carcare-v\\d+';\", \"const CACHE = 'athome-carcare-v11';\", s, count=1); s=s if './home-polish.css' in s else s.replace(\"'./', './index.html', './styles.css',\", \"'./', './index.html', './styles.css', './home-polish.css',\", 1); p.write_text(s,encoding='utf-8')"
-      - name: Commit layout fix
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          s = re.sub(r'home-polish\.css\?v=[^"\']+', 'home-polish.css?v=20260915-4', s, count=1)
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit version bump
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html service-worker.js
+          git add index.html
           if git diff --cached --quiet; then
             echo "Nothing to update"
           else
-            git commit -m "Load polished home layout styles"
+            git commit -m "Force load rebuilt non-overlapping hero styles"
             git push
           fi
