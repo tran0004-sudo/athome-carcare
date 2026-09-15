@@ -14,14 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Force-load rebuilt hero stylesheet
+      - name: Force-load clean hero stylesheet
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-          s = re.sub(r'home-polish\.css\?v=[^"\']+', 'home-polish.css?v=20260915-4', s, count=1)
+          s = re.sub(r'home-polish\.css\?v=[^"\']+', 'home-polish.css?v=20260915-5', s, count=1)
           p.write_text(s, encoding='utf-8')
           PY
       - name: Commit version bump
@@ -32,6 +32,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Nothing to update"
           else
-            git commit -m "Force load rebuilt non-overlapping hero styles"
+            git commit -m "Force load clean non-duplicated mobile hero"
             git push
           fi
