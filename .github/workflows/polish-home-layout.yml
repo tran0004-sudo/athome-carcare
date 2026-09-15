@@ -1,4 +1,4 @@
-name: Refresh app icon
+name: Restore previous content sections
 
 on:
   push:
@@ -14,25 +14,69 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Force-load 집앞세차 icon and manifest
+      - name: Restore gallery reviews and tips to published defaults
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
+
+          # Reset only the three requested content areas once per device.
+          p = Path('app.js')
+          s = p.read_text(encoding='utf-8')
+
+          if "SECTION_RESTORE_KEY" not in s:
+              s = s.replace(
+                  "const CONTENT_URL = './data/content.json';",
+                  "const CONTENT_URL = './data/content.json';\nconst SECTION_RESTORE_KEY = 'athomeClassicSectionsRestore20260916';"
+              )
+
+              marker = "function save() {\n  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));\n}"
+              restore_fn = """function restorePublishedSectionsOnce() {
+  try {
+    if (localStorage.getItem(SECTION_RESTORE_KEY) === '1') return;
+    state.gallery = deepClone(publishedState.gallery || []);
+    state.reviews = deepClone(publishedState.reviews || []);
+    state.tips = deepClone(publishedState.tips || []);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(SECTION_RESTORE_KEY, '1');
+  } catch (error) {
+    console.warn('기존 콘텐츠 복원 중 오류가 발생했습니다.', error);
+  }
+}
+
+""" + marker
+              if marker not in s:
+                  raise SystemExit('save() marker not found')
+              s = s.replace(marker, restore_fn, 1)
+
+              init_marker = "  state = loadLocal();\n  bindEvents();"
+              if init_marker not in s:
+                  raise SystemExit('init marker not found')
+              s = s.replace(init_marker, "  state = loadLocal();\n  restorePublishedSectionsOnce();\n  bindEvents();", 1)
+
+          p.write_text(s, encoding='utf-8')
+
+          # Force the installed PWA/browser to load the updated app code.
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-          s = re.sub(r'manifest\.webmanifest(?:\?v=[^"\']+)?', 'manifest.webmanifest?v=20260915-7', s)
-          s = re.sub(r'icons/icon\.svg(?:\?v=[^"\']+)?', 'icons/icon.svg?v=20260915-7', s)
+          s = re.sub(r'<script src="app\.js(?:\?v=[^"]+)?"></script>', '<script src="app.js?v=20260916-restore1"></script>', s, count=1)
+          p.write_text(s, encoding='utf-8')
+
+          p = Path('service-worker.js')
+          s = p.read_text(encoding='utf-8')
+          s = re.sub(r"const CACHE = 'athome-carcare-v\d+';", "const CACHE = 'athome-carcare-v17';", s, count=1)
+          s = s.replace("'./app.js'", "'./app.js?v=20260916-restore1'")
           p.write_text(s, encoding='utf-8')
           PY
-      - name: Commit icon refresh
+
+      - name: Commit restored sections
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html
+          git add app.js index.html service-worker.js
           if git diff --cached --quiet; then
             echo "Nothing to update"
           else
-            git commit -m "Force load 집앞세차 app icon"
+            git commit -m "Restore previous wash comparison reviews and tips"
             git push
           fi
