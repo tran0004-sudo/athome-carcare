@@ -1,5 +1,6 @@
 const STORAGE_KEY = 'athomeCarCareDataV2';
 const CONTENT_URL = './data/content.json';
+const SECTION_RESTORE_KEY = 'athomeClassicSectionsRestore20260916';
 
 let publishedState = null;
 let state = null;
@@ -42,6 +43,19 @@ function loadLocal() {
     return raw ? normalize(JSON.parse(raw)) : deepClone(publishedState);
   } catch (error) {
     return deepClone(publishedState);
+  }
+}
+
+function restorePublishedSectionsOnce() {
+  try {
+    if (localStorage.getItem(SECTION_RESTORE_KEY) === '1') return;
+    state.gallery = deepClone(publishedState.gallery || []);
+    state.reviews = deepClone(publishedState.reviews || []);
+    state.tips = deepClone(publishedState.tips || []);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(SECTION_RESTORE_KEY, '1');
+  } catch (error) {
+    console.warn('기존 콘텐츠 복원 중 오류가 발생했습니다.', error);
   }
 }
 
@@ -394,6 +408,7 @@ function bindEvents() {
 async function init() {
   await loadPublished();
   state = loadLocal();
+  restorePublishedSectionsOnce();
   bindEvents();
   render();
 
