@@ -1,7 +1,7 @@
-const CACHE = 'athome-carcare-v17';
+const CACHE = 'athome-carcare-v18';
 const ASSETS = [
-  './', './index.html', './styles.css', './home-polish.css', './app.js?v=20260916-restore1', './supabase-integration.js', './manifest.webmanifest', './data/content.json',
-  './icons/icon.svg', './icons/icon.svg?v=20260915-7', './assets/gv80-hero.webp',
+  './', './index.html', './styles.css', './home-polish.css?v=20260916-2', './restore-classic.js?v=20260916-2', './app.js?v=20260916-2', './supabase-integration.js', './manifest.webmanifest', './data/content.json',
+  './icons/icon.svg', './icons/icon.svg?v=20260915-7', './assets/gv80-hero.webp?v=20260916-2',
   './assets/wheel-before.svg', './assets/wheel-after.svg', './assets/body-before.svg', './assets/body-after.svg',
   './assets/interior-before.svg', './assets/interior-after.svg'
 ];
@@ -61,7 +61,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (url.pathname.endsWith('.css') || url.pathname.endsWith('/manifest.webmanifest') || url.pathname.endsWith('/icons/icon.svg')) {
+  if (url.pathname.endsWith('.css') || url.pathname.endsWith('.js') || url.pathname.endsWith('/manifest.webmanifest') || url.pathname.endsWith('/icons/icon.svg')) {
     event.respondWith(
       fetch(event.request, { cache: 'no-store' })
         .then((response) => {
