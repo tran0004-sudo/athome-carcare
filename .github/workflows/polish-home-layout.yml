@@ -1,4 +1,4 @@
-name: Restore previous content sections
+name: Fix vehicle hero and classic sections
 
 on:
   push:
@@ -14,83 +14,141 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Restore gallery reviews and tips to published defaults
+
+      - name: Apply reliable homepage fix
+        shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
 
+          # 1) Force a clean content state so the original comparison/review/tip cards return.
           p = Path('app.js')
           s = p.read_text(encoding='utf-8')
-
-          if "SECTION_RESTORE_KEY" not in s:
-              s = s.replace(
-                  "const CONTENT_URL = './data/content.json';",
-                  "const CONTENT_URL = './data/content.json';\nconst SECTION_RESTORE_KEY = 'athomeClassicSectionsRestore20260916';"
-              )
-
-              marker = "function save() {\n  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));\n}"
-              restore_lines = [
-                  "function restorePublishedSectionsOnce() {",
-                  "  try {",
-                  "    if (localStorage.getItem(SECTION_RESTORE_KEY) === '1') return;",
-                  "    state.gallery = deepClone(publishedState.gallery || []);",
-                  "    state.reviews = deepClone(publishedState.reviews || []);",
-                  "    state.tips = deepClone(publishedState.tips || []);",
-                  "    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));",
-                  "    localStorage.setItem(SECTION_RESTORE_KEY, '1');",
-                  "  } catch (error) {",
-                  "    console.warn('기존 콘텐츠 복원 중 오류가 발생했습니다.', error);",
-                  "  }",
-                  "}",
-                  ""
-              ]
-              restore_fn = "\n".join(restore_lines) + "\n" + marker
-              if marker not in s:
-                  raise SystemExit('save() marker not found')
-              s = s.replace(marker, restore_fn, 1)
-
-              init_marker = "  state = loadLocal();\n  bindEvents();"
-              if init_marker not in s:
-                  raise SystemExit('init marker not found')
-              s = s.replace(
-                  init_marker,
-                  "  state = loadLocal();\n  restorePublishedSectionsOnce();\n  bindEvents();",
-                  1
-              )
-
+          s = re.sub(r"const STORAGE_KEY = 'athomeCarCareDataV\d+';", "const STORAGE_KEY = 'athomeCarCareDataV3';", s, count=1)
+          s = re.sub(r"\nconst SECTION_RESTORE_KEY = '[^']+';", "", s, count=1)
+          s = re.sub(
+              r"\nfunction restorePublishedSectionsOnce\(\) \{.*?\n\}\n\nfunction save\(\)",
+              "\nfunction save()",
+              s,
+              count=1,
+              flags=re.S,
+          )
+          s = s.replace("  restorePublishedSectionsOnce();\n", "")
           p.write_text(s, encoding='utf-8')
 
+          # 2) Use the actual uploaded GV80 vehicle image as a normal <img>, not a pseudo element.
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
           s = re.sub(
-              r'<script src="app\.js(?:\?v=[^"]+)?"></script>',
-              '<script src="app.js?v=20260916-restore1"></script>',
+              r'<img class="hero-image" src="[^"]+" alt="[^"]*"\s*/>',
+              '<img class="hero-image" src="assets/gv80-hero.webp?v=20260916-1" alt="GV80 프리미엄 방문세차 차량 이미지" />',
               s,
-              count=1
+              count=1,
           )
+          s = re.sub(r'home-polish\.css(?:\?v=[^"\']+)?', 'home-polish.css?v=20260916-1', s)
+          s = re.sub(r'app\.js(?:\?v=[^"\']+)?', 'app.js?v=20260916-reset2', s)
           p.write_text(s, encoding='utf-8')
 
+          # 3) Replace the hero override with a simple non-overlapping layout.
+          Path('home-polish.css').write_text(r'''/* ATHOME CARCARE - RELIABLE HERO 20260916 */
+#home .hero{
+  display:grid !important;
+  grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr) !important;
+  grid-template-areas:"copy visual" !important;
+  align-items:stretch !important;
+  position:relative !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:470px !important;
+  overflow:hidden !important;
+  background:linear-gradient(135deg,#fbfffe 0%,#eef9f6 100%) !important;
+  border-bottom:1px solid #e2efeb !important;
+}
+#home .hero > .hero-overlay{display:none !important;}
+#home .hero::after{display:none !important;content:none !important;}
+#home .hero > .hero-image{
+  grid-area:visual !important;
+  display:block !important;
+  position:relative !important;
+  inset:auto !important;
+  width:100% !important;
+  height:100% !important;
+  min-height:470px !important;
+  object-fit:cover !important;
+  object-position:center center !important;
+  z-index:1 !important;
+}
+#home .hero-content{
+  grid-area:copy !important;
+  position:relative !important;
+  inset:auto !important;
+  z-index:2 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  align-items:flex-start !important;
+  width:auto !important;
+  max-width:none !important;
+  min-width:0 !important;
+  height:auto !important;
+  padding:46px 38px 42px 46px !important;
+  background:linear-gradient(135deg,#fbfffe 0%,#f4fbf9 100%) !important;
+}
+#home .hero h1{
+  margin:0 0 18px !important;
+  max-width:560px !important;
+  font-size:43px !important;
+  line-height:1.11 !important;
+  letter-spacing:-1.9px !important;
+  word-break:keep-all !important;
+}
+#home .hero .eyebrow{margin:0 0 12px !important;font-size:14px !important;}
+#home .hero p{margin:0 0 15px !important;max-width:520px !important;font-size:15px !important;line-height:1.6 !important;word-break:keep-all !important;}
+#home .location-pill{display:inline-flex !important;align-items:center !important;width:auto !important;max-width:100% !important;margin:0 0 18px !important;padding:10px 15px !important;border-radius:999px !important;font-size:12.5px !important;line-height:1.45 !important;white-space:normal !important;word-break:keep-all !important;}
+#home .hero-buttons{display:flex !important;flex-wrap:wrap !important;gap:9px !important;width:100% !important;margin:0 !important;}
+#home .hero-buttons .primary-btn,#home .hero-buttons .secondary-btn{position:relative !important;inset:auto !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;min-height:46px !important;margin:0 !important;padding:11px 14px !important;white-space:nowrap !important;}
+#home .benefits-strip{position:relative !important;inset:auto !important;z-index:1 !important;display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr)) !important;margin:18px 28px 30px !important;transform:none !important;}
+
+@media(max-width:760px){
+  #home .hero{display:flex !important;flex-direction:column !important;min-height:0 !important;overflow:hidden !important;}
+  #home .hero-content{order:1 !important;width:100% !important;min-height:0 !important;padding:28px 18px 22px !important;}
+  #home .hero h1{font-size:34px !important;line-height:1.13 !important;letter-spacing:-1.5px !important;max-width:none !important;}
+  #home .hero p{font-size:14px !important;max-width:none !important;}
+  #home .location-pill{display:flex !important;justify-content:center !important;width:100% !important;text-align:center !important;border-radius:18px !important;font-size:12px !important;}
+  #home .hero-buttons{display:grid !important;grid-template-columns:1fr 1fr !important;gap:9px !important;}
+  #home .hero-buttons > :last-child{grid-column:1 / -1 !important;}
+  #home .hero-buttons .primary-btn,#home .hero-buttons .secondary-btn{width:100% !important;min-width:0 !important;font-size:13px !important;}
+  #home .hero > .hero-image{order:2 !important;position:relative !important;width:100% !important;height:285px !important;min-height:285px !important;object-fit:cover !important;object-position:center center !important;border-top:1px solid #e5f0ed !important;}
+  #home .benefits-strip{grid-template-columns:1fr 1fr !important;margin:16px 14px 22px !important;}
+}
+
+@media(max-width:430px){
+  #home .hero-content{padding:25px 16px 20px !important;}
+  #home .hero h1{font-size:30px !important;line-height:1.14 !important;}
+  #home .hero > .hero-image{height:245px !important;min-height:245px !important;}
+  #home .benefits-strip{margin:14px 12px 20px !important;}
+}
+''', encoding='utf-8')
+
+          # 4) Bust the PWA cache and cache the exact versioned resources used above.
           p = Path('service-worker.js')
           s = p.read_text(encoding='utf-8')
-          s = re.sub(
-              r"const CACHE = 'athome-carcare-v\d+';",
-              "const CACHE = 'athome-carcare-v17';",
-              s,
-              count=1
-          )
-          s = s.replace("'./app.js'", "'./app.js?v=20260916-restore1'")
+          s = re.sub(r"const CACHE = 'athome-carcare-v\d+';", "const CACHE = 'athome-carcare-v18';", s, count=1)
+          s = re.sub(r"'\./home-polish\.css(?:\?v=[^']+)?'", "'./home-polish.css?v=20260916-1'", s, count=1)
+          s = re.sub(r"'\./app\.js(?:\?v=[^']+)?'", "'./app.js?v=20260916-reset2'", s, count=1)
+          s = re.sub(r"'\./assets/gv80-hero\.webp(?:\?v=[^']+)?'", "'./assets/gv80-hero.webp?v=20260916-1'", s, count=1)
           p.write_text(s, encoding='utf-8')
           PY
 
-      - name: Commit restored sections
+      - name: Commit reliable homepage fix
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app.js index.html service-worker.js
+          git add app.js index.html home-polish.css service-worker.js
           if git diff --cached --quiet; then
             echo "Nothing to update"
           else
-            git commit -m "Restore previous wash comparison reviews and tips"
+            git commit -m "Show GV80 image and restore classic home content"
             git push
           fi
