@@ -20,7 +20,6 @@ jobs:
           from pathlib import Path
           import re
 
-          # Reset only the three requested content areas once per device.
           p = Path('app.js')
           s = p.read_text(encoding='utf-8')
 
@@ -31,20 +30,22 @@ jobs:
               )
 
               marker = "function save() {\n  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));\n}"
-              restore_fn = """function restorePublishedSectionsOnce() {
-  try {
-    if (localStorage.getItem(SECTION_RESTORE_KEY) === '1') return;
-    state.gallery = deepClone(publishedState.gallery || []);
-    state.reviews = deepClone(publishedState.reviews || []);
-    state.tips = deepClone(publishedState.tips || []);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    localStorage.setItem(SECTION_RESTORE_KEY, '1');
-  } catch (error) {
-    console.warn('기존 콘텐츠 복원 중 오류가 발생했습니다.', error);
-  }
-}
-
-""" + marker
+              restore_lines = [
+                  "function restorePublishedSectionsOnce() {",
+                  "  try {",
+                  "    if (localStorage.getItem(SECTION_RESTORE_KEY) === '1') return;",
+                  "    state.gallery = deepClone(publishedState.gallery || []);",
+                  "    state.reviews = deepClone(publishedState.reviews || []);",
+                  "    state.tips = deepClone(publishedState.tips || []);",
+                  "    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));",
+                  "    localStorage.setItem(SECTION_RESTORE_KEY, '1');",
+                  "  } catch (error) {",
+                  "    console.warn('기존 콘텐츠 복원 중 오류가 발생했습니다.', error);",
+                  "  }",
+                  "}",
+                  ""
+              ]
+              restore_fn = "\n".join(restore_lines) + "\n" + marker
               if marker not in s:
                   raise SystemExit('save() marker not found')
               s = s.replace(marker, restore_fn, 1)
@@ -52,19 +53,32 @@ jobs:
               init_marker = "  state = loadLocal();\n  bindEvents();"
               if init_marker not in s:
                   raise SystemExit('init marker not found')
-              s = s.replace(init_marker, "  state = loadLocal();\n  restorePublishedSectionsOnce();\n  bindEvents();", 1)
+              s = s.replace(
+                  init_marker,
+                  "  state = loadLocal();\n  restorePublishedSectionsOnce();\n  bindEvents();",
+                  1
+              )
 
           p.write_text(s, encoding='utf-8')
 
-          # Force the installed PWA/browser to load the updated app code.
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-          s = re.sub(r'<script src="app\.js(?:\?v=[^"]+)?"></script>', '<script src="app.js?v=20260916-restore1"></script>', s, count=1)
+          s = re.sub(
+              r'<script src="app\.js(?:\?v=[^"]+)?"></script>',
+              '<script src="app.js?v=20260916-restore1"></script>',
+              s,
+              count=1
+          )
           p.write_text(s, encoding='utf-8')
 
           p = Path('service-worker.js')
           s = p.read_text(encoding='utf-8')
-          s = re.sub(r"const CACHE = 'athome-carcare-v\d+';", "const CACHE = 'athome-carcare-v17';", s, count=1)
+          s = re.sub(
+              r"const CACHE = 'athome-carcare-v\d+';",
+              "const CACHE = 'athome-carcare-v17';",
+              s,
+              count=1
+          )
           s = s.replace("'./app.js'", "'./app.js?v=20260916-restore1'")
           p.write_text(s, encoding='utf-8')
           PY
