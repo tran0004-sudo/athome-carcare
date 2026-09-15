@@ -1,4 +1,4 @@
-name: Polish home layout
+name: Refresh app icon
 
 on:
   push:
@@ -14,17 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Force-load clean hero stylesheet
+      - name: Force-load 집앞세차 icon and manifest
         run: |
           python - <<'PY'
           from pathlib import Path
           import re
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
-          s = re.sub(r'home-polish\.css\?v=[^"\']+', 'home-polish.css?v=20260915-5', s, count=1)
+          s = re.sub(r'manifest\.webmanifest(?:\?v=[^"\']+)?', 'manifest.webmanifest?v=20260915-7', s)
+          s = re.sub(r'icons/icon\.svg(?:\?v=[^"\']+)?', 'icons/icon.svg?v=20260915-7', s)
           p.write_text(s, encoding='utf-8')
           PY
-      - name: Commit version bump
+      - name: Commit icon refresh
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -32,6 +33,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Nothing to update"
           else
-            git commit -m "Force load clean non-duplicated mobile hero"
+            git commit -m "Force load 집앞세차 app icon"
             git push
           fi
