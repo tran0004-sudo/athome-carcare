@@ -1,7 +1,7 @@
-const CACHE = 'athome-carcare-v13';
+const CACHE = 'athome-carcare-v14';
 const ASSETS = [
   './', './index.html', './styles.css', './home-polish.css', './app.js', './supabase-integration.js', './manifest.webmanifest', './data/content.json',
-  './icons/icon.svg', './assets/gv80-main.png.png?v=20260915-1',
+  './icons/icon.svg', './assets/hero.svg',
   './assets/wheel-before.svg', './assets/wheel-after.svg', './assets/body-before.svg', './assets/body-after.svg',
   './assets/interior-before.svg', './assets/interior-after.svg'
 ];
@@ -57,6 +57,19 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => caches.match('./data/content.json'))
+    );
+    return;
+  }
+
+  if (url.pathname.endsWith('.css')) {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-store' })
+        .then((response) => {
+          const copy = response.clone();
+          caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
     );
     return;
   }
