@@ -14,81 +14,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Apply responsive home polish
+      - name: Link home polish stylesheet
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-
-          marker = '/* HOME_POLISH_20260915 */'
-          css = Path('styles.css')
-          text = css.read_text(encoding='utf-8')
-          override = r'''
-/* HOME_POLISH_20260915 */
-/* Keep hero copy, GV80 image and benefit strip visually separated. */
-.hero{height:520px;min-height:520px;background:#edf8f5;overflow:hidden}
-.hero-image{object-fit:cover;object-position:center center}
-.hero-overlay{background:linear-gradient(90deg,rgba(249,255,253,.99) 0%,rgba(249,255,253,.94) 34%,rgba(249,255,253,.55) 52%,rgba(249,255,253,.08) 74%)}
-.hero-content{width:52%;max-width:570px;padding:54px 46px 40px}
-.hero h1{font-size:44px;line-height:1.08;letter-spacing:-1.8px;margin:12px 0 14px}
-.hero p{font-size:16px;line-height:1.45;margin:0 0 10px;max-width:500px}
-.location-pill{font-size:13px;line-height:1.35;padding:10px 15px;margin:4px 0 15px;white-space:normal;max-width:100%}
-.hero-buttons{gap:9px;align-items:center}
-.hero-buttons .primary-btn,.hero-buttons .secondary-btn{white-space:nowrap}
-.benefits-strip{margin-top:-18px;z-index:4}
-.benefits-strip>div{min-width:0;padding:16px 11px}
-.benefits-strip b,.benefits-strip small{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-@media(max-width:900px) and (min-width:761px){
-  .hero-content{width:58%;padding-left:34px}
-  .hero h1{font-size:40px}
-  .location-pill{font-size:12px}
-}
-
-@media(max-width:760px){
-  .hero{height:auto;min-height:700px}
-  .hero-image{height:100%;object-position:64% center}
-  .hero-overlay{background:linear-gradient(180deg,rgba(249,255,253,.99) 0%,rgba(249,255,253,.97) 44%,rgba(249,255,253,.72) 61%,rgba(249,255,253,.18) 82%,rgba(249,255,253,.04) 100%)}
-  .hero-content{width:100%;max-width:none;padding:36px 20px 300px}
-  .hero h1{font-size:35px;line-height:1.09;letter-spacing:-1.5px;margin:11px 0 13px}
-  .hero p{font-size:14px;max-width:430px}
-  .location-pill{display:flex;width:fit-content;max-width:100%;font-size:12px;padding:9px 13px;margin-bottom:14px}
-  .hero-buttons{max-width:520px}
-  .benefits-strip{margin-top:-12px}
-  .benefits-strip>div{padding:14px 10px}
-}
-
-@media(max-width:430px){
-  .hero{min-height:735px}
-  .hero-content{padding:30px 16px 330px}
-  .hero h1{font-size:31px;letter-spacing:-1.3px}
-  .hero-buttons .primary-btn,.hero-buttons .secondary-btn{font-size:12px;padding:11px 9px}
-  .benefits-strip{margin-left:12px;margin-right:12px}
-  .benefits-strip>div{grid-template-columns:30px 1fr;padding:12px 8px}
-  .benefits-strip span{font-size:22px}
-  .benefits-strip b{font-size:12px}
-  .benefits-strip small{font-size:10px}
-}
-'''
-          if marker in text:
-              text = text.split(marker, 1)[0].rstrip() + '\n\n' + override.lstrip()
-          else:
-              text = text.rstrip() + '\n\n' + override.lstrip()
-          css.write_text(text, encoding='utf-8')
-
-          sw = Path('service-worker.js')
-          s = sw.read_text(encoding='utf-8')
-          s = re.sub(r"const CACHE = 'athome-carcare-v\d+';", "const CACHE = 'athome-carcare-v10';", s, count=1)
-          sw.write_text(s, encoding='utf-8')
-          PY
+          python -c "from pathlib import Path; p=Path('index.html'); s=p.read_text(encoding='utf-8'); old='<link rel=\"stylesheet\" href=\"styles.css\" />'; new=old+'\n  <link rel=\"stylesheet\" href=\"home-polish.css?v=20260915-2\" />'; s=s if 'home-polish.css' in s else s.replace(old,new,1); p.write_text(s,encoding='utf-8')"
+      - name: Refresh PWA cache
+        run: |
+          python -c "from pathlib import Path; import re; p=Path('service-worker.js'); s=p.read_text(encoding='utf-8'); s=re.sub(r\"const CACHE = 'athome-carcare-v\\d+';\", \"const CACHE = 'athome-carcare-v11';\", s, count=1); s=s if './home-polish.css' in s else s.replace(\"'./', './index.html', './styles.css',\", \"'./', './index.html', './styles.css', './home-polish.css',\", 1); p.write_text(s,encoding='utf-8')"
       - name: Commit layout fix
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add styles.css service-worker.js
+          git add index.html service-worker.js
           if git diff --cached --quiet; then
             echo "Nothing to update"
           else
-            git commit -m "Polish home hero spacing and responsive layout"
+            git commit -m "Load polished home layout styles"
             git push
           fi
