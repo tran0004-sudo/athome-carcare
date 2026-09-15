@@ -1,5 +1,12 @@
 (() => {
   try {
+    const heroImage = document.querySelector('#home .hero-image');
+    if (heroImage) {
+      heroImage.src = 'assets/gv80-hero-final.jpg?v=20260916-4';
+      heroImage.removeAttribute('srcset');
+      heroImage.decoding = 'async';
+    }
+
     const marker = 'athomeCompatRestore20260916v3';
     const storageKey = 'athomeCarCareDataV2';
 
