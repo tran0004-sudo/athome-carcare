@@ -1,8 +1,4 @@
-/* HOME_CLEAN_HERO_20260915_V6
-   The old poster-style PNG stays hidden.
-   Copy, buttons, vehicle photo and benefits are separate normal-flow blocks. */
-
-/* ---------- Desktop / tablet ---------- */
+/* ATHOME CARCARE - RELIABLE HERO 20260916 */
 #home .hero{
   display:grid !important;
   grid-template-columns:minmax(0,1.05fr) minmax(360px,.95fr) !important;
@@ -13,35 +9,23 @@
   height:auto !important;
   min-height:470px !important;
   overflow:hidden !important;
-  background:linear-gradient(135deg,#f7fffc 0%,#eef9f6 100%) !important;
+  background:linear-gradient(135deg,#fbfffe 0%,#eef9f6 100%) !important;
   border-bottom:1px solid #e2efeb !important;
 }
-
-/* Never show the old poster image that contains duplicate text/buttons. */
-#home .hero > .hero-image,
-#home .hero > .hero-overlay{
-  display:none !important;
-}
-
-/* Generated GV80 photo only: no text or buttons inside the image. */
-#home .hero::after{
-  content:"" !important;
+#home .hero > .hero-overlay{display:none !important;}
+#home .hero::after{display:none !important;content:none !important;}
+#home .hero > .hero-image{
   grid-area:visual !important;
   display:block !important;
   position:relative !important;
   inset:auto !important;
   width:100% !important;
-  min-width:0 !important;
+  height:100% !important;
   min-height:470px !important;
-  background-image:url("assets/gv80-hero.webp?v=20260915-6") !important;
-  background-repeat:no-repeat !important;
-  background-position:58% center !important;
-  background-size:cover !important;
-  background-color:#eff9f6 !important;
-  z-index:0 !important;
-  pointer-events:none !important;
+  object-fit:cover !important;
+  object-position:center center !important;
+  z-index:1 !important;
 }
-
 #home .hero-content{
   grid-area:copy !important;
   position:relative !important;
@@ -58,14 +42,7 @@
   padding:46px 38px 42px 46px !important;
   background:linear-gradient(135deg,#fbfffe 0%,#f4fbf9 100%) !important;
 }
-
-#home .hero .eyebrow{
-  display:block !important;
-  margin:0 0 12px !important;
-  font-size:14px !important;
-  line-height:1.4 !important;
-}
-
+#home .hero .eyebrow{margin:0 0 12px !important;font-size:14px !important;}
 #home .hero h1{
   margin:0 0 18px !important;
   max-width:560px !important;
@@ -73,232 +50,29 @@
   line-height:1.11 !important;
   letter-spacing:-1.9px !important;
   word-break:keep-all !important;
-  overflow-wrap:normal !important;
 }
+#home .hero p{margin:0 0 15px !important;max-width:520px !important;font-size:15px !important;line-height:1.6 !important;word-break:keep-all !important;}
+#home .location-pill{display:inline-flex !important;align-items:center !important;width:auto !important;max-width:100% !important;margin:0 0 18px !important;padding:10px 15px !important;border-radius:999px !important;font-size:12.5px !important;line-height:1.45 !important;white-space:normal !important;word-break:keep-all !important;}
+#home .hero-buttons{display:flex !important;flex-wrap:wrap !important;gap:9px !important;width:100% !important;margin:0 !important;}
+#home .hero-buttons .primary-btn,#home .hero-buttons .secondary-btn{position:relative !important;inset:auto !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;min-height:46px !important;margin:0 !important;padding:11px 14px !important;white-space:nowrap !important;}
+#home .benefits-strip{position:relative !important;inset:auto !important;z-index:1 !important;display:grid !important;grid-template-columns:repeat(4,minmax(0,1fr)) !important;margin:18px 28px 30px !important;transform:none !important;}
 
-#home .hero p{
-  margin:0 0 15px !important;
-  max-width:520px !important;
-  font-size:15px !important;
-  line-height:1.6 !important;
-  word-break:keep-all !important;
-}
-
-#home .location-pill{
-  display:inline-flex !important;
-  align-items:center !important;
-  width:auto !important;
-  max-width:100% !important;
-  margin:0 0 18px !important;
-  padding:10px 15px !important;
-  border-radius:999px !important;
-  font-size:12.5px !important;
-  line-height:1.45 !important;
-  white-space:normal !important;
-  word-break:keep-all !important;
-}
-
-#home .hero-buttons{
-  display:grid !important;
-  grid-template-columns:repeat(3,max-content) !important;
-  gap:9px !important;
-  align-items:center !important;
-  width:100% !important;
-  max-width:100% !important;
-  margin:0 !important;
-}
-
-#home .hero-buttons .primary-btn,
-#home .hero-buttons .secondary-btn{
-  position:relative !important;
-  inset:auto !important;
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  min-height:46px !important;
-  margin:0 !important;
-  padding:11px 14px !important;
-  white-space:nowrap !important;
-}
-
-/* Benefits always start AFTER the hero. */
-#home .benefits-strip{
-  position:relative !important;
-  inset:auto !important;
-  z-index:1 !important;
-  display:grid !important;
-  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
-  margin:18px 28px 30px !important;
-  transform:none !important;
-  overflow:hidden !important;
-}
-
-#home .benefits-strip > div{
-  min-width:0 !important;
-  padding:16px 11px !important;
-}
-
-#home .benefits-strip b,
-#home .benefits-strip small{
-  min-width:0 !important;
-  overflow:hidden !important;
-  text-overflow:ellipsis !important;
-  white-space:nowrap !important;
-}
-
-@media(max-width:980px) and (min-width:761px){
-  #home .hero{
-    grid-template-columns:minmax(0,1fr) minmax(320px,.9fr) !important;
-  }
-  #home .hero-content{
-    padding:40px 28px 38px 32px !important;
-  }
-  #home .hero h1{
-    font-size:36px !important;
-    letter-spacing:-1.5px !important;
-  }
-  #home .hero p{font-size:14px !important;}
-  #home .location-pill{font-size:11.5px !important;}
-  #home .hero-buttons{
-    grid-template-columns:1fr 1fr !important;
-  }
-  #home .hero-buttons > :last-child{
-    grid-column:1 / -1 !important;
-  }
-  #home .hero-buttons .primary-btn,
-  #home .hero-buttons .secondary-btn{
-    width:100% !important;
-  }
-  #home .hero::after{
-    background-position:60% center !important;
-  }
-}
-
-/* ---------- Phone ----------
-   Exact order: copy -> vehicle -> benefits.
-   No absolute positioning, so overlap is impossible. */
 @media(max-width:760px){
-  #home .hero{
-    display:flex !important;
-    flex-direction:column !important;
-    grid-template-columns:none !important;
-    grid-template-areas:none !important;
-    min-height:0 !important;
-    overflow:hidden !important;
-  }
-
-  #home .hero-content{
-    order:1 !important;
-    display:flex !important;
-    width:100% !important;
-    min-height:0 !important;
-    padding:28px 18px 22px !important;
-    background:linear-gradient(180deg,#fbfffe 0%,#f3fbf8 100%) !important;
-  }
-
-  #home .hero .eyebrow{
-    margin-bottom:11px !important;
-    font-size:13px !important;
-  }
-
-  #home .hero h1{
-    margin:0 0 18px !important;
-    max-width:none !important;
-    font-size:34px !important;
-    line-height:1.13 !important;
-    letter-spacing:-1.5px !important;
-  }
-
-  #home .hero p{
-    margin:0 0 15px !important;
-    max-width:none !important;
-    font-size:14px !important;
-    line-height:1.55 !important;
-  }
-
-  #home .location-pill{
-    display:flex !important;
-    justify-content:center !important;
-    width:100% !important;
-    margin:0 0 16px !important;
-    padding:11px 12px !important;
-    border-radius:18px !important;
-    text-align:center !important;
-    font-size:12px !important;
-  }
-
-  #home .hero-buttons{
-    display:grid !important;
-    grid-template-columns:1fr 1fr !important;
-    gap:9px !important;
-    width:100% !important;
-  }
-
-  #home .hero-buttons > :last-child{
-    grid-column:1 / -1 !important;
-  }
-
-  #home .hero-buttons .primary-btn,
-  #home .hero-buttons .secondary-btn{
-    width:100% !important;
-    min-width:0 !important;
-    min-height:48px !important;
-    padding:11px 8px !important;
-    font-size:13px !important;
-  }
-
-  #home .hero::after{
-    order:2 !important;
-    flex:0 0 auto !important;
-    width:100% !important;
-    min-height:0 !important;
-    height:285px !important;
-    background-size:cover !important;
-    background-position:56% center !important;
-    border-top:1px solid #e5f0ed !important;
-  }
-
-  #home .benefits-strip{
-    grid-template-columns:1fr 1fr !important;
-    margin:16px 14px 22px !important;
-  }
-
-  #home .benefits-strip > div{
-    padding:14px 10px !important;
-  }
+  #home .hero{display:flex !important;flex-direction:column !important;min-height:0 !important;overflow:hidden !important;}
+  #home .hero-content{order:1 !important;width:100% !important;min-height:0 !important;padding:28px 18px 22px !important;}
+  #home .hero h1{font-size:34px !important;line-height:1.13 !important;letter-spacing:-1.5px !important;max-width:none !important;}
+  #home .hero p{font-size:14px !important;max-width:none !important;}
+  #home .location-pill{display:flex !important;justify-content:center !important;width:100% !important;text-align:center !important;border-radius:18px !important;font-size:12px !important;}
+  #home .hero-buttons{display:grid !important;grid-template-columns:1fr 1fr !important;gap:9px !important;}
+  #home .hero-buttons > :last-child{grid-column:1 / -1 !important;}
+  #home .hero-buttons .primary-btn,#home .hero-buttons .secondary-btn{width:100% !important;min-width:0 !important;font-size:13px !important;}
+  #home .hero > .hero-image{order:2 !important;position:relative !important;width:100% !important;height:285px !important;min-height:285px !important;object-fit:cover !important;object-position:center center !important;border-top:1px solid #e5f0ed !important;}
+  #home .benefits-strip{grid-template-columns:1fr 1fr !important;margin:16px 14px 22px !important;}
 }
 
 @media(max-width:430px){
-  #home .hero-content{
-    padding:25px 16px 20px !important;
-  }
-
-  #home .hero h1{
-    font-size:30px !important;
-    line-height:1.14 !important;
-    letter-spacing:-1.25px !important;
-  }
-
-  #home .hero-buttons .primary-btn,
-  #home .hero-buttons .secondary-btn{
-    font-size:12px !important;
-  }
-
-  #home .hero::after{
-    height:245px !important;
-    background-position:56% center !important;
-  }
-
-  #home .benefits-strip{
-    margin:14px 12px 20px !important;
-  }
-
-  #home .benefits-strip > div{
-    grid-template-columns:30px 1fr !important;
-    padding:12px 8px !important;
-  }
-
-  #home .benefits-strip span{font-size:22px !important;}
-  #home .benefits-strip b{font-size:12px !important;}
-  #home .benefits-strip small{font-size:10px !important;}
+  #home .hero-content{padding:25px 16px 20px !important;}
+  #home .hero h1{font-size:30px !important;line-height:1.14 !important;}
+  #home .hero > .hero-image{height:245px !important;min-height:245px !important;}
+  #home .benefits-strip{margin:14px 12px 20px !important;}
 }
