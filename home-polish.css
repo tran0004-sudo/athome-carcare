@@ -1,6 +1,6 @@
-/* HOME_CLEAN_HERO_20260915_V5
-   The uploaded poster-style PNG is intentionally hidden.
-   Copy, buttons, vehicle visual and benefits are separate normal-flow blocks. */
+/* HOME_CLEAN_HERO_20260915_V6
+   The old poster-style PNG stays hidden.
+   Copy, buttons, vehicle photo and benefits are separate normal-flow blocks. */
 
 /* ---------- Desktop / tablet ---------- */
 #home .hero{
@@ -17,13 +17,13 @@
   border-bottom:1px solid #e2efeb !important;
 }
 
-/* Never show the poster image that contains duplicate text/buttons. */
+/* Never show the old poster image that contains duplicate text/buttons. */
 #home .hero > .hero-image,
 #home .hero > .hero-overlay{
   display:none !important;
 }
 
-/* Vehicle-only visual. Existing clean SVG has no marketing copy/buttons. */
+/* Generated GV80 photo only: no text or buttons inside the image. */
 #home .hero::after{
   content:"" !important;
   grid-area:visual !important;
@@ -33,10 +33,10 @@
   width:100% !important;
   min-width:0 !important;
   min-height:470px !important;
-  background-image:url("assets/hero.svg?v=20260915-5") !important;
+  background-image:url("assets/gv80-hero.webp?v=20260915-6") !important;
   background-repeat:no-repeat !important;
-  background-position:center center !important;
-  background-size:contain !important;
+  background-position:58% center !important;
+  background-size:cover !important;
   background-color:#eff9f6 !important;
   z-index:0 !important;
   pointer-events:none !important;
@@ -121,7 +121,7 @@
   white-space:nowrap !important;
 }
 
-/* Benefits must always start AFTER the hero. */
+/* Benefits always start AFTER the hero. */
 #home .benefits-strip{
   position:relative !important;
   inset:auto !important;
@@ -169,11 +169,14 @@
   #home .hero-buttons .secondary-btn{
     width:100% !important;
   }
+  #home .hero::after{
+    background-position:60% center !important;
+  }
 }
 
 /* ---------- Phone ----------
    Exact order: copy -> vehicle -> benefits.
-   There is no absolute positioning, so overlap is impossible. */
+   No absolute positioning, so overlap is impossible. */
 @media(max-width:760px){
   #home .hero{
     display:flex !important;
@@ -250,8 +253,8 @@
     width:100% !important;
     min-height:0 !important;
     height:285px !important;
-    background-size:contain !important;
-    background-position:center center !important;
+    background-size:cover !important;
+    background-position:56% center !important;
     border-top:1px solid #e5f0ed !important;
   }
 
@@ -283,6 +286,7 @@
 
   #home .hero::after{
     height:245px !important;
+    background-position:56% center !important;
   }
 
   #home .benefits-strip{
