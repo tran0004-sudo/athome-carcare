@@ -1,7 +1,7 @@
-const CACHE = 'athome-carcare-v19';
+const CACHE = 'athome-carcare-v20';
 const ASSETS = [
-  './', './index.html', './styles.css', './home-polish.css?v=20260916-2', './restore-classic.js?v=20260916-2', './app.js?v=20260916-2', './supabase-integration.js', './manifest.webmanifest?v=20260916-icon1', './data/content.json',
-  './icons/icon.svg', './icons/icon-192.png?v=20260916-icon1', './icons/icon-512.png?v=20260916-icon1', './assets/gv80-hero.webp?v=20260916-2',
+  './', './index.html', './styles.css', './home-polish.css?v=20260916-2', './restore-classic.js?v=20260916-2', './compat-fix.js?v=20260916-3', './app.js?v=20260916-2', './supabase-integration.js', './manifest.webmanifest?v=20260916-icon1', './data/content.json',
+  './icons/icon.svg', './icons/icon-192.png?v=20260916-icon1', './icons/icon-512.png?v=20260916-icon1', './assets/gv80-hero.jpg?v=20260916-3',
   './assets/wheel-before.svg', './assets/wheel-after.svg', './assets/body-before.svg', './assets/body-after.svg',
   './assets/interior-before.svg', './assets/interior-after.svg'
 ];
@@ -21,12 +21,26 @@ self.addEventListener('activate', (event) => {
 async function withSupabaseIntegration(response) {
   if (!response) return response;
   let html = await response.text();
+
+  html = html
+    .replaceAll('manifest.webmanifest?v=20260915-7', 'manifest.webmanifest?v=20260916-icon1')
+    .replaceAll('icons/icon.svg?v=20260915-7', 'icons/icon-192.png?v=20260916-icon1')
+    .replace(/assets\/gv80-hero\.webp(?:\?v=[^"']+)?/g, 'assets/gv80-hero.jpg?v=20260916-3');
+
+  if (!html.includes('compat-fix.js')) {
+    if (html.includes('<script src="restore-classic.js')) {
+      html = html.replace('<script src="restore-classic.js', '<script src="compat-fix.js?v=20260916-3"></script>\n  <script src="restore-classic.js');
+    } else if (html.includes('<script src="app.js')) {
+      html = html.replace('<script src="app.js', '<script src="compat-fix.js?v=20260916-3"></script>\n  <script src="app.js');
+    } else {
+      html = html.replace('</body>', '  <script src="compat-fix.js?v=20260916-3"></script>\n</body>');
+    }
+  }
+
   if (!html.includes('supabase-integration.js')) {
     html = html.replace('</body>', '  <script src="supabase-integration.js"></script>\n</body>');
   }
-  html = html
-    .replaceAll('manifest.webmanifest?v=20260915-7', 'manifest.webmanifest?v=20260916-icon1')
-    .replaceAll('icons/icon.svg?v=20260915-7', 'icons/icon-192.png?v=20260916-icon1');
+
   const headers = new Headers(response.headers);
   headers.delete('content-length');
   headers.delete('content-encoding');
