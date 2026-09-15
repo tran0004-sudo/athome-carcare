@@ -1,7 +1,7 @@
-const CACHE = 'athome-carcare-v18';
+const CACHE = 'athome-carcare-v19';
 const ASSETS = [
-  './', './index.html', './styles.css', './home-polish.css?v=20260916-2', './restore-classic.js?v=20260916-2', './app.js?v=20260916-2', './supabase-integration.js', './manifest.webmanifest', './data/content.json',
-  './icons/icon.svg', './icons/icon.svg?v=20260915-7', './assets/gv80-hero.webp?v=20260916-2',
+  './', './index.html', './styles.css', './home-polish.css?v=20260916-2', './restore-classic.js?v=20260916-2', './app.js?v=20260916-2', './supabase-integration.js', './manifest.webmanifest?v=20260916-icon1', './data/content.json',
+  './icons/icon.svg', './icons/icon-192.png?v=20260916-icon1', './icons/icon-512.png?v=20260916-icon1', './assets/gv80-hero.webp?v=20260916-2',
   './assets/wheel-before.svg', './assets/wheel-after.svg', './assets/body-before.svg', './assets/body-after.svg',
   './assets/interior-before.svg', './assets/interior-after.svg'
 ];
@@ -20,13 +20,17 @@ self.addEventListener('activate', (event) => {
 
 async function withSupabaseIntegration(response) {
   if (!response) return response;
-  const html = await response.text();
-  if (html.includes('supabase-integration.js')) return new Response(html, response);
-  const injected = html.replace('</body>', '  <script src="supabase-integration.js"></script>\n</body>');
+  let html = await response.text();
+  if (!html.includes('supabase-integration.js')) {
+    html = html.replace('</body>', '  <script src="supabase-integration.js"></script>\n</body>');
+  }
+  html = html
+    .replaceAll('manifest.webmanifest?v=20260915-7', 'manifest.webmanifest?v=20260916-icon1')
+    .replaceAll('icons/icon.svg?v=20260915-7', 'icons/icon-192.png?v=20260916-icon1');
   const headers = new Headers(response.headers);
   headers.delete('content-length');
   headers.delete('content-encoding');
-  return new Response(injected, { status: response.status, statusText: response.statusText, headers });
+  return new Response(html, { status: response.status, statusText: response.statusText, headers });
 }
 
 self.addEventListener('fetch', (event) => {
@@ -61,7 +65,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  if (url.pathname.endsWith('.css') || url.pathname.endsWith('.js') || url.pathname.endsWith('/manifest.webmanifest') || url.pathname.endsWith('/icons/icon.svg')) {
+  if (url.pathname.endsWith('.css') || url.pathname.endsWith('.js') || url.pathname.endsWith('/manifest.webmanifest') || url.pathname.endsWith('/icons/icon.svg') || url.pathname.includes('/icons/icon-')) {
     event.respondWith(
       fetch(event.request, { cache: 'no-store' })
         .then((response) => {
