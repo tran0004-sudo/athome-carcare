@@ -1,16 +1,127 @@
-/* HOME_POLISH_20260915 */
-.hero{height:520px;min-height:520px;background:#edf8f5;overflow:hidden}
-.hero-image{object-fit:cover;object-position:center center}
-.hero-overlay{background:linear-gradient(90deg,rgba(249,255,253,.99) 0%,rgba(249,255,253,.94) 34%,rgba(249,255,253,.55) 52%,rgba(249,255,253,.08) 74%)}
-.hero-content{width:52%;max-width:570px;padding:54px 46px 40px}
-.hero h1{font-size:44px;line-height:1.08;letter-spacing:-1.8px;margin:12px 0 14px}
-.hero p{font-size:16px;line-height:1.45;margin:0 0 10px;max-width:500px}
-.location-pill{font-size:13px;line-height:1.35;padding:10px 15px;margin:4px 0 15px;white-space:normal;max-width:100%}
-.hero-buttons{gap:9px;align-items:center}
-.hero-buttons .primary-btn,.hero-buttons .secondary-btn{white-space:nowrap}
-.benefits-strip{margin-top:-18px;z-index:4}
+/* HOME_POLISH_20260915_V2 */
+/* Desktop: copy stays on the left, GV80 stays on the right, benefits sit below. */
+.hero{
+  position:relative;
+  height:470px;
+  min-height:470px;
+  overflow:hidden;
+  background:linear-gradient(90deg,#f7fffc 0%,#f2fbf8 46%,#eef8f5 100%);
+}
+.hero-image{
+  position:absolute;
+  top:0;
+  right:0;
+  bottom:auto;
+  left:40%;
+  width:60%;
+  height:100%;
+  object-fit:cover;
+  object-position:62% top;
+  z-index:0;
+}
+.hero-overlay{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background:linear-gradient(90deg,#f8fffd 0%,#f8fffd 36%,rgba(248,255,253,.94) 43%,rgba(248,255,253,.55) 52%,rgba(248,255,253,0) 66%);
+  pointer-events:none;
+}
+.hero::after{
+  content:"";
+  position:absolute;
+  left:40%;
+  right:0;
+  bottom:0;
+  height:56px;
+  z-index:1;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.96));
+}
+.hero-content{
+  position:relative;
+  z-index:2;
+  width:49%;
+  max-width:540px;
+  padding:48px 34px 34px 46px;
+}
+.hero h1{
+  font-size:43px;
+  line-height:1.08;
+  letter-spacing:-1.8px;
+  margin:12px 0 14px;
+}
+.hero p{font-size:15px;line-height:1.5;margin:0 0 10px;max-width:490px}
+.location-pill{font-size:12.5px;line-height:1.35;padding:10px 14px;margin:4px 0 14px;white-space:normal;max-width:100%}
+.hero-buttons{gap:8px;align-items:center}
+.hero-buttons .primary-btn,.hero-buttons .secondary-btn{white-space:nowrap;padding:12px 14px}
+
+/* Critical fix: the benefit bar no longer overlaps the hero image. */
+.benefits-strip{
+  position:relative;
+  z-index:4;
+  margin:18px 28px 28px !important;
+  border-radius:18px;
+}
 .benefits-strip>div{min-width:0;padding:16px 11px}
 .benefits-strip b,.benefits-strip small{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-@media(max-width:900px) and (min-width:761px){.hero-content{width:58%;padding-left:34px}.hero h1{font-size:40px}.location-pill{font-size:12px}}
-@media(max-width:760px){.hero{height:auto;min-height:700px}.hero-image{height:100%;object-position:64% center}.hero-overlay{background:linear-gradient(180deg,rgba(249,255,253,.99) 0%,rgba(249,255,253,.97) 44%,rgba(249,255,253,.72) 61%,rgba(249,255,253,.18) 82%,rgba(249,255,253,.04) 100%)}.hero-content{width:100%;max-width:none;padding:36px 20px 300px}.hero h1{font-size:35px;line-height:1.09;letter-spacing:-1.5px;margin:11px 0 13px}.hero p{font-size:14px;max-width:430px}.location-pill{display:flex;width:fit-content;max-width:100%;font-size:12px;padding:9px 13px;margin-bottom:14px}.hero-buttons{max-width:520px}.benefits-strip{margin-top:-12px}.benefits-strip>div{padding:14px 10px}}
-@media(max-width:430px){.hero{min-height:735px}.hero-content{padding:30px 16px 330px}.hero h1{font-size:31px;letter-spacing:-1.3px}.hero-buttons .primary-btn,.hero-buttons .secondary-btn{font-size:12px;padding:11px 9px}.benefits-strip{margin-left:12px;margin-right:12px}.benefits-strip>div{grid-template-columns:30px 1fr;padding:12px 8px}.benefits-strip span{font-size:22px}.benefits-strip b{font-size:12px}.benefits-strip small{font-size:10px}}
+
+@media(max-width:900px) and (min-width:761px){
+  .hero{height:500px;min-height:500px}
+  .hero-image{left:44%;width:56%;object-position:64% top}
+  .hero::after{left:44%}
+  .hero-content{width:54%;padding:44px 28px 32px 32px}
+  .hero h1{font-size:38px}
+  .hero p{font-size:14px}
+  .location-pill{font-size:11.5px}
+}
+
+/* Mobile: copy is on top, car image is a separate lower block. */
+@media(max-width:760px){
+  .hero{
+    height:690px;
+    min-height:690px;
+    background:#f8fffd;
+  }
+  .hero-image{
+    top:auto;
+    right:0;
+    bottom:0;
+    left:0;
+    width:100%;
+    height:300px;
+    object-fit:cover;
+    object-position:60% 24%;
+  }
+  .hero-overlay{
+    background:linear-gradient(180deg,#f8fffd 0%,#f8fffd 52%,rgba(248,255,253,.96) 57%,rgba(248,255,253,.38) 68%,rgba(248,255,253,0) 82%);
+  }
+  .hero::after{
+    left:0;
+    height:45px;
+    background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.92));
+  }
+  .hero-content{
+    width:100%;
+    max-width:none;
+    padding:34px 20px 320px;
+  }
+  .hero h1{font-size:35px;line-height:1.09;letter-spacing:-1.5px;margin:10px 0 12px}
+  .hero p{font-size:14px;max-width:430px}
+  .location-pill{display:flex;width:fit-content;max-width:100%;font-size:12px;padding:9px 13px;margin:3px 0 13px}
+  .hero-buttons{max-width:520px}
+  .benefits-strip{margin:14px 14px 20px !important}
+  .benefits-strip>div{padding:14px 10px}
+}
+
+@media(max-width:430px){
+  .hero{height:720px;min-height:720px}
+  .hero-image{height:305px;object-position:61% 20%}
+  .hero-content{padding:28px 16px 330px}
+  .hero h1{font-size:31px;letter-spacing:-1.3px}
+  .hero-buttons .primary-btn,.hero-buttons .secondary-btn{font-size:12px;padding:11px 9px}
+  .benefits-strip{margin:12px 12px 18px !important}
+  .benefits-strip>div{grid-template-columns:30px 1fr;padding:12px 8px}
+  .benefits-strip span{font-size:22px}
+  .benefits-strip b{font-size:12px}
+  .benefits-strip small{font-size:10px}
+}
