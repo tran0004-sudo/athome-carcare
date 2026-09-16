@@ -14,83 +14,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Decode images and update gallery
+      - name: Decode before-after images
         shell: python
         run: |
           from pathlib import Path
-          import base64, json, re
-
+          import base64, json
           out = Path('assets/before-after')
-          stems = [
-              'wheel-before', 'wheel-after',
-              'front-before', 'front-after',
-              'mat-before', 'mat-after',
-          ]
+          stems = ['wheel-before','wheel-after','front-before','front-after','mat-before','mat-after']
           for stem in stems:
               raw = (out / f'{stem}.b64').read_text(encoding='utf-8').strip()
-              (out / f'{stem}.jpg').write_bytes(base64.b64decode(raw))
+              (out / f'{stem}.jpg').write_bytes(base64.b64decode(raw, validate=True))
 
-          content_path = Path('data/content.json')
-          data = json.loads(content_path.read_text(encoding='utf-8'))
+          p = Path('data/content.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
           data['gallery'] = [
-              {
-                  'id': 'g1',
-                  'title': '휠 세척 전후',
-                  'note': '실제 세차 전 사진과 AI 생성 세차 후 예시 비교',
-                  'before': 'assets/before-after/wheel-before.jpg',
-                  'after': 'assets/before-after/wheel-after.jpg'
-              },
-              {
-                  'id': 'g2',
-                  'title': '차량 외부 세차 전후',
-                  'note': '번호판을 모자이크 처리한 실제 세차 전 사진과 AI 생성 세차 후 예시 비교',
-                  'before': 'assets/before-after/front-before.jpg',
-                  'after': 'assets/before-after/front-after.jpg'
-              },
-              {
-                  'id': 'g3',
-                  'title': '실내 매트 세차 전후',
-                  'note': '실제 운전석 매트 세차 전 사진과 AI 생성 세차 후 예시 비교',
-                  'before': 'assets/before-after/mat-before.jpg',
-                  'after': 'assets/before-after/mat-after.jpg'
-              }
+            {'id':'g1','title':'휠 세척 전후','note':'실제 세차 전 사진과 AI 생성 세차 후 예시 비교','before':'assets/before-after/wheel-before.jpg','after':'assets/before-after/wheel-after.jpg'},
+            {'id':'g2','title':'차량 외부 세차 전후','note':'번호판 모자이크 처리 · 실제 세차 전 사진과 AI 생성 세차 후 예시 비교','before':'assets/before-after/front-before.jpg','after':'assets/before-after/front-after.jpg'},
+            {'id':'g3','title':'실내 매트 세차 전후','note':'실제 운전석 매트 세차 전 사진과 AI 생성 세차 후 예시 비교','before':'assets/before-after/mat-before.jpg','after':'assets/before-after/mat-after.jpg'}
           ]
-          content_path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-
-          app_path = Path('app.js')
-          app = app_path.read_text(encoding='utf-8')
-          app = re.sub(
-              r"const SECTION_RESTORE_KEY = '[^']+';",
-              "const SECTION_RESTORE_KEY = 'athomeBeforeAfterRestore20260916v2';",
-              app,
-          )
-          app_path.write_text(app, encoding='utf-8')
-
-          sw_path = Path('service-worker.js')
-          sw = sw_path.read_text(encoding='utf-8')
-          sw = re.sub(r"const CACHE = 'athome-carcare-v\d+';", "const CACHE = 'athome-carcare-v24';", sw)
-          new_assets = [
-              "'./assets/before-after/wheel-before.jpg'",
-              "'./assets/before-after/wheel-after.jpg'",
-              "'./assets/before-after/front-before.jpg'",
-              "'./assets/before-after/front-after.jpg'",
-              "'./assets/before-after/mat-before.jpg'",
-              "'./assets/before-after/mat-after.jpg'",
-          ]
-          if './assets/before-after/wheel-before.jpg' not in sw:
-              marker = "  './assets/interior-before.svg', './assets/interior-after.svg'"
-              insertion = '  ' + ', '.join(new_assets) + ',\n' + marker
-              sw = sw.replace(marker, insertion)
-          sw_path.write_text(sw, encoding='utf-8')
-
-      - name: Commit before-after photos
+          p.write_text(json.dumps(data, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
+      - name: Commit photos
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git rm assets/before-after/*.b64
-          git add assets/before-after data/content.json app.js service-worker.js
-          git commit -m "Add before-after wash photos"
+          git add assets/before-after data/content.json
+          git commit -m "Add real before and AI after wash photos"
           git push
 
-# Triggered 2026-09-16: publish before/after gallery photos
+# trigger v3
