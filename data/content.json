@@ -2,29 +2,29 @@
   "settings": {
     "phone": "010-8391-8999",
     "kakaoUrl": "",
-    "area": "경산 중산지구 · 사월동 · 시지 · 신매동 · 대구 전지역"
+    "area": "경산 중산지구 · 사월동 · 시지 · 신매동 · 집중관리"
   },
   "gallery": [
     {
       "id": "g1",
       "title": "휠 세척 전후",
       "note": "브레이크 분진과 묵은 오염을 깔끔하게 관리한 전후 비교",
-      "before": "assets/wheel-before.svg",
-      "after": "assets/wheel-after.svg"
+      "before": "assets/wheel-before.jpg",
+      "after": "assets/wheel-after.jpg"
     },
     {
       "id": "g2",
       "title": "차량 외부 세차 전후",
       "note": "도장면 오염을 정리하고 깨끗한 광택으로 변한 전후 비교",
-      "before": "assets/body-before.svg",
-      "after": "assets/body-after.svg"
+      "before": "assets/body-before.jpg",
+      "after": "assets/body-after.jpg"
     },
     {
       "id": "g3",
       "title": "실내 매트 세차 전후",
       "note": "흙·먼지를 제거해 쾌적하게 관리한 실내 전후 비교",
-      "before": "assets/interior-before.svg",
-      "after": "assets/interior-after.svg"
+      "before": "assets/interior-before.jpg",
+      "after": "assets/interior-after.jpg"
     }
   ],
   "reviews": [
