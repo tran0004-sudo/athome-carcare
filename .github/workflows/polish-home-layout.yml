@@ -1,14 +1,82 @@
-name: Archived homepage patch
+name: Force clean GV80 hero deployment
 
-"on":
+on:
+  push:
+    paths:
+      - '.github/workflows/polish-home-layout.yml'
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  info:
+  patch:
     runs-on: ubuntu-latest
     steps:
-      - name: Archived workflow
-        run: echo "Legacy one-time homepage patch is archived. No automatic action is required."
+      - uses: actions/checkout@v4
+
+      - name: Patch hero image and caches
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          index = Path('index.html')
+          text = index.read_text(encoding='utf-8')
+          text = re.sub(
+              r'assets/gv80-hero(?:-final)?\.jpg(?:\?v=[^"\']+)?',
+              'assets/gv80-hero-final.jpg?v=20260916-6',
+              text,
+              count=1,
+          )
+          text = re.sub(
+              r'compat-fix\.js\?v=[^"\']+',
+              'compat-fix.js?v=20260916-6',
+              text,
+          )
+          index.write_text(text, encoding='utf-8')
+
+          compat = Path('compat-fix.js')
+          c = compat.read_text(encoding='utf-8')
+          c = re.sub(
+              r"assets/gv80-hero-final\.jpg\?v=[^'\"]+",
+              'assets/gv80-hero-final.jpg?v=20260916-6',
+              c,
+          )
+          if "heroImage.addEventListener('error'" not in c:
+              c = c.replace(
+                  "heroImage.decoding = 'async';",
+                  "heroImage.decoding = 'async';\n      heroImage.addEventListener('error', () => { heroImage.src = 'assets/hero.svg?v=20260916-fallback'; }, { once: true });"
+              )
+          compat.write_text(c, encoding='utf-8')
+
+          sw = Path('service-worker.js')
+          s = sw.read_text(encoding='utf-8')
+          s = re.sub(r"const CACHE = 'athome-carcare-v\d+';", "const CACHE = 'athome-carcare-v21';", s)
+          s = re.sub(
+              r"'\./assets/gv80-hero(?:-final)?\.jpg(?:\?v=[^']+)?'",
+              "'./assets/gv80-hero-final.jpg?v=20260916-6'",
+              s,
+          )
+          s = re.sub(
+              r"assets\\/gv80-hero\\\.webp\(\?:\\\?v=\[\^\"'\]\+\)\?",
+              r"assets\\/gv80-hero\\.(?:webp|jpg)(?:\\?v=[^\"']+)?",
+              s,
+          )
+          s = s.replace(
+              "'assets/gv80-hero.jpg?v=20260916-3'",
+              "'assets/gv80-hero-final.jpg?v=20260916-6'"
+          )
+          sw.write_text(s, encoding='utf-8')
+
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html compat-fix.js service-worker.js
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Use corrected GV80 hero image directly"
+            git push
+          fi
