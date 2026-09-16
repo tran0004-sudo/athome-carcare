@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'athomeCarCareDataV2';
 const CONTENT_URL = './data/content.json';
-const SECTION_RESTORE_KEY = 'athomeClassicSectionsRestore20260916-ba';
+const SECTION_RESTORE_KEY = 'athomeClassicSectionsRestore20260916-note2';
 
 let publishedState = null;
 let state = null;
