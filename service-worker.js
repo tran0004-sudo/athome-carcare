@@ -1,7 +1,7 @@
-const CACHE = 'athome-carcare-v22';
+const CACHE = 'athome-carcare-v23';
 const ASSETS = [
   './', './index.html', './styles.css', './home-polish.css?v=20260916-nohero1', './restore-classic.js?v=20260916-2', './compat-fix.js?v=20260916-3', './app.js?v=20260916-2', './supabase-integration.js', './manifest.webmanifest?v=20260916-icon1', './data/content.json',
-  './icons/icon.svg', './icons/icon-192.png?v=20260916-icon1', './icons/icon-512.png?v=20260916-icon1', './assets/gv80-hero-final.jpg?v=20260916-6',
+  './icons/icon.svg', './icons/icon-192.png?v=20260916-icon1', './icons/icon-512.png?v=20260916-icon1',
   './assets/wheel-before.svg', './assets/wheel-after.svg', './assets/body-before.svg', './assets/body-after.svg',
   './assets/interior-before.svg', './assets/interior-after.svg'
 ];
@@ -24,8 +24,7 @@ async function withSupabaseIntegration(response) {
 
   html = html
     .replaceAll('manifest.webmanifest?v=20260915-7', 'manifest.webmanifest?v=20260916-icon1')
-    .replaceAll('icons/icon.svg?v=20260915-7', 'icons/icon-192.png?v=20260916-icon1')
-    .replace(/assets\/gv80-hero\.(?:webp|jpg)(?:\?v=[^\"']+)?/g, 'assets/gv80-hero-final.jpg?v=20260916-6');
+    .replaceAll('icons/icon.svg?v=20260915-7', 'icons/icon-192.png?v=20260916-icon1');
 
   if (!html.includes('compat-fix.js')) {
     if (html.includes('<script src="restore-classic.js')) {
