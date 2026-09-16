@@ -92,3 +92,5 @@ jobs:
           git add assets/before-after data/content.json app.js service-worker.js
           git commit -m "Add before-after wash photos"
           git push
+
+# Triggered 2026-09-16: publish before/after gallery photos
