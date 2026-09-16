@@ -8,21 +8,21 @@
     {
       "id": "g1",
       "title": "휠 세척 전후",
-      "note": "브레이크 분진과 묵은 오염을 제거한 휠 전후 비교",
+      "note": "",
       "before": "assets/before-after/wheel-before.jpg?v=2",
       "after": "assets/before-after/wheel-after.jpg?v=2"
     },
     {
       "id": "g2",
       "title": "차량 외부 세차 전후",
-      "note": "도장면 오염을 정리하고 광택을 살린 전후 비교",
+      "note": "",
       "before": "assets/before-after/front-before.jpg?v=3",
       "after": "assets/before-after/front-after.jpg?v=2"
     },
     {
       "id": "g3",
       "title": "실내 매트 세차 전후",
-      "note": "흙·먼지를 제거해 쾌적하게 관리한 운전석 매트 전후 비교",
+      "note": "",
       "before": "assets/before-after/mat-before.jpg?v=2",
       "after": "assets/before-after/mat-after.jpg?v=2"
     }
