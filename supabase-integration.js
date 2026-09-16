@@ -167,6 +167,7 @@
     if (!admin || admin.querySelector('#supabaseAdminAuth')) return;
 
     Array.from(admin.children).forEach((child) => {
+      if (child.id === 'supabaseAdminAuth') return;
       if (!child.classList.contains('page-title')) child.classList.add('admin-protected', 'hidden');
     });
 
@@ -189,7 +190,10 @@
         <h2>예약 관리</h2><p>고객이 앱에서 접수한 예약이 이곳에 표시됩니다.</p>
         <div id="reservationList" class="reservation-list"><div class="reservation-empty">예약내역을 불러오는 중...</div></div>
       </div>`;
-    admin.querySelector('.page-title')?.insertAdjacentElement('afterend', card);
+    // 제목 블록(.page-title)은 삭제될 수 있으므로 기준점이 없으면 admin 영역 맨 앞에 붙인다.
+    const anchor = admin.querySelector('.page-title');
+    if (anchor) anchor.insertAdjacentElement('afterend', card);
+    else admin.prepend(card);
 
     card.querySelector('#adminLoginForm').addEventListener('submit', async (event) => {
       event.preventDefault();
