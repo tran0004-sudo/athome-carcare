@@ -2,9 +2,10 @@
   try {
     const heroImage = document.querySelector('#home .hero-image');
     if (heroImage) {
-      heroImage.src = 'assets/gv80-hero-final.jpg?v=20260916-5';
+      heroImage.src = 'assets/gv80-hero-final.jpg?v=20260916-6';
       heroImage.removeAttribute('srcset');
       heroImage.decoding = 'async';
+      heroImage.addEventListener('error', () => { heroImage.src = 'assets/hero.svg?v=20260916-fallback'; }, { once: true });
     }
 
     const marker = 'athomeCompatRestore20260916v3';
