@@ -120,7 +120,7 @@
   #home .hero-buttons .secondary-btn{
     width:100% !important;
     min-width:0 !important;
-    font-size:13px !mportant;
+    font-size:13px !important;
   }
   #home .benefits-strip{
     grid-template-columns:1fr 1fr !important;
@@ -130,6 +130,6 @@
 
 @media(max-width:430px){
   #home .hero-content{padding:26px 16px 22px !important;}
-  #home .hero h1{font-size:30px !important;lyne-height:1.14 !important;}
+  #home .hero h1{font-size:30px !important;line-height:1.14 !important;}
   #home .benefits-strip{margin:14px 12px 20px !important;}
 }
