@@ -28,9 +28,9 @@ jobs:
           p = Path('data/content.json')
           data = json.loads(p.read_text(encoding='utf-8'))
           data['gallery'] = [
-            {'id':'g1','title':'휠 세척 전후','note':'실제 세차 전 사진과 AI 생성 세차 후 예시 비교','before':'assets/before-after/wheel-before.jpg','after':'assets/before-after/wheel-after.jpg'},
-            {'id':'g2','title':'차량 외부 세차 전후','note':'번호판 모자이크 처리 · 실제 세차 전 사진과 AI 생성 세차 후 예시 비교','before':'assets/before-after/front-before.jpg','after':'assets/before-after/front-after.jpg'},
-            {'id':'g3','title':'실내 매트 세차 전후','note':'실제 운전석 매트 세차 전 사진과 AI 생성 세차 후 예시 비교','before':'assets/before-after/mat-before.jpg','after':'assets/before-after/mat-after.jpg'}
+            {'id':'g1','title':'휠 세척 전후','note':'세차 전 사진과 세차 후 예시 비교','before':'assets/before-after/wheel-before.jpg','after':'assets/before-after/wheel-after.jpg'},
+            {'id':'g2','title':'차량 외부 세차 전후','note':'세차 전 사진과 세차 후 예시 비교','before':'assets/before-after/front-before.jpg','after':'assets/before-after/front-after.jpg'},
+            {'id':'g3','title':'실내 매트 세차 전후','note':'운전석 매트 세차 전 사진과 세차 후 예시 비교','before':'assets/before-after/mat-before.jpg','after':'assets/before-after/mat-after.jpg'}
           ]
           p.write_text(json.dumps(data, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')
       - name: Commit photos
