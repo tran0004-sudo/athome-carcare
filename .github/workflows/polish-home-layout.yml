@@ -1,4 +1,4 @@
-name: Force clean GV80 hero deployment
+name: Remove GV80 hero panel
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Patch hero image and caches
+      - name: Remove hero image panel and simplify homepage hero
         shell: python
         run: |
           from pathlib import Path
@@ -23,60 +23,163 @@ jobs:
 
           index = Path('index.html')
           text = index.read_text(encoding='utf-8')
-          text = re.sub(
-              r'assets/gv80-hero(?:-final)?\.jpg(?:\?v=[^"\']+)?',
-              'assets/gv80-hero-final.jpg?v=20260916-6',
-              text,
-              count=1,
-          )
-          text = re.sub(
-              r'compat-fix\.js\?v=[^"\']+',
-              'compat-fix.js?v=20260916-6',
-              text,
-          )
+          text = re.sub(r'\s*<img class="hero-image"[^>]*>\s*', '\n', text, count=1)
+          text = re.sub(r'\s*<div class="hero-overlay"></div>\s*', '\n', text, count=1)
+          text = re.sub(r'home-polish\.css\?v=[^"\']+', 'home-polish.css?v=20260916-nohero1', text)
           index.write_text(text, encoding='utf-8')
 
-          compat = Path('compat-fix.js')
-          c = compat.read_text(encoding='utf-8')
-          c = re.sub(
-              r"assets/gv80-hero-final\.jpg\?v=[^'\"]+",
-              'assets/gv80-hero-final.jpg?v=20260916-6',
-              c,
-          )
-          if "heroImage.addEventListener('error'" not in c:
-              c = c.replace(
-                  "heroImage.decoding = 'async';",
-                  "heroImage.decoding = 'async';\n      heroImage.addEventListener('error', () => { heroImage.src = 'assets/hero.svg?v=20260916-fallback'; }, { once: true });"
-              )
-          compat.write_text(c, encoding='utf-8')
+          css = Path('home-polish.css')
+          css.write_text(r'''/* ATHOME CARCARE - TEXT ONLY HERO 20260916 */
+#home .hero{
+  display:block !important;
+  position:relative !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  overflow:hidden !important;
+  background:linear-gradient(135deg,#fbfffe 0%,#eef9f6 100%) !important;
+  border-bottom:1px solid #e2efeb !important;
+}
+#home .hero > .hero-image,
+#home .hero > .hero-overlay{
+  display:none !important;
+}
+#home .hero::after{display:none !important;content:none !important;}
+#home .hero-content{
+  position:relative !important;
+  inset:auto !important;
+  z-index:2 !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:center !important;
+  align-items:flex-start !important;
+  width:100% !important;
+  max-width:900px !important;
+  min-width:0 !important;
+  min-height:390px !important;
+  margin:0 auto !important;
+  padding:48px 46px 44px !important;
+  background:transparent !important;
+}
+#home .hero .eyebrow{margin:0 0 12px !important;font-size:14px !important;}
+#home .hero h1{
+  margin:0 0 18px !important;
+  max-width:690px !important;
+  font-size:46px !important;
+  line-height:1.1 !important;
+  letter-spacing:-2px !important;
+  word-break:keep-all !important;
+}
+#home .hero p{
+  margin:0 0 15px !important;
+  max-width:680px !important;
+  font-size:16px !important;
+  line-height:1.6 !important;
+  word-break:keep-all !important;
+}
+#home .location-pill{
+  display:inline-flex !important;
+  align-items:center !important;
+  width:auto !important;
+  max-width:100% !important;
+  margin:0 0 18px !important;
+  padding:10px 15px !important;
+  border-radius:999px !important;
+  font-size:13px !important;
+  line-height:1.45 !important;
+  white-space:normal !important;
+  word-break:keep-all !important;
+}
+#home .hero-buttons{
+  display:flex !important;
+  flex-wrap:wrap !important;
+  gap:9px !important;
+  width:100% !important;
+  margin:0 !important;
+}
+#home .hero-buttons .primary-btn,
+#home .hero-buttons .secondary-btn{
+  position:relative !important;
+  inset:auto !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-height:46px !important;
+  margin:0 !important;
+  padding:11px 14px !important;
+  white-space:nowrap !important;
+}
+#home .benefits-strip{
+  position:relative !important;
+  inset:auto !important;
+  z-index:1 !important;
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  margin:18px 28px 30px !important;
+  transform:none !important;
+}
+
+@media(max-width:760px){
+  #home .hero-content{
+    width:100% !important;
+    max-width:none !important;
+    min-height:0 !important;
+    padding:30px 18px 26px !important;
+  }
+  #home .hero h1{
+    font-size:34px !important;
+    line-height:1.13 !important;
+    letter-spacing:-1.5px !important;
+    max-width:none !important;
+  }
+  #home .hero p{font-size:14px !important;max-width:none !important;}
+  #home .location-pill{
+    display:flex !important;
+    justify-content:center !important;
+    width:100% !important;
+    text-align:center !important;
+    border-radius:18px !important;
+    font-size:12px !important;
+  }
+  #home .hero-buttons{
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    gap:9px !important;
+  }
+  #home .hero-buttons > :last-child{grid-column:1 / -1 !important;}
+  #home .hero-buttons .primary-btn,
+  #home .hero-buttons .secondary-btn{
+    width:100% !important;
+    min-width:0 !important;
+    font-size:13px !important;
+  }
+  #home .benefits-strip{
+    grid-template-columns:1fr 1fr !important;
+    margin:16px 14px 22px !important;
+  }
+}
+
+@media(max-width:430px){
+  #home .hero-content{padding:26px 16px 22px !important;}
+  #home .hero h1{font-size:30px !important;line-height:1.14 !important;}
+  #home .benefits-strip{margin:14px 12px 20px !important;}
+}
+''', encoding='utf-8')
 
           sw = Path('service-worker.js')
           s = sw.read_text(encoding='utf-8')
-          s = re.sub(r"const CACHE = 'athome-carcare-v\d+';", "const CACHE = 'athome-carcare-v21';", s)
-          s = re.sub(
-              r"'\./assets/gv80-hero(?:-final)?\.jpg(?:\?v=[^']+)?'",
-              "'./assets/gv80-hero-final.jpg?v=20260916-6'",
-              s,
-          )
-          s = re.sub(
-              r"assets\\/gv80-hero\\\.webp\(\?:\\\?v=\[\^\"'\]\+\)\?",
-              r"assets\\/gv80-hero\\.(?:webp|jpg)(?:\\?v=[^\"']+)?",
-              s,
-          )
-          s = s.replace(
-              "'assets/gv80-hero.jpg?v=20260916-3'",
-              "'assets/gv80-hero-final.jpg?v=20260916-6'"
-          )
+          s = re.sub(r"const CACHE = 'athome-carcare-v\d+';", "const CACHE = 'athome-carcare-v22';", s)
+          s = re.sub(r'home-polish\.css\?v=[^\'\"]+', 'home-polish.css?v=20260916-nohero1', s)
           sw.write_text(s, encoding='utf-8')
 
       - name: Commit patch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html compat-fix.js service-worker.js
+          git add index.html home-polish.css service-worker.js
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "Use corrected GV80 hero image directly"
+            git commit -m "Remove GV80 image panel from homepage"
             git push
           fi
