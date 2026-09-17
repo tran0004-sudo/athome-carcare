@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>세차 파트너 모집 · 집앞세차 앳홈 카케어</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --deep:#0a2233;
+  --sea:#134b6b;
+  --water:#2c9ccb;
+  --foam:#eef4f7;
+  --paper:#ffffff;
+  --text:#0a2233;
+  --muted:#5b7488;
+  --line:#d5e2ea;
+  --field:#ffffff;
+  --page:#eef4f7;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0e2130;
+    --text:#e8f1f6;
+    --muted:#96b0c2;
+    --line:#1e3b4f;
+    --field:#0a1a26;
+    --page:#071521;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0e2130;
+  --text:#e8f1f6;
+  --muted:#96b0c2;
+  --line:#1e3b4f;
+  --field:#0a1a26;
+  --page:#071521;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--page);
+  color:var(--text);
+  font-family:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:720px;margin:0 auto;padding:0 20px}
+
+/* ── 모집 배너 ───────────────────────────── */
+.recruit{
+  position:relative;
+  overflow:hidden;
+  background:
+    radial-gradient(120% 90% at 85% 0%, rgba(44,156,203,.45), transparent 60%),
+    linear-gradient(160deg,var(--deep) 0%, var(--sea) 100%);
+  color:#eaf4fa;
+  padding:64px 0 60px;
+}
+.recruit::after{
+  content:"";
+  position:absolute;left:-10%;right:-10%;bottom:-70px;height:150px;
+  background:var(--page);
+  border-radius:50% 50% 0 0 / 100% 100% 0 0;
+}
+.recruit .wrap{position:relative;z-index:1}
+.brand{
+  display:inline-block;
+  font-size:.82rem;
+  font-weight:500;
+  letter-spacing:.02em;
+  color:#9fd3ea;
+  margin:0 0 18px;
+  padding-bottom:6px;
+  border-bottom:1px solid rgba(159,211,234,.4);
+}
+.headline{
+  margin:0;
+  font-size:clamp(1.45rem,5.2vw,2.1rem);
+  font-weight:900;
+  line-height:1.45;
+  letter-spacing:-.02em;
+  word-break:keep-all;
+}
+.headline em{font-style:normal;color:#8fd8f5}
+.lead{
+  margin:18px 0 0;
+  max-width:31em;
+  font-size:1rem;
+  color:#c4dcea;
+  word-break:keep-all;
+}
+.terms{
+  margin:26px 0 0;
+  padding:0;
+  list-style:none;
+  display:grid;
+  gap:10px;
+}
+.terms li{
+  display:flex;
+  gap:12px;
+  align-items:baseline;
+  font-size:.95rem;
+  color:#dceaf3;
+  word-break:keep-all;
+}
+.terms b{
+  flex:0 0 76px;
+  font-weight:700;
+  font-size:.82rem;
+  color:#8fd8f5;
+}
+.apply-btn{
+  margin-top:32px;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:15px 34px;
+  border:0;
+  border-radius:999px;
+  background:#ffffff;
+  color:var(--deep);
+  font-family:inherit;
+  font-size:1.02rem;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 10px 24px rgba(4,26,40,.35);
+}
+.apply-btn:hover{background:#dff1fa}
+.apply-btn:focus-visible{outline:3px solid #8fd8f5;outline-offset:3px}
+.apply-note{margin:12px 0 0;font-size:.85rem;color:#9fc0d3}
+
+/* ── 신청 폼 ─────────────────────────────── */
+.form-panel{
+  max-width:720px;
+  margin:0 auto 70px;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:20px;
+  padding:34px 26px 30px;
+  scroll-margin-top:16px;
+}
+.form-panel[hidden]{display:none}
+.form-title{margin:0;font-size:1.28rem;font-weight:900;letter-spacing:-.02em}
+.form-sub{margin:8px 0 26px;font-size:.92rem;color:var(--muted);word-break:keep-all}
+.field{margin-bottom:20px}
+.field label{display:block;font-size:.9rem;font-weight:700;margin-bottom:8px}
+.field .hint{font-weight:400;color:var(--muted);font-size:.82rem;margin-left:6px}
+input[type=text],input[type=tel],select,textarea{
+  width:100%;
+  padding:13px 14px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--field);
+  color:var(--text);
+  font-family:inherit;
+  font-size:1rem;
+}
+textarea{min-height:92px;resize:vertical}
+input:focus,select:focus,textarea:focus{
+  outline:0;border-color:var(--water);box-shadow:0 0 0 3px rgba(44,156,203,.22);
+}
+.chips{display:flex;flex-wrap:wrap;gap:9px}
+.chips label{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 15px;border:1px solid var(--line);border-radius:999px;
+  font-size:.9rem;font-weight:500;cursor:pointer;margin:0;
+}
+.chips input{accent-color:var(--water);margin:0}
+.chips label:has(input:checked){border-color:var(--water);background:rgba(44,156,203,.12)}
+.chips label:focus-within{box-shadow:0 0 0 3px rgba(44,156,203,.22)}
+.err{display:none;margin-top:7px;font-size:.84rem;color:#d1452f;font-weight:500}
+.field.invalid .err{display:block}
+.field.invalid input,.field.invalid select{border-color:#d1452f}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.submit{
+  flex:1 1 200px;padding:15px 20px;border:0;border-radius:12px;
+  background:var(--deep);color:#fff;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;
+}
+.submit:hover{background:var(--sea)}
+.ghost{
+  flex:0 0 auto;padding:15px 20px;border:1px solid var(--line);border-radius:12px;
+  background:transparent;color:var(--muted);font-family:inherit;font-size:.95rem;cursor:pointer;
+}
+button:focus-visible{outline:3px solid var(--water);outline-offset:2px}
+.privacy{margin:16px 0 0;font-size:.8rem;color:var(--muted);line-height:1.6}
+
+/* ── 접수 완료 ───────────────────────────── */
+.done{text-align:left}
+.done h3{margin:0 0 8px;font-size:1.22rem;font-weight:900}
+.done p{margin:0 0 20px;color:var(--muted);font-size:.93rem;word-break:keep-all}
+.summary{
+  margin:0 0 22px;padding:20px;border-radius:14px;
+  background:var(--foam);border:1px solid var(--line);
+}
+:root[data-theme="dark"] .summary,
+:root:not([data-theme="light"]) .summary{background:rgba(44,156,203,.08)}
+.summary dl{margin:0;display:grid;grid-template-columns:78px 1fr;gap:10px 14px;font-size:.93rem}
+.summary dt{color:var(--muted);font-weight:500}
+.summary dd{margin:0;font-weight:500;word-break:break-word}
+@media (max-width:480px){
+  .recruit{padding:52px 0 50px}
+  .form-panel{margin-left:14px;margin-right:14px;padding:26px 18px 24px;border-radius:16px}
+  .terms b{flex-basis:64px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<section class="recruit">
+  <div class="wrap">
+    <p class="brand">집앞세차 앳홈 카케어</p>
+    <h1 class="headline">지역을 맡아 함께 운영할 <em>세차 파트너</em>를 모집합니다</h1>
+    <p class="lead">한 지역을 직접 맡아 예약을 받고 출장 세차를 운영하실 분을 찾습니다. 예약 시스템과 홍보는 본사가 맡고, 파트너는 현장 작업에 집중합니다.</p>
+
+    <ul class="terms">
+      <li><b>모집 지역</b><span>수도권 전 지역 및 광역시 (지역당 1팀)</span></li>
+      <li><b>자격</b><span>세차 경력자 우대, 무경력자는 교육 후 배정</span></li>
+      <li><b>준비물</b><span>운전 가능한 차량, 기본 장비 (없으면 대여 지원)</span></li>
+    </ul>
+
+    <button class="apply-btn" id="openBtn" type="button">신청하기</button>
+    <p class="apply-note">1분이면 작성됩니다. 접수 후 2일 안에 연락드립니다.</p>
+  </div>
+</section>
+
+<section class="form-panel" id="formPanel" hidden aria-labelledby="formTitle">
+  <div id="formStage">
+    <h2 class="form-title" id="formTitle">파트너 신청서</h2>
+    <p class="form-sub">지역, 경력, 연락처만 남겨주시면 됩니다. 나머지는 선택 사항이에요.</p>
+
+    <div class="field" id="f-name">
+      <label for="name">이름</label>
+      <input type="text" id="name" autocomplete="name" placeholder="홍길동">
+      <p class="err">이름을 입력해 주세요.</p>
+    </div>
+
+    <div class="field" id="f-area">
+      <label for="area">활동 지역 <span class="hint">시 · 군 · 구까지</span></label>
+      <input type="text" id="area" placeholder="경기 성남시 분당구">
+      <p class="err">활동하실 지역을 입력해 주세요.</p>
+    </div>
+
+    <div class="field" id="f-career">
+      <label for="career">세차 경력</label>
+      <select id="career">
+        <option value="">선택해 주세요</option>
+        <option>경력 없음 (교육 희망)</option>
+        <option>1년 미만</option>
+        <option>1~3년</option>
+        <option>3~5년</option>
+        <option>5년 이상</option>
+        <option>세차장 운영 경험 있음</option>
+      </select>
+      <p class="err">경력을 선택해 주세요.</p>
+    </div>
+
+    <div class="field" id="f-phone">
+      <label for="phone">연락처</label>
+      <input type="tel" id="phone" inputmode="numeric" autocomplete="tel" placeholder="010-0000-0000" maxlength="13">
+      <p class="err">연락 가능한 휴대폰 번호를 입력해 주세요.</p>
+    </div>
+
+    <div class="field">
+      <label>보유 장비 <span class="hint">선택</span></label>
+      <div class="chips">
+        <label><input type="checkbox" value="차량"> 차량</label>
+        <label><input type="checkbox" value="고압세척기"> 고압세척기</label>
+        <label><input type="checkbox" value="스팀기"> 스팀기</label>
+        <label><input type="checkbox" value="폴리셔"> 폴리셔</label>
+        <label><input type="checkbox" value="없음"> 없음</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="memo">남기고 싶은 말 <span class="hint">선택</span></label>
+      <textarea id="memo" placeholder="가능한 요일이나 시간대, 궁금한 점을 적어주세요."></textarea>
+    </div>
+
+    <div class="actions">
+      <button class="submit" id="submitBtn" type="button">신청서 보내기</button>
+      <button class="ghost" id="closeBtn" type="button">닫기</button>
+    </div>
+    <p class="privacy">입력하신 정보는 파트너 모집 상담 목적으로만 사용하며, 상담 종료 후 파기합니다.</p>
+  </div>
+
+  <div id="doneStage" class="done" hidden>
+    <h3>신청서를 보냈습니다</h3>
+    <p>담당자가 확인 후 2일 안에 남겨주신 번호로 연락드립니다.</p>
+    <div class="summary">
+      <dl id="summaryList"></dl>
+    </div>
+    <div class="actions">
+      <button class="submit" id="copyBtn" type="button">신청 내용 복사</button>
+      <button class="ghost" id="resetBtn" type="button">다시 작성</button>
+    </div>
+    <p class="privacy" id="sendHint">전송이 정상적으로 처리되지 않았다면 <a id="formLink" href="#" target="_blank" rel="noopener">신청서 양식</a>에서 직접 작성해 주세요.</p>
+  </div>
+</section>
+<iframe name="gformSink" id="gformSink" style="display:none" title="submit target"></iframe>
+
+<script>
+(function(){
+  /* ── 여기만 바꾸세요 ──────────────────────────
+     1) formId : 구글폼 주소의 /forms/d/e/ 와 /viewform 사이 값
+     2) entry  : 각 질문의 entry.숫자 값 (아래 안내 참고) */
+  var GOOGLE_FORM = {
+    formId: '1FAIpQLSxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    entry: {
+      name:   'entry.1000001',
+      area:   'entry.1000002',
+      career: 'entry.1000003',
+      phone:  'entry.1000004',
+      gear:   'entry.1000005',
+      memo:   'entry.1000006'
+    }
+  };
+  /* ───────────────────────────────────────── */
+
+  var panel=document.getElementById('formPanel');
+  var formStage=document.getElementById('formStage');
+  var doneStage=document.getElementById('doneStage');
+
+  document.getElementById('openBtn').addEventListener('click',function(){
+    panel.hidden=false;
+    panel.scrollIntoView({behavior:'smooth',block:'start'});
+    setTimeout(function(){document.getElementById('name').focus({preventScroll:true});},300);
+  });
+  document.getElementById('closeBtn').addEventListener('click',function(){
+    panel.hidden=true;
+    document.getElementById('openBtn').focus();
+  });
+
+  var phone=document.getElementById('phone');
+  phone.addEventListener('input',function(){
+    var d=phone.value.replace(/\D/g,'').slice(0,11);
+    phone.value = d.length<4 ? d
+      : d.length<8 ? d.slice(0,3)+'-'+d.slice(3)
+      : d.slice(0,3)+'-'+d.slice(3,7)+'-'+d.slice(7);
+  });
+
+  function mark(id,bad){
+    var el=document.getElementById(id);
+    el.classList.toggle('invalid',bad);
+    return !bad;
+  }
+
+  document.getElementById('submitBtn').addEventListener('click',function(){
+    var name=document.getElementById('name').value.trim();
+    var area=document.getElementById('area').value.trim();
+    var career=document.getElementById('career').value;
+    var tel=phone.value.trim();
+    var digits=tel.replace(/\D/g,'');
+
+    var ok=true;
+    ok=mark('f-name',!name)&&ok;
+    ok=mark('f-area',!area)&&ok;
+    ok=mark('f-career',!career)&&ok;
+    ok=mark('f-phone',digits.length<10)&&ok;
+    if(!ok){
+      var first=panel.querySelector('.field.invalid');
+      if(first){first.scrollIntoView({behavior:'smooth',block:'center'});
+        var inp=first.querySelector('input,select'); if(inp)inp.focus({preventScroll:true});}
+      return;
+    }
+
+    var gear=[].slice.call(panel.querySelectorAll('.chips input:checked')).map(function(c){return c.value;}).join(', ');
+    var memo=document.getElementById('memo').value.trim();
+
+    var rows=[['이름',name],['지역',area],['경력',career],['연락처',tel]];
+    if(gear) rows.push(['장비',gear]);
+    if(memo) rows.push(['메모',memo]);
+
+    var dl=document.getElementById('summaryList');
+    dl.innerHTML='';
+    rows.forEach(function(r){
+      var dt=document.createElement('dt'); dt.textContent=r[0];
+      var dd=document.createElement('dd'); dd.textContent=r[1];
+      dl.appendChild(dt); dl.appendChild(dd);
+    });
+
+    window.__lastApplication = '[세차 파트너 신청]\n'+rows.map(function(r){return r[0]+': '+r[1];}).join('\n');
+
+    sendToGoogleForm({name:name,area:area,career:career,phone:tel,gear:gear,memo:memo});
+    document.getElementById('formLink').href='https://docs.google.com/forms/d/e/'+GOOGLE_FORM.formId+'/viewform';
+
+    formStage.hidden=true;
+    doneStage.hidden=false;
+    panel.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+
+  function copyText(text){
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function(resolve,reject){
+      var ta=document.createElement('textarea');
+      ta.value=text;ta.setAttribute('readonly','');
+      ta.style.position='fixed';ta.style.opacity='0';
+      document.body.appendChild(ta);ta.select();
+      try{document.execCommand('copy');resolve();}catch(e){reject(e);}
+      document.body.removeChild(ta);
+    });
+  }
+  function flash(btn,msg){
+    var o=btn.textContent;btn.textContent=msg;
+    setTimeout(function(){btn.textContent=o;},1800);
+  }
+
+  function sendToGoogleForm(data){
+    var f=document.createElement('form');
+    f.action='https://docs.google.com/forms/d/e/'+GOOGLE_FORM.formId+'/formResponse';
+    f.method='POST';
+    f.target='gformSink';
+    f.style.display='none';
+    Object.keys(GOOGLE_FORM.entry).forEach(function(k){
+      var v=data[k];
+      if(!v) return;
+      var i=document.createElement('input');
+      i.type='hidden'; i.name=GOOGLE_FORM.entry[k]; i.value=v;
+      f.appendChild(i);
+    });
+    document.body.appendChild(f);
+    f.submit();
+    setTimeout(function(){document.body.removeChild(f);},2000);
+  }
+
+  document.getElementById('copyBtn').addEventListener('click',function(){
+    var btn=this;
+    copyText(window.__lastApplication||'').then(function(){
+      flash(btn,'복사했습니다');
+    },function(){
+      flash(btn,'복사하지 못했습니다');
+    });
+  });
+
+  document.getElementById('resetBtn').addEventListener('click',function(){
+    panel.querySelectorAll('input[type=text],input[type=tel],textarea').forEach(function(i){i.value='';});
+    document.getElementById('career').value='';
+    panel.querySelectorAll('.chips input').forEach(function(c){c.checked=false;});
+    panel.querySelectorAll('.field').forEach(function(f){f.classList.remove('invalid');});
+    doneStage.hidden=true;
+    formStage.hidden=false;
+    document.getElementById('name').focus();
+  });
+})();
+</script>
+</body>
+</html>
