@@ -94,7 +94,7 @@ function reviewMarkup(review) {
   const stars = '★'.repeat(Math.max(1, Math.min(5, Number(review.rating) || 5)));
   return `<article class="review-card">
     <div class="stars" aria-label="별점 ${esc(review.rating)}점">${stars}</div>
-    <blockquote>“${esc(review.text)}”</blockquote>
+    <blockquote>"${esc(review.text)}"</blockquote>
     <footer>${esc(review.author)}${review.car ? ' · ' + esc(review.car) : ''}</footer>
   </article>`;
 }
@@ -139,27 +139,11 @@ function renderSettings() {
   if (form) {
     form.phone.value = state.settings.phone || '010-8391-8999';
     form.kakaoUrl.value = state.settings.kakaoUrl || '';
-    form.area.value = state.settings.area || '';
+    if (form.area) form.area.value = state.settings.area || '';
   }
-
   const phone = state.settings.phone || '010-8391-8999';
   document.querySelectorAll('[data-phone-text]').forEach((el) => { el.textContent = phone; });
   document.querySelectorAll('[data-call]').forEach((el) => { el.href = `tel:${digits(phone)}`; });
-}
-
-function renderInquiries() {
-  const el = document.querySelector('#inquiryAdmin');
-  if (!el) return;
-  const rows = state.inquiries.slice().reverse();
-  el.innerHTML = `<h3>이 기기에 저장된 문의 ${rows.length}건</h3>` + (
-    rows.length
-      ? rows.map((q) => `<div class="inquiry-item">
-          <b>${esc(q.apartment)} · ${esc(q.car)} · ${esc(q.service)}</b>
-          <span>${esc(q.phone)}</span>
-          <small>${esc(q.memo || '요청사항 없음')} · ${new Date(q.time).toLocaleString('ko-KR')}</small>
-        </div>`).join('')
-      : '<p>아직 저장된 문의가 없습니다.</p>'
-  );
 }
 
 function render() {
@@ -176,7 +160,6 @@ function render() {
   document.querySelector('#homeTips').innerHTML = state.tips.slice(0, 4).map(tipMarkup).join('');
   renderTips('전체');
   renderSettings();
-  renderInquiries();
   bindComparisons();
 }
 
@@ -199,7 +182,6 @@ async function compressFile(file) {
     image.onerror = reject;
     image.src = data;
   });
-
   const max = 1200;
   let width = img.width;
   let height = img.height;
@@ -215,35 +197,10 @@ async function compressFile(file) {
   return canvas.toDataURL('image/jpeg', 0.78);
 }
 
-function publicContent() {
-  return {
-    settings: state.settings,
-    gallery: state.gallery,
-    reviews: state.reviews,
-    tips: state.tips,
-    inquiries: []
-  };
-}
-
-function downloadJson(filename, payload) {
-  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
 function bindEvents() {
   document.addEventListener('click', (event) => {
     const goButton = event.target.closest('[data-go]');
-    if (goButton) {
-      go(goButton.dataset.go);
-      return;
-    }
+    if (goButton) { go(goButton.dataset.go); return; }
 
     const kakaoButton = event.target.closest('[data-kakao]');
     if (kakaoButton) {
@@ -253,10 +210,7 @@ function bindEvents() {
     }
 
     const filter = event.target.closest('[data-filter]');
-    if (filter) {
-      renderTips(filter.dataset.filter);
-      return;
-    }
+    if (filter) { renderTips(filter.dataset.filter); return; }
 
     const tipButton = event.target.closest('.tip-more');
     if (tipButton) {
@@ -265,106 +219,61 @@ function bindEvents() {
     }
   });
 
-  document.querySelector('#reviewForm').addEventListener('submit', (event) => {
+  // 고객 후기 폼
+  const reviewForm = document.querySelector('#reviewForm');
+  if (reviewForm) reviewForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const fd = new FormData(event.currentTarget);
     state.reviews.unshift({
-      id: uid('r'), author: fd.get('author'), car: fd.get('car'), rating: Number(fd.get('rating')), text: fd.get('text')
+      id: uid('r'), author: fd.get('author'), car: fd.get('car'),
+      rating: Number(fd.get('rating')), text: fd.get('text')
     });
-    save();
-    event.currentTarget.reset();
-    render();
-    toast('후기가 이 기기에 등록되었습니다. 운영자가 content.json으로 공개할 수 있습니다.');
+    save(); event.currentTarget.reset(); render();
+    toast('후기가 등록되었습니다.');
   });
 
-  document.querySelector('#adminReviewForm').addEventListener('submit', (event) => {
-    event.preventDefault();
-    const fd = new FormData(event.currentTarget);
-    state.reviews.unshift({
-      id: uid('r'), author: fd.get('author'), car: fd.get('car'), rating: Number(fd.get('rating')), text: fd.get('text')
-    });
-    save();
-    event.currentTarget.reset();
-    render();
-    toast('고객 후기를 등록했습니다.');
-  });
+  // 예약 폼 — supabase-integration.js 가 먼저 처리하므로 여기선 조용히 패스
+  // (stopImmediatePropagation 으로 이미 차단됨)
 
-  document.querySelector('#bookingForm').addEventListener('submit', (event) => {
-    event.preventDefault();
-    const fd = new FormData(event.currentTarget);
-    const inquiry = {
-      id: uid('q'), apartment: fd.get('apartment'), car: fd.get('car'), service: fd.get('service'),
-      phone: fd.get('phone'), memo: fd.get('memo'), time: Date.now()
-    };
-    state.inquiries.push(inquiry);
-    save();
-    renderInquiries();
-
-    const message = `[문앞세차-앳홈 카케어 문의]\n아파트: ${inquiry.apartment}\n차종: ${inquiry.car}\n희망 서비스: ${inquiry.service}\n연락처: ${inquiry.phone}\n요청사항: ${inquiry.memo || '없음'}`;
-    const box = document.querySelector('#bookingResult');
-    box.classList.remove('hidden');
-    box.innerHTML = `<pre>${esc(message)}</pre><div class="actions">
-      <button class="secondary-btn" id="copyBooking">문의내용 복사</button>
-      <a class="secondary-btn button-link" href="tel:${digits(state.settings.phone)}">전화하기</a>
-      <button class="primary-btn" id="openKakao">카카오채널 열기</button>
-    </div>`;
-
-    document.querySelector('#copyBooking').onclick = () => navigator.clipboard?.writeText(message)
-      .then(() => toast('문의내용을 복사했습니다.'))
-      .catch(() => toast('복사 기능을 사용할 수 없습니다.'));
-    document.querySelector('#openKakao').onclick = () => {
-      if (state.settings.kakaoUrl) window.open(state.settings.kakaoUrl, '_blank', 'noopener');
-      else toast('카카오채널 주소는 관리 화면에서 설정해주세요.');
-    };
-    toast('문의 내용이 준비되었습니다.');
-  });
-
+  // 파트너 폼
   const partnerForm = document.querySelector('#partnerForm');
   if (partnerForm) partnerForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const fd = new FormData(event.currentTarget);
-    const entry = {
-      id: uid('p'),
-      apartment: `[입점문의] ${fd.get('area')}`,
-      car: fd.get('name'),
-      service: `경력 ${fd.get('career')}`,
-      phone: fd.get('phone'),
-      memo: `장비: ${fd.get('equipment') || '없음'} / ${fd.get('memo') || '문의사항 없음'}`,
-      time: Date.now()
-    };
-    state.inquiries.push(entry);
-    save();
-    renderInquiries();
-
     const message = `[집앞세차-앳홈 카케어 입점문의]\n성함: ${fd.get('name')}\n연락처: ${fd.get('phone')}\n희망 지역: ${fd.get('area')}\n세차 경력: ${fd.get('career')}\n보유 장비·차량: ${fd.get('equipment') || '없음'}\n문의사항: ${fd.get('memo') || '없음'}`;
     const box = document.querySelector('#partnerResult');
-    box.classList.remove('hidden');
-    box.innerHTML = `<pre>${esc(message)}</pre><div class="actions">
-      <button class="secondary-btn" id="copyPartner">문의내용 복사</button>
-      <a class="secondary-btn button-link" href="tel:${digits(state.settings.phone)}">전화하기</a>
-      <button class="primary-btn" id="openPartnerKakao">카카오채널 열기</button>
-    </div>`;
-
-    document.querySelector('#copyPartner').onclick = () => navigator.clipboard?.writeText(message)
-      .then(() => toast('입점문의 내용을 복사했습니다.'))
-      .catch(() => toast('복사 기능을 사용할 수 없습니다.'));
-    document.querySelector('#openPartnerKakao').onclick = () => {
-      if (state.settings.kakaoUrl) window.open(state.settings.kakaoUrl, '_blank', 'noopener');
-      else toast('카카오채널 주소는 관리 화면에서 설정해주세요.');
-    };
+    if (box) {
+      box.classList.remove('hidden');
+      box.innerHTML = `<pre>${esc(message)}</pre><div class="actions">
+        <button class="secondary-btn" id="copyPartner">문의내용 복사</button>
+        <a class="secondary-btn button-link" href="tel:${digits(state.settings.phone)}">전화하기</a>
+        <button class="primary-btn" id="openPartnerKakao">카카오채널 열기</button>
+      </div>`;
+      document.querySelector('#copyPartner').onclick = () =>
+        navigator.clipboard?.writeText(message)
+          .then(() => toast('입점문의 내용을 복사했습니다.'))
+          .catch(() => toast('복사 기능을 사용할 수 없습니다.'));
+      document.querySelector('#openPartnerKakao').onclick = () => {
+        if (state.settings.kakaoUrl) window.open(state.settings.kakaoUrl, '_blank', 'noopener');
+        else toast('카카오채널 주소는 관리 화면에서 설정해주세요.');
+      };
+    }
     toast('입점문의 내용이 준비되었습니다.');
   });
 
-  document.querySelector('#settingsForm').addEventListener('submit', (event) => {
+  // 운영 정보 저장
+  const settingsForm = document.querySelector('#settingsForm');
+  if (settingsForm) settingsForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const fd = new FormData(event.currentTarget);
     state.settings = { phone: fd.get('phone'), kakaoUrl: fd.get('kakaoUrl'), area: fd.get('area') };
-    save();
-    renderSettings();
+    save(); renderSettings();
     toast('업체 설정을 저장했습니다.');
   });
 
-  document.querySelector('#galleryForm').addEventListener('submit', async (event) => {
+  // 세차 전·후 사진 추가 (관리자 화면에 galleryForm 이 있을 때만)
+  const galleryForm = document.querySelector('#galleryForm');
+  if (galleryForm) galleryForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
     const before = form.before.files[0];
@@ -372,10 +281,11 @@ function bindEvents() {
     if (!before || !after) return;
     try {
       const [beforeData, afterData] = await Promise.all([compressFile(before), compressFile(after)]);
-      state.gallery.unshift({ id: uid('g'), title: form.title.value, note: form.note.value, before: beforeData, after: afterData });
-      save();
-      form.reset();
-      render();
+      state.gallery.unshift({
+        id: uid('g'), title: form.title.value,
+        note: form.note ? form.note.value : '', before: beforeData, after: afterData
+      });
+      save(); form.reset(); render();
       toast('세차 전후 사진을 등록했습니다.');
     } catch (error) {
       console.error(error);
@@ -383,61 +293,20 @@ function bindEvents() {
     }
   });
 
-  document.querySelector('#tipForm').addEventListener('submit', (event) => {
-    event.preventDefault();
-    const fd = new FormData(event.currentTarget);
-    const iconMap = { '외부세차 팁': '💦', '내부세차 팁': '🧹', '휠세정 팁': '🛞', '계절관리 팁': '🌧️', '기타': '✨' };
-    state.tips.unshift({
-      id: uid('t'), category: fd.get('category'), title: fd.get('title'), body: fd.get('body'), icon: iconMap[fd.get('category')] || '✨'
-    });
-    save();
-    event.currentTarget.reset();
-    render();
-    toast('세차 팁을 등록했습니다.');
-  });
-
-  document.querySelector('#exportBtn').addEventListener('click', () => {
-    downloadJson('content.json', publicContent());
-    toast('content.json을 저장했습니다. GitHub의 data/content.json과 교체하세요.');
-  });
-
-  document.querySelector('#importInput').addEventListener('change', async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-    try {
-      const imported = normalize(JSON.parse(await file.text()));
-      imported.inquiries = state.inquiries;
-      state = imported;
-      save();
-      render();
-      toast('JSON 데이터를 가져왔습니다.');
-    } catch (error) {
-      toast('올바른 JSON 파일이 아닙니다.');
-    } finally {
-      event.target.value = '';
-    }
-  });
-
-  document.querySelector('#resetBtn').addEventListener('click', () => {
-    if (!confirm('이 기기의 수정사항을 지우고 현재 GitHub에 공개된 데이터로 되돌릴까요?')) return;
-    localStorage.removeItem(STORAGE_KEY);
-    state = deepClone(publishedState);
-    render();
-    toast('공개 데이터로 되돌렸습니다.');
-  });
-
   window.addEventListener('beforeinstallprompt', (event) => {
     event.preventDefault();
     deferredPrompt = event;
-    document.querySelector('#installBtn').classList.remove('hidden');
+    const btn = document.querySelector('#installBtn');
+    if (btn) btn.classList.remove('hidden');
   });
 
-  document.querySelector('#installBtn').addEventListener('click', async () => {
+  const installBtn = document.querySelector('#installBtn');
+  if (installBtn) installBtn.addEventListener('click', async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
     await deferredPrompt.userChoice;
     deferredPrompt = null;
-    document.querySelector('#installBtn').classList.add('hidden');
+    installBtn.classList.add('hidden');
   });
 }
 
@@ -449,7 +318,9 @@ async function init() {
   render();
 
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => navigator.serviceWorker.register('./service-worker.js').catch(console.warn));
+    window.addEventListener('load', () =>
+      navigator.serviceWorker.register('./service-worker.js').catch(console.warn)
+    );
   }
 }
 
