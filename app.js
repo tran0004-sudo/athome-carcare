@@ -319,6 +319,42 @@ function bindEvents() {
     toast('문의 내용이 준비되었습니다.');
   });
 
+  const partnerForm = document.querySelector('#partnerForm');
+  if (partnerForm) partnerForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const fd = new FormData(event.currentTarget);
+    const entry = {
+      id: uid('p'),
+      apartment: `[입점문의] ${fd.get('area')}`,
+      car: fd.get('name'),
+      service: `경력 ${fd.get('career')}`,
+      phone: fd.get('phone'),
+      memo: `장비: ${fd.get('equipment') || '없음'} / ${fd.get('memo') || '문의사항 없음'}`,
+      time: Date.now()
+    };
+    state.inquiries.push(entry);
+    save();
+    renderInquiries();
+
+    const message = `[집앞세차-앳홈 카케어 입점문의]\n성함: ${fd.get('name')}\n연락처: ${fd.get('phone')}\n희망 지역: ${fd.get('area')}\n세차 경력: ${fd.get('career')}\n보유 장비·차량: ${fd.get('equipment') || '없음'}\n문의사항: ${fd.get('memo') || '없음'}`;
+    const box = document.querySelector('#partnerResult');
+    box.classList.remove('hidden');
+    box.innerHTML = `<pre>${esc(message)}</pre><div class="actions">
+      <button class="secondary-btn" id="copyPartner">문의내용 복사</button>
+      <a class="secondary-btn button-link" href="tel:${digits(state.settings.phone)}">전화하기</a>
+      <button class="primary-btn" id="openPartnerKakao">카카오채널 열기</button>
+    </div>`;
+
+    document.querySelector('#copyPartner').onclick = () => navigator.clipboard?.writeText(message)
+      .then(() => toast('입점문의 내용을 복사했습니다.'))
+      .catch(() => toast('복사 기능을 사용할 수 없습니다.'));
+    document.querySelector('#openPartnerKakao').onclick = () => {
+      if (state.settings.kakaoUrl) window.open(state.settings.kakaoUrl, '_blank', 'noopener');
+      else toast('카카오채널 주소는 관리 화면에서 설정해주세요.');
+    };
+    toast('입점문의 내용이 준비되었습니다.');
+  });
+
   document.querySelector('#settingsForm').addEventListener('submit', (event) => {
     event.preventDefault();
     const fd = new FormData(event.currentTarget);

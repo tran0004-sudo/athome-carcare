@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.webmanifest?v=20260916-icon1" />
   <link rel="icon" href="icons/icon-192.png?v=20260916-icon2" />
   <link rel="apple-touch-icon" href="icons/icon-192.png?v=20260916-icon2" />
-  <link rel="stylesheet" href="styles.css?v=20260916-1line" />
+  <link rel="stylesheet" href="styles.css?v=20260917-partner" />
   <link rel="stylesheet" href="home-polish.css?v=20260916-nohero1" />
   <title>문앞세차-앳홈 카케어</title>
 </head>
@@ -80,7 +80,7 @@
 
         <section class="quick-book-card partner-card">
           <div><span class="bubble">🤝</span><h2>믿음 파트너 입점문의</h2><p>지역을 맡아 함께 운영할 세차 파트너를 모집합니다. 지역 · 경력 · 연락처를 남겨주세요.</p></div>
-          <button class="primary-btn" data-kakao>신청하기 →</button>
+          <button class="primary-btn" data-go="partner">신청하기 →</button>
         </section>
       </section>
 
@@ -148,6 +148,22 @@
         </article>
       </section>
 
+      <section id="partner" class="page">
+        <div class="page-title"><span>PARTNER</span><h1>믿음 파트너 입점문의</h1><p>지역을 맡아 함께 운영할 세차 파트너를 모집합니다. 전화 문의 <a class="inline-call" href="tel:01083918999" data-call data-phone-text>010-8391-8999</a></p></div>
+        <article class="panel form-panel">
+          <form id="partnerForm" class="form-grid">
+            <label>성함<input name="name" placeholder="예: 홍길동" required></label>
+            <label>연락처<input name="phone" inputmode="tel" placeholder="010-0000-0000" required></label>
+            <label>희망 지역<input name="area" placeholder="예: 대구 수성구 시지" required></label>
+            <label>세차 경력<select name="career"><option>경력 없음 (교육 희망)</option><option>1년 미만</option><option>1~3년</option><option>3년 이상</option></select></label>
+            <label class="span-2">보유 장비 · 차량<input name="equipment" placeholder="예: 스타렉스 + 고압세척기 보유 / 없음"></label>
+            <label class="span-2">문의사항<textarea name="memo" rows="4" placeholder="가능한 시작 시기, 주중/주말 운영 가능 여부 등을 적어주세요."></textarea></label>
+            <button type="submit" class="primary-btn span-2">입점문의 내용 만들기</button>
+          </form>
+          <div id="partnerResult" class="booking-result hidden"></div>
+        </article>
+      </section>
+
       <section id="admin" class="page">
     
         <div class="admin-warning">💡 여기서 수정한 내용은 먼저 이 기기에 저장됩니다. 모두에게 공개하려면 아래 <b>공개용 content.json 내보내기</b>를 눌러 GitHub 저장소의 data/content.json과 교체하세요.</div>
@@ -169,7 +185,7 @@
   <div id="toast" class="toast"></div>
   <script src="compat-fix.js?v=20260916-6"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
-  <script src="app.js?v=20260917-plate"></script>
+  <script src="app.js?v=20260917-partner"></script>
   <script src="supabase-integration.js?v=20260916-adminfix"></script>
 </body>
 </html>
