@@ -461,16 +461,9 @@
       </section>
 
       <section id="admin" class="page">
-    
-        <div class="admin-warning">💡 여기서 수정한 내용은 먼저 이 기기에 저장됩니다. 모두에게 공개하려면 아래 <b>공개용 content.json 내보내기</b>를 눌러 GitHub 저장소의 data/content.json과 교체하세요.</div>
         <div class="admin-grid">
           <article class="panel"><h2>운영 정보</h2><form id="settingsForm" class="form-grid"><label>전화번호<input name="phone"></label><label>카카오채널 URL<input name="kakaoUrl" placeholder="https://pf.kakao.com/..."></label><label class="span-2">영업시간<input name="hours"></label><button class="primary-btn span-2" type="submit">저장</button></form></article>
-          <article class="panel"><h2>세차 전·후 사진 추가</h2><form id="galleryForm" class="form-grid"><label>제목<input name="title" required></label><label>설명<input name="description"></label><label>Before 이미지<input type="file" accept="image/*" name="before" required></label><label>After 이미지<input type="file" accept="image/*" name="after" required></label><button class="primary-btn span-2" type="submit">사진 추가</button></form></article>
-          <article class="panel"><h2>세차 팁 추가</h2><form id="tipForm" class="form-grid"><label>카테고리<input name="category" placeholder="외부세차" required></label><label>아이콘<input name="icon" value="🫧"></label><label class="span-2">제목<input name="title" required></label><label class="span-2">본문<textarea name="body" rows="4" required></textarea></label><button class="primary-btn span-2" type="submit">팁 추가</button></form></article>
-          <article class="panel"><h2>예약 문의함</h2><div id="inquiryList"></div></article>
-          <article class="panel"><h2>백업 / 공개 데이터</h2><p class="muted">전체 백업에는 문의함까지 포함됩니다. 공개용 JSON은 개인정보 문의함을 제외합니다.</p><div class="stack-buttons"><button class="secondary-btn" id="exportAllBtn">전체 백업 JSON</button><button class="secondary-btn" id="importBtn">백업 JSON 가져오기</button><button class="primary-btn" id="exportPublicBtn">공개용 content.json 내보내기</button></div><input type="file" id="importFile" accept="application/json" class="hidden"></article>
         </div>
-        <div id="adminLists" class="content-section"></div>
       </section>
     </main>
 
@@ -482,6 +475,6 @@
   <script src="compat-fix.js?v=20260916-6"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
   <script src="app.js?v=20260917-partner"></script>
-  <script src="supabase-integration.js?v=20260916-adminfix"></script>
+  <script src="supabase-integration.js?v=20260917-clean"></script>
 </body>
 </html>
