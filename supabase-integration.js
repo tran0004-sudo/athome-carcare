@@ -125,7 +125,36 @@
       /* 예약 폼 */
       .booking-db-note{display:block;margin-top:8px;color:#087c68;font-weight:800;font-size:12px}
       /* 모바일 */
-      @media(max-width:540px){
+      /* 관리 섹션 탭 */
+      .admin-section-tabs{display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid #e9f0ee;padding-bottom:0}
+      .admin-sec-tab{border:0;background:none;padding:10px 16px;font-weight:800;font-size:14px;color:#9bb8b1;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:0}
+      .admin-sec-tab.active{color:#087c68;border-bottom-color:#087c68}
+      /* 월세 회원 */
+      .member-controls{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+      .member-controls input{flex:1 1 180px;border:1px solid #cfdcda;border-radius:13px;padding:10px 14px;font-size:14px}
+      .member-list{display:grid;gap:10px}
+      .member-card{border:1px solid #dfe9e7;border-radius:16px;padding:14px;background:#fbfdfd}
+      .member-card.highlight{border-color:#087c68;background:#f0fbf8}
+      .member-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+      .member-name{font-size:16px;font-weight:700;margin:0 0 3px}
+      .member-phone{font-size:13px;color:#647789}
+      .member-badge{font-size:12px;font-weight:900;padding:4px 10px;border-radius:999px;background:#e7f8f3;color:#05594b;white-space:nowrap;flex:0 0 auto}
+      .member-badge.bronze{background:#fdf0dc;color:#8a5200}
+      .member-badge.silver{background:#ececec;color:#4a4a4a}
+      .member-badge.gold{background:#fdf4cc;color:#7a6000}
+      .member-stats{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0;font-size:13px}
+      .member-stat{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 12px;border-radius:12px;background:#f3faf8;min-width:60px}
+      .member-stat b{font-size:18px;font-weight:900;color:#087c68;line-height:1}
+      .member-stat span{font-size:11px;color:#9bb8b1}
+      .member-stat.warn b{color:#c94141}
+      .member-history{margin-top:10px;font-size:12px;color:#647789;line-height:1.7}
+      .member-history summary{cursor:pointer;font-weight:700;color:#087c68;margin-bottom:4px}
+      .member-history .hist-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #e9f0ee;font-size:12px}
+      .member-history .hist-row:last-child{border-bottom:0}
+      .member-history .hist-date{color:#9bb8b1;flex:0 0 auto}
+      .member-history .hist-svc{flex:1}
+      .member-history .hist-amt{font-weight:700;color:#087c68;flex:0 0 auto}
+            @media(max-width:540px){
         .reservation-top{flex-direction:column}
         .res-actions{flex-direction:column;align-items:stretch}
         .res-actions button,.res-amount input,.res-when input{width:100%}
@@ -582,8 +611,24 @@
           </div>
         </div>
         <p id="todaySummary"></p>
-        <div id="reservationTabs" class="res-tabs"></div>
-        <div id="reservationList" class="reservation-list"><div class="reservation-empty">예약내역을 불러오는 중…</div></div>
+        <!-- 관리 섹션 탭 -->
+        <div class="admin-section-tabs">
+          <button class="admin-sec-tab active" data-sec="reservations">예약 관리</button>
+          <button class="admin-sec-tab" data-sec="members">월세 회원</button>
+        </div>
+        <!-- 예약 관리 -->
+        <div id="adminSecReservations">
+          <div id="reservationTabs" class="res-tabs"></div>
+          <div id="reservationList" class="reservation-list"><div class="reservation-empty">예약내역을 불러오는 중…</div></div>
+        </div>
+        <!-- 월세 회원 -->
+        <div id="adminSecMembers" class="hidden">
+          <div class="member-controls">
+            <input id="memberSearch" type="search" placeholder="이름·전화·아파트 검색" autocomplete="off">
+            <button id="memberRefresh" class="secondary-btn">새로고침</button>
+          </div>
+          <div id="memberList" class="member-list"><div class="reservation-empty">회원 목록을 불러오는 중…</div></div>
+        </div>
       </div>`;
 
     const anchor = admin.querySelector('.page-title');
@@ -657,6 +702,209 @@
     });
   }
 
+
+  /* ════════════════════════════════════════════════════════════════
+   * 월세 회원 관리
+   * ════════════════════════════════════════════════════════════════ */
+
+  let memberRows = [];   // customer_summary 뷰 전체
+  let memberQuery = '';  // 검색어
+
+  // 이번 달 완료 건수를 allRows 에서 직접 계산 (뷰보다 최신)
+  function thisMonthDone(phone) {
+    const now   = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    return allRows.filter(r =>
+      r.phone === phone &&
+      r.status === '완료' &&
+      r.done_at &&
+      new Date(r.done_at) >= start
+    ).length;
+  }
+
+  // 실내관리 포함 여부 — 이번 달 완료 건 memo 에서 "실내" 키워드 탐색
+  function hasInteriorThisMonth(phone) {
+    const now   = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    return allRows.some(r =>
+      r.phone === phone &&
+      r.status === '완료' &&
+      r.done_at &&
+      new Date(r.done_at) >= start &&
+      (r.memo || '').includes('실내')
+    );
+  }
+
+  // 최근 이용 이력 (완료 건 최대 10개)
+  function recentHistory(phone) {
+    return allRows
+      .filter(r => r.phone === phone && r.status === '완료' && r.done_at)
+      .sort((a,b) => new Date(b.done_at) - new Date(a.done_at))
+      .slice(0, 10);
+  }
+
+  // 등급 배지
+  function tierBadge(done_count) {
+    if (done_count >= 12) return ['gold',   '🥇 골드'];
+    if (done_count >= 6)  return ['silver', '🥈 실버'];
+    if (done_count >= 1)  return ['bronze', '🥉 브론즈'];
+    return ['', '신규'];
+  }
+
+  async function loadMembers(silent = false) {
+    const listEl = document.querySelector('#memberList');
+    if (!listEl) return;
+    const s = await getSession();
+    if (!s) return;
+    if (!silent) listEl.innerHTML = '<div class="reservation-empty">회원 목록 불러오는 중…</div>';
+    try {
+      // customer_summary 뷰 조회
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/customer_summary?select=*&order=done_count.desc&limit=200`,
+        { headers: api(s.access_token) }
+      );
+      if (r.status === 401 || r.status === 403) return handleExpired();
+      if (!r.ok) {
+        // 뷰가 아직 없으면 reservations 에서 직접 집계
+        memberRows = buildSummaryFromRows();
+      } else {
+        memberRows = await r.json();
+      }
+      renderMembers();
+    } catch (err) {
+      console.error(err);
+      // fallback: allRows 에서 직접 집계
+      memberRows = buildSummaryFromRows();
+      renderMembers();
+    }
+  }
+
+  // reservations-upgrade.sql 미실행 시 대비 — allRows 에서 직접 집계
+  function buildSummaryFromRows() {
+    const map = {};
+    allRows.forEach(r => {
+      if (!map[r.phone]) {
+        map[r.phone] = {
+          phone:         r.phone,
+          customer_name: r.customer_name,
+          apartment:     r.apartment,
+          car_model:     r.car_model,
+          done_count:    0,
+          last_done_at:  null,
+          total_amount:  0,
+        };
+      }
+      const m = map[r.phone];
+      if (r.customer_name) m.customer_name = r.customer_name;
+      if (r.apartment)     m.apartment     = r.apartment;
+      if (r.car_model)     m.car_model     = r.car_model;
+      if (r.status === '완료') {
+        m.done_count++;
+        m.total_amount += Number(r.amount || 0);
+        if (!m.last_done_at || r.done_at > m.last_done_at) m.last_done_at = r.done_at;
+      }
+    });
+    return Object.values(map).sort((a,b) => b.done_count - a.done_count);
+  }
+
+  function memberCardMarkup(m) {
+    const monthDone  = thisMonthDone(m.phone);
+    const hasInterior= hasInteriorThisMonth(m.phone);
+    const history    = recentHistory(m.phone);
+    const [tierCls, tierLabel] = tierBadge(m.done_count);
+    const lastText   = m.last_done_at
+      ? `마지막 ${new Date(m.last_done_at).toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'})}`
+      : '완료 이력 없음';
+    const totalText  = m.total_amount
+      ? `누계 ${Number(m.total_amount).toLocaleString('ko-KR')}원`
+      : '';
+
+    const histRows = history.map(r => `
+      <div class="hist-row">
+        <span class="hist-date">${r.done_at ? new Date(r.done_at).toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'}) : ''}</span>
+        <span class="hist-svc">${esc(r.service_type||'')} ${r.memo&&r.memo.includes('실내')? '🪑' : ''}</span>
+        <span class="hist-amt">${r.amount ? Number(r.amount).toLocaleString('ko-KR')+'원' : ''}</span>
+      </div>`).join('');
+
+    const interiorIcon = hasInterior
+      ? '<span title="이번 달 실내관리 완료">🪑 실내 ✅</span>'
+      : '<span title="이번 달 실내관리 미완료" style="opacity:.5">🪑 실내 ✗</span>';
+
+    return `<div class="member-card${monthDone > 0 ? ' highlight' : ''}">
+  <div class="member-top">
+    <div>
+      <p class="member-name">${esc(m.customer_name||'이름 없음')}</p>
+      <p class="member-phone">
+        <a href="tel:${tel(m.phone)}">${esc(m.phone)}</a>
+        · ${esc(m.apartment||'')} · ${esc(m.car_model||'')}
+      </p>
+    </div>
+    <span class="member-badge ${tierCls}">${tierLabel}</span>
+  </div>
+  <div class="member-stats">
+    <div class="member-stat${monthDone === 0 ? ' warn' : ''}">
+      <b>${monthDone}</b><span>이번 달</span>
+    </div>
+    <div class="member-stat">
+      <b>${m.done_count}</b><span>누적 완료</span>
+    </div>
+    <div class="member-stat" style="min-width:80px">
+      ${interiorIcon}
+    </div>
+    <div class="member-stat" style="min-width:90px">
+      <b style="font-size:13px">${lastText}</b><span>최근 완료</span>
+    </div>
+    ${totalText ? `<div class="member-stat"><b style="font-size:13px">${esc(totalText)}</b><span>누계 금액</span></div>` : ''}
+  </div>
+  ${history.length ? `<details class="member-history">
+    <summary>최근 이용 이력 ${history.length}건</summary>
+    ${histRows}
+  </details>` : ''}
+</div>`;
+  }
+
+  function renderMembers() {
+    const listEl = document.querySelector('#memberList');
+    if (!listEl) return;
+    const q = memberQuery.trim().toLowerCase();
+    let rows = memberRows;
+    if (q) {
+      rows = rows.filter(m =>
+        (m.customer_name||'').toLowerCase().includes(q) ||
+        (m.phone||'').includes(q) ||
+        (m.apartment||'').toLowerCase().includes(q) ||
+        (m.car_model||'').toLowerCase().includes(q)
+      );
+    }
+    if (!rows.length) {
+      listEl.innerHTML = `<div class="reservation-empty">${q ? '검색 결과가 없습니다.' : '이용 이력이 있는 고객이 없습니다.'}</div>`;
+      return;
+    }
+    listEl.innerHTML = rows.map(memberCardMarkup).join('');
+  }
+
+  /* ── 섹션 탭 전환 ────────────────────────────────────────────── */
+  function bindSectionTabs(card) {
+    card.querySelector('.admin-section-tabs').addEventListener('click', async e => {
+      const tab = e.target.closest('.admin-sec-tab');
+      if (!tab) return;
+      const sec = tab.dataset.sec;
+      card.querySelectorAll('.admin-sec-tab').forEach(t => t.classList.toggle('active', t === tab));
+      card.querySelector('#adminSecReservations').classList.toggle('hidden', sec !== 'reservations');
+      card.querySelector('#adminSecMembers').classList.toggle('hidden', sec !== 'members');
+      if (sec === 'members' && memberRows.length === 0) await loadMembers(false);
+    });
+
+    card.querySelector('#memberRefresh').addEventListener('click', () => loadMembers(false));
+
+    let searchTimer;
+    card.querySelector('#memberSearch').addEventListener('input', e => {
+      memberQuery = e.target.value;
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(renderMembers, 250);
+    });
+  }
+
   async function showAdminSession(s) {
     const card = document.querySelector('#supabaseAdminAuth');
     if (!card) return;
@@ -664,8 +912,9 @@
     card.querySelector('#adminLoggedIn').classList.remove('hidden');
     card.querySelector('#adminEmail').textContent = s.email || '관리자';
     setProtected(true);
+    bindSectionTabs(card);
     await loadReservations(false);
-    startAutoRefresh(); // 개선점 1
+    startAutoRefresh();
   }
 
   /* ── 초기화 ──────────────────────────────────────────────────── */
