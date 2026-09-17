@@ -179,20 +179,60 @@
 
   /* ========== 세션 ========== */
 
+  // ── 세션 저장소: localStorage → 탭을 닫아도 유지 ──────────────
   function loadStoredSession() {
-    try { return JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null'); }
+    try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }
     catch { return null; }
   }
 
   function saveSession(session) {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
   }
 
   function clearSession() {
-    sessionStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(SESSION_KEY);
   }
 
-  // 토큰이 만료되면 조용히 실패하지 않고 로그인 화면으로 되돌린다.
+  // ── 토큰 만료 여부 확인 (만료 5분 전부터 갱신 시도) ────────────
+  function isTokenExpired(session) {
+    if (!session || !session.expires_at) return true;
+    // expires_at 은 Unix 초 단위
+    return Date.now() / 1000 > session.expires_at - 300;
+  }
+
+  // ── refresh_token 으로 새 access_token 발급 ─────────────────────
+  async function refreshSession(session) {
+    if (!session?.refresh_token) throw new Error('refresh_token 없음');
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: session.refresh_token })
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.msg || data.error_description || '토큰 갱신 실패');
+    const next = {
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      expires_at: data.expires_at,
+      user_id: data.user?.id || session.user_id,
+      email: data.user?.email || session.email
+    };
+    saveSession(next);
+    return next;
+  }
+
+  // ── 세션 반환 — 만료 직전이면 자동 갱신, 실패하면 로그인으로 ──
+  async function getValidSession() {
+    let session = loadStoredSession();
+    if (!session) return null;
+    if (isTokenExpired(session)) {
+      try { session = await refreshSession(session); }
+      catch { handleExpired(); return null; }
+    }
+    return session;
+  }
+
+  // ── 만료/갱신 실패 시 로그인 화면으로 ──────────────────────────
   function handleExpired() {
     clearSession();
     allRows = [];
@@ -297,14 +337,13 @@
       }
     });
 
-    card.querySelector('#reloadReservations').addEventListener('click', () => {
-      const session = loadStoredSession();
+    card.querySelector('#reloadReservations').addEventListener('click', async () => {
+      const session = await getValidSession();
       if (session) loadReservations(session);
-      else handleExpired();
     });
 
     card.querySelector('#adminLogout').addEventListener('click', async () => {
-      const session = loadStoredSession();
+      const session = await getValidSession();
       if (session?.access_token) {
         fetch(`${SUPABASE_URL}/auth/v1/logout`, { method: 'POST', headers: apiHeaders(session.access_token) }).catch(() => {});
       }
@@ -334,10 +373,13 @@
       changeStatus(id, button.dataset.act, iso, button);
     });
 
-    const saved = loadStoredSession();
-    if (saved) {
-      isAdmin(saved).then((ok) => ok ? showAdminSession(saved) : clearSession()).catch(() => clearSession());
-    }
+    // 페이지 로드 시 저장된 세션으로 자동 로그인 유지
+    getValidSession().then(async (session) => {
+      if (!session) return;
+      const ok = await isAdmin(session).catch(() => false);
+      if (ok) showAdminSession(session);
+      else clearSession();
+    });
   }
 
   async function showAdminSession(session) {
@@ -352,9 +394,11 @@
 
   /* ========== 예약 목록 ========== */
 
-  async function loadReservations(session) {
+  async function loadReservations(sessionArg) {
     const list = document.querySelector('#reservationList');
     if (!list) return;
+    const session = await getValidSession();
+    if (!session) return;
     list.innerHTML = '<div class="reservation-empty">예약내역을 불러오는 중...</div>';
     try {
       const response = await fetch(`${SUPABASE_URL}/rest/v1/reservations?select=*&order=created_at.desc&limit=200`, {
@@ -465,8 +509,8 @@
   }
 
   async function changeStatus(id, status, scheduledIso, button) {
-    const session = loadStoredSession();
-    if (!session) return handleExpired();
+    const session = await getValidSession();
+    if (!session) return;
 
     if (status === '확정' && !scheduledIso) {
       showToast('방문 예정 일시를 먼저 선택해주세요.');
