@@ -154,7 +154,17 @@
       .member-history .hist-date{color:#9bb8b1;flex:0 0 auto}
       .member-history .hist-svc{flex:1}
       .member-history .hist-amt{font-weight:700;color:#087c68;flex:0 0 auto}
-      .member-del-row{margin-top:10px;text-align:right}
+      /* 예약 페이지 하단 연락 버튼 */
+      .booking-contact-strip{display:flex;gap:10px;margin:14px 16px 0;flex-wrap:wrap}
+      .booking-contact-btn{flex:1 1 140px;padding:14px;border-radius:16px;border:1px solid #cfdcda;background:#fff;font-weight:800;font-size:15px;text-align:center;cursor:pointer;text-decoration:none;color:#132c27}
+      .booking-contact-btn.kakao-btn{background:#fee500;border-color:#fee500;color:#3c1e1e}
+      /* 예약 성공 결과 */
+      .booking-success{padding:18px;background:#f0fbf8;border-radius:16px;border:1px solid #b8e8da}
+      .booking-success-title{font-size:17px;font-weight:900;color:#087c68;margin:0 0 8px}
+      .booking-success p{margin:0 0 14px;line-height:1.6;word-break:keep-all}
+      .booking-success-btns{display:flex;gap:8px;flex-wrap:wrap}
+      .booking-success-btns a,.booking-success-btns button{flex:1 1 120px;text-align:center;text-decoration:none}
+            .member-del-row{margin-top:10px;text-align:right}
       .member-del-btn{border:1px solid #f5c6c6;background:#fff5f5;color:#c94141;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer}
       .member-del-btn:hover{background:#fbe3e3}
             @media(max-width:540px){
@@ -480,39 +490,7 @@
     const form = document.querySelector('#bookingForm');
     if (!form || form.dataset.supabaseReady) return;
     form.dataset.supabaseReady = '1';
-
-    // 예약자 이름 필드
-    const aptLabel = form.querySelector('input[name="apartment"]')?.closest('label');
-    if (aptLabel && !form.querySelector('[name="customerName"]')) {
-      aptLabel.insertAdjacentHTML('beforebegin',
-        '<label>예약자 이름<input name="customerName" placeholder="예: 홍길동" autocomplete="name" required></label>');
-    }
-
-    // 차종 구분 선택 (개선점 2)
-    const carLabel = form.querySelector('input[name="car"]')?.closest('label');
-    if (carLabel && !form.querySelector('[name="carClass"]')) {
-      carLabel.insertAdjacentHTML('afterend',
-        `<label>차종 구분<select name="carClass">
-          <option value="">선택 (선택사항)</option>
-          ${CAR_CLASSES.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('')}
-        </select></label>`);
-    }
-
-    // 희망 날짜·시간
-    const memoLabel = form.querySelector('textarea[name="memo"]')?.closest('label');
-    if (memoLabel && !form.querySelector('[name="preferredDate"]')) {
-      memoLabel.insertAdjacentHTML('beforebegin',
-        '<label>희망 날짜<input name="preferredDate" type="date"></label>' +
-        '<label>희망 시간<input name="preferredTime" type="time"></label>');
-    }
-
-    const submit = form.querySelector('button[type="submit"]');
-    if (submit) submit.textContent = '예약 접수하기';
-    const note = document.createElement('small');
-    note.className = 'booking-db-note span-2';
-    note.textContent = '예약 내용은 앳홈 카케어 예약 DB에 안전하게 접수됩니다.';
-    submit?.insertAdjacentElement('afterend', note);
-
+    // 필드는 index.html에 이미 포함 — 이벤트만 연결
     form.addEventListener('submit', submitBooking, true);
   }
 
@@ -560,9 +538,15 @@
       const result = document.querySelector('#bookingResult');
       if (result) {
         result.classList.remove('hidden');
-        result.innerHTML = `<strong>예약이 접수되었습니다. ✅</strong>
+        const kakaoUrl = (window.state && window.state.settings && window.state.settings.kakaoUrl) || '';
+        result.innerHTML = `<div class="booking-success">
+          <p class="booking-success-title">✅ 예약이 접수되었습니다!</p>
           <p>${esc(payload.customer_name)}님, ${esc(payload.apartment)} · ${esc(payload.car_model)} 예약을 확인 후 연락드리겠습니다.</p>
-          <div class="actions"><a class="secondary-btn button-link" href="tel:01083918999">☎ 010-8391-8999</a></div>`;
+          <div class="booking-success-btns">
+            <a class="primary-btn button-link" href="tel:01083918999">☎ 전화 확인</a>
+            ${kakaoUrl ? `<button class="secondary-btn" onclick="window.open('${kakaoUrl}','_blank','noopener')">💬 카카오채널</button>` : ''}
+          </div>
+        </div>`;
       }
       form.reset();
       toast('예약이 접수되었습니다. 곧 연락드리겠습니다.');
