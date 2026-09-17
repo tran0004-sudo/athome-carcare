@@ -155,9 +155,11 @@
       .member-history .hist-svc{flex:1}
       .member-history .hist-amt{font-weight:700;color:#087c68;flex:0 0 auto}
       /* 예약 페이지 하단 연락 버튼 */
-      .booking-contact-strip{display:flex;gap:10px;margin:14px 16px 0;flex-wrap:wrap}
-      .booking-contact-btn{flex:1 1 140px;padding:14px;border-radius:16px;border:1px solid #cfdcda;background:#fff;font-weight:800;font-size:15px;text-align:center;cursor:pointer;text-decoration:none;color:#132c27}
-      .booking-contact-btn.kakao-btn{background:#fee500;border-color:#fee500;color:#3c1e1e}
+      .booking-contact-strip{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 0}
+      .booking-contact-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 12px;border-radius:18px;border:2px solid #cfdcda;background:#fff;font-weight:900;font-size:16px;text-align:center;cursor:pointer;text-decoration:none;color:#132c27;line-height:1.3;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+      .booking-contact-btn:active{transform:scale(.97)}
+      .booking-contact-btn.kakao-btn{background:#fee500;border-color:#f0d900;color:#3c1e1e;box-shadow:0 4px 14px rgba(254,229,0,.35)}
+      @media(max-width:400px){.booking-contact-strip{grid-template-columns:1fr}}
       /* 예약 성공 결과 */
       .booking-success{padding:18px;background:#f0fbf8;border-radius:16px;border:1px solid #b8e8da}
       .booking-success-title{font-size:17px;font-weight:900;color:#087c68;margin:0 0 8px}
