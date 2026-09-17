@@ -129,7 +129,7 @@
       .admin-section-tabs{display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid #e9f0ee;padding-bottom:0}
       .admin-sec-tab{border:0;background:none;padding:10px 16px;font-weight:800;font-size:14px;color:#9bb8b1;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:0}
       .admin-sec-tab.active{color:#087c68;border-bottom-color:#087c68}
-      /* 월세 회원 */
+      /* 월 회원 */
       .member-controls{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
       .member-controls input{flex:1 1 180px;border:1px solid #cfdcda;border-radius:13px;padding:10px 14px;font-size:14px}
       .member-list{display:grid;gap:10px}
@@ -154,6 +154,9 @@
       .member-history .hist-date{color:#9bb8b1;flex:0 0 auto}
       .member-history .hist-svc{flex:1}
       .member-history .hist-amt{font-weight:700;color:#087c68;flex:0 0 auto}
+      .member-del-row{margin-top:10px;text-align:right}
+      .member-del-btn{border:1px solid #f5c6c6;background:#fff5f5;color:#c94141;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer}
+      .member-del-btn:hover{background:#fbe3e3}
             @media(max-width:540px){
         .reservation-top{flex-direction:column}
         .res-actions{flex-direction:column;align-items:stretch}
@@ -614,14 +617,14 @@
         <!-- 관리 섹션 탭 -->
         <div class="admin-section-tabs">
           <button class="admin-sec-tab active" data-sec="reservations">예약 관리</button>
-          <button class="admin-sec-tab" data-sec="members">월세 회원</button>
+          <button class="admin-sec-tab" data-sec="members">월 회원</button>
         </div>
         <!-- 예약 관리 -->
         <div id="adminSecReservations">
           <div id="reservationTabs" class="res-tabs"></div>
           <div id="reservationList" class="reservation-list"><div class="reservation-empty">예약내역을 불러오는 중…</div></div>
         </div>
-        <!-- 월세 회원 -->
+        <!-- 월 회원 -->
         <div id="adminSecMembers" class="hidden">
           <div class="member-controls">
             <input id="memberSearch" type="search" placeholder="이름·전화·아파트 검색" autocomplete="off">
@@ -704,7 +707,7 @@
 
 
   /* ════════════════════════════════════════════════════════════════
-   * 월세 회원 관리
+   * 월 회원 관리
    * ════════════════════════════════════════════════════════════════ */
 
   let memberRows = [];   // customer_summary 뷰 전체
@@ -860,6 +863,11 @@
     <summary>최근 이용 이력 ${history.length}건</summary>
     ${histRows}
   </details>` : ''}
+  <div class="member-del-row">
+    <button class="member-del-btn" data-del-phone="${m.phone}" data-del-name="${esc(m.customer_name||'이름 없음')}">
+      이 고객 예약 이력 전체 삭제
+    </button>
+  </div>
 </div>`;
   }
 
@@ -883,6 +891,31 @@
     listEl.innerHTML = rows.map(memberCardMarkup).join('');
   }
 
+  async function deleteCustomerReservations(phone, btn) {
+    const s = await getSession();
+    if (!s) return;
+    const orig = btn.textContent;
+    btn.disabled = true; btn.textContent = '삭제 중…';
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/reservations?phone=eq.${encodeURIComponent(phone)}`,
+        { method: 'DELETE', headers: api(s.access_token, { Prefer: 'return=minimal' }) }
+      );
+      if (r.status === 401 || r.status === 403) return handleExpired();
+      if (!r.ok) throw new Error(await r.text());
+      // 로컬 데이터에서도 제거
+      allRows   = allRows.filter(x => x.phone !== phone);
+      memberRows = memberRows.filter(x => x.phone !== phone);
+      toast('예약 이력이 삭제되었습니다.');
+      renderReservations();
+      renderMembers();
+    } catch (err) {
+      console.error(err);
+      toast('삭제에 실패했습니다: ' + (err.message || err));
+      btn.disabled = false; btn.textContent = orig;
+    }
+  }
+
   /* ── 섹션 탭 전환 ────────────────────────────────────────────── */
   function bindSectionTabs(card) {
     card.querySelector('.admin-section-tabs').addEventListener('click', async e => {
@@ -902,6 +935,16 @@
       memberQuery = e.target.value;
       clearTimeout(searchTimer);
       searchTimer = setTimeout(renderMembers, 250);
+    });
+
+    // 고객 예약 이력 삭제 (이벤트 위임)
+    document.addEventListener('click', async e => {
+      const btn = e.target.closest('.member-del-btn');
+      if (!btn) return;
+      const phone = btn.dataset.delPhone;
+      const name  = btn.dataset.delName;
+      if (!confirm(`${name} (${phone}) 님의 예약 이력을 전체 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) return;
+      await deleteCustomerReservations(phone, btn);
     });
   }
 
