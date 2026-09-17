@@ -166,6 +166,29 @@
       .booking-success p{margin:0 0 14px;line-height:1.6;word-break:keep-all}
       .booking-success-btns{display:flex;gap:8px;flex-wrap:wrap}
       .booking-success-btns a,.booking-success-btns button{flex:1 1 120px;text-align:center;text-decoration:none}
+            /* 메시지 버튼 */
+      .res-msg{background:#e7f8f3;color:#05594b;border:1px solid #b8e8da}
+      /* 메시지 모달 */
+      .msg-overlay{position:fixed;inset:0;z-index:9999;background:rgba(10,34,30,.55);display:flex;align-items:flex-end;justify-content:center;padding:0}
+      @media(min-width:600px){.msg-overlay{align-items:center;padding:20px}}
+      .msg-box{width:100%;max-width:560px;max-height:92vh;overflow-y:auto;background:#fff;border-radius:22px 22px 0 0;padding:20px 18px 22px;box-shadow:0 -8px 40px rgba(0,0,0,.25)}
+      @media(min-width:600px){.msg-box{border-radius:22px}}
+      .msg-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px}
+      .msg-head b{font-size:17px;font-weight:900;display:block}
+      .msg-phone{font-size:13px;color:#647789}
+      .msg-close{border:0;background:#eef4f3;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer;color:#4a5f5b;flex:0 0 auto}
+      .msg-tpls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+      .msg-tpl{border:1px solid #cfdcda;background:#fff;color:#4a5f5b;border-radius:999px;padding:7px 13px;font-size:13px;font-weight:700;cursor:pointer}
+      .msg-tpl.active{background:#087c68;border-color:#087c68;color:#fff}
+      #msgText{width:100%;border:1px solid #cfdcda;border-radius:14px;padding:14px;font-family:inherit;font-size:14px;line-height:1.7;color:#132c27;resize:vertical;background:#fbfdfd}
+      #msgText:focus{outline:0;border-color:#087c68;box-shadow:0 0 0 3px rgba(8,124,104,.15)}
+      .msg-count{margin:6px 2px 14px;text-align:right;font-size:12px;color:#9bb8b1}
+      .msg-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+      .msg-actions a,.msg-actions button{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 10px;border:0;border-radius:14px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;text-decoration:none}
+      .msg-send{background:#087c68;color:#fff;grid-column:1/-1}
+      .msg-copy{background:#eef4f3;color:#4a5f5b}
+      .msg-kakao{background:#fee500;color:#3c1e1e}
+      .msg-call{background:#e7f8f3;color:#05594b;grid-column:1/-1}
             .member-del-row{margin-top:10px;text-align:right}
       .member-del-btn{border:1px solid #f5c6c6;background:#fff5f5;color:#c94141;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer}
       .member-del-btn:hover{background:#fbe3e3}
@@ -360,9 +383,13 @@
         <input type="datetime-local" data-when="${esc(row.id)}" value="${esc(prefInput(row))}">
       </label>`;
 
+    // 고객에게 메시지 보내기 버튼 (모든 상태 공통)
+    const msgBtn = `<button class="res-msg" data-msg="${esc(row.id)}">💬 메시지</button>`;
+
     if (row.status === '접수') {
       return whenInput +
         `<button class="res-go" data-act="확정" data-id="${esc(row.id)}">확정</button>` +
+        msgBtn +
         `<button class="res-danger" data-act="취소" data-id="${esc(row.id)}">취소</button>`;
     }
     if (row.status === '확정') {
@@ -373,16 +400,18 @@
         </label>`;
       return whenInput + amtInput +
         `<button class="res-go" data-act="완료" data-id="${esc(row.id)}">완료</button>` +
+        msgBtn +
         `<button class="res-sub" data-act="접수" data-id="${esc(row.id)}">접수로</button>`;
     }
     if (row.status === '취소') {
-      // [개선점 5] 취소 → 접수 or 확정 선택
       return whenInput +
         `<button class="res-sub" data-act="접수" data-id="${esc(row.id)}">접수로</button>` +
+        msgBtn +
         `<button class="res-go"  data-act="확정" data-id="${esc(row.id)}">확정으로</button>`;
     }
     // 완료
-    return `<button class="res-sub" data-act="접수" data-id="${esc(row.id)}">접수로</button>`;
+    return msgBtn +
+      `<button class="res-sub" data-act="접수" data-id="${esc(row.id)}">접수로</button>`;
   }
 
   function rowMarkup(row) {
@@ -443,6 +472,203 @@
   }
 
   /* ── 상태 변경 ───────────────────────────────────────────────── */
+
+
+  /* ════════════════════════════════════════════════════════════════
+   * 고객 메시지 보내기
+   * ════════════════════════════════════════════════════════════════ */
+
+  // 상태별 문구 템플릿
+  function messageTemplates(row) {
+    const name  = row.customer_name || '고객';
+    const apt   = row.apartment || '';
+    const car   = row.car_model || '';
+    const when  = row.scheduled_at ? fmt(row.scheduled_at) : '';
+    const pref  = [row.preferred_date, row.preferred_time ? String(row.preferred_time).slice(0,5) : '']
+                  .filter(Boolean).join(' ');
+
+    return [
+      {
+        key: '접수확인',
+        label: '접수 확인',
+        text:
+`${name}님, 집앞세차-앳홈 카케어입니다.
+
+예약 접수가 확인되었습니다.
+· 위치: ${apt}
+· 차량: ${car}${pref ? `\n· 희망일시: ${pref}` : ''}
+
+가능한 일정 확인 후 다시 연락드리겠습니다.
+감사합니다.`
+      },
+      {
+        key: '확정안내',
+        label: '방문 확정',
+        text:
+`${name}님, 집앞세차-앳홈 카케어입니다.
+
+방문 일정이 확정되었습니다.
+· 일시: ${when || '(일시 입력 필요)'}
+· 위치: ${apt}
+· 차량: ${car}
+
+방문 전까지 차량을 주차해 두시면 됩니다.
+변경이 필요하시면 언제든 연락 주세요.`
+      },
+      {
+        key: '방문전',
+        label: '방문 전 알림',
+        text:
+`${name}님, 집앞세차-앳홈 카케어입니다.
+
+오늘 ${when || ''} 방문 예정입니다.
+차량이 주차되어 있는지 확인 부탁드립니다.
+
+곧 뵙겠습니다.`
+      },
+      {
+        key: '완료안내',
+        label: '작업 완료',
+        text:
+`${name}님, 세차 작업이 완료되었습니다.
+
+· 차량: ${car}
+· 위치: ${apt}${row.amount ? `\n· 금액: ${Number(row.amount).toLocaleString('ko-KR')}원` : ''}
+
+이용해 주셔서 감사합니다.
+불편하신 점이 있으면 편하게 말씀해 주세요.`
+      },
+      {
+        key: '일정조율',
+        label: '일정 조율',
+        text:
+`${name}님, 집앞세차-앳홈 카케어입니다.
+
+요청하신 일정에 방문이 어려워 연락드립니다.
+혹시 아래 시간 중 가능하신 때가 있으실까요?
+
+· (1안)
+· (2안)
+
+편하신 시간 알려주시면 맞춰 방문하겠습니다.`
+      },
+      {
+        key: '취소안내',
+        label: '취소 안내',
+        text:
+`${name}님, 집앞세차-앳홈 카케어입니다.
+
+요청하신 예약이 취소 처리되었습니다.
+다시 이용을 원하시면 언제든 연락 주세요.
+
+감사합니다.`
+      },
+    ];
+  }
+
+  // 문자 앱 열기 (iOS / Android URI 형식이 다름)
+  function smsHref(phone, body) {
+    const num = tel(phone);
+    const enc = encodeURIComponent(body);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    return isIOS ? `sms:${num}&body=${enc}` : `sms:${num}?body=${enc}`;
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
+    return new Promise((resolve, reject) => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); resolve(); } catch (e) { reject(e); }
+      document.body.removeChild(ta);
+    });
+  }
+
+  function openMessageModal(row) {
+    document.querySelector('#msgModal')?.remove();
+
+    const tpls = messageTemplates(row);
+    // 상태에 맞는 템플릿을 기본 선택
+    const defaultKey =
+      row.status === '접수' ? '접수확인' :
+      row.status === '확정' ? '확정안내' :
+      row.status === '완료' ? '완료안내' :
+      row.status === '취소' ? '취소안내' : '접수확인';
+
+    const wrap = document.createElement('div');
+    wrap.id = 'msgModal';
+    wrap.className = 'msg-overlay';
+    wrap.innerHTML = `
+      <div class="msg-box" role="dialog" aria-modal="true" aria-label="고객 메시지 보내기">
+        <div class="msg-head">
+          <div>
+            <b>${esc(row.customer_name || '고객')}</b>
+            <span class="msg-phone">${esc(row.phone)}</span>
+          </div>
+          <button class="msg-close" aria-label="닫기">✕</button>
+        </div>
+
+        <div class="msg-tpls">
+          ${tpls.map(t => `<button class="msg-tpl${t.key === defaultKey ? ' active' : ''}" data-tpl="${t.key}">${esc(t.label)}</button>`).join('')}
+        </div>
+
+        <textarea id="msgText" rows="11" spellcheck="false"></textarea>
+        <p class="msg-count"><span id="msgLen">0</span>자</p>
+
+        <div class="msg-actions">
+          <a class="msg-send" id="msgSms" href="#">📱 문자 보내기</a>
+          <button class="msg-copy" id="msgCopy">📋 복사</button>
+          <a class="msg-kakao" href="https://pf.kakao.com/_gpDrX" target="_blank" rel="noopener">💬 카카오</a>
+          <a class="msg-call" href="tel:${tel(row.phone)}">📞 전화</a>
+        </div>
+      </div>`;
+    document.body.appendChild(wrap);
+
+    const ta     = wrap.querySelector('#msgText');
+    const lenEl  = wrap.querySelector('#msgLen');
+    const smsEl  = wrap.querySelector('#msgSms');
+
+    function applyTemplate(key) {
+      const t = tpls.find(x => x.key === key);
+      if (!t) return;
+      ta.value = t.text;
+      syncText();
+    }
+    function syncText() {
+      lenEl.textContent = ta.value.length;
+      smsEl.href = smsHref(row.phone, ta.value);
+    }
+
+    applyTemplate(defaultKey);
+
+    ta.addEventListener('input', syncText);
+
+    wrap.querySelector('.msg-tpls').addEventListener('click', e => {
+      const btn = e.target.closest('[data-tpl]');
+      if (!btn) return;
+      wrap.querySelectorAll('.msg-tpl').forEach(b => b.classList.toggle('active', b === btn));
+      applyTemplate(btn.dataset.tpl);
+    });
+
+    wrap.querySelector('#msgCopy').addEventListener('click', function () {
+      const btn = this;
+      copyToClipboard(ta.value).then(
+        () => { const o = btn.textContent; btn.textContent = '✅ 복사됨'; setTimeout(() => btn.textContent = o, 1600); },
+        () => toast('복사하지 못했습니다.')
+      );
+    });
+
+    const close = () => wrap.remove();
+    wrap.querySelector('.msg-close').addEventListener('click', close);
+    wrap.addEventListener('click', e => { if (e.target === wrap) close(); });
+    document.addEventListener('keydown', function onEsc(e) {
+      if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onEsc); }
+    });
+  }
 
   async function changeStatus(id, status, scheduledIso, amountVal, button) {
     const s = await getSession();
@@ -669,8 +895,16 @@
       renderReservations();
     });
 
-    /* 상태 변경 버튼 (개선점 3: 금액 같이 수집) */
+    /* 상태 변경 + 메시지 버튼 */
     card.querySelector('#reservationList').addEventListener('click', e => {
+      // 고객 메시지 모달
+      const msgBtn = e.target.closest('[data-msg]');
+      if (msgBtn) {
+        const row = allRows.find(r => String(r.id) === String(msgBtn.dataset.msg));
+        if (row) openMessageModal(row);
+        return;
+      }
+      // 상태 변경
       const btn = e.target.closest('[data-act]');
       if (!btn) return;
       const id     = btn.dataset.id;
