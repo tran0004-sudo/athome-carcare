@@ -543,7 +543,7 @@
           <p>${esc(payload.customer_name)}님, ${esc(payload.apartment)} · ${esc(payload.car_model)} 예약을 확인 후 연락드리겠습니다.</p>
           <div class="booking-success-btns">
             <a class="primary-btn button-link" href="tel:01083918999">☎ 전화 확인</a>
-            <a class="secondary-btn button-link" href="http://pf.kakao.com/qpDrX" target="_blank" rel="noopener">💬 카카오채널</a>
+            <a class="secondary-btn button-link" href="https://pf.kakao.com/_gpDrX" target="_blank" rel="noopener">💬 카카오채널</a>
           </div>
         </div>`;
       }

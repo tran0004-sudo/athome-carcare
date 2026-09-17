@@ -204,7 +204,7 @@ function bindEvents() {
 
     const kakaoButton = event.target.closest('[data-kakao]');
     if (kakaoButton) {
-      window.open('http://pf.kakao.com/qpDrX', '_blank', 'noopener');
+      window.open('https://pf.kakao.com/_gpDrX', '_blank', 'noopener');
       return;
     }
 
@@ -253,7 +253,7 @@ function bindEvents() {
           .then(() => toast('입점문의 내용을 복사했습니다.'))
           .catch(() => toast('복사 기능을 사용할 수 없습니다.'));
       document.querySelector('#openPartnerKakao').onclick = () => {
-        window.open('http://pf.kakao.com/qpDrX', '_blank', 'noopener');
+        window.open('https://pf.kakao.com/_gpDrX', '_blank', 'noopener');
       };
     }
     toast('입점문의 내용이 준비되었습니다.');
