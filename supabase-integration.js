@@ -524,9 +524,16 @@
     const name  = row.customer_name || '고객';
     const apt   = row.apartment || '';
     const car   = row.car_model || '';
-    const when  = row.scheduled_at ? fmt(row.scheduled_at) : '';
     const pref  = [row.preferred_date, row.preferred_time ? String(row.preferred_time).slice(0,5) : '']
                   .filter(Boolean).join(' ');
+    // 확정 일시 → 관리자가 방문 예정 칸에 입력해 둔 값 → 고객 희망 일시 순으로 사용
+    const typed = document.querySelector(`[data-when="${row.id}"]`)?.value || '';
+    const typedText = (() => {
+      if (!typed) return '';
+      const d = new Date(typed);
+      return Number.isNaN(d.getTime()) ? '' : fmt(d.toISOString());
+    })();
+    const when  = row.scheduled_at ? fmt(row.scheduled_at) : (typedText || pref);
 
     return [
       {
@@ -549,7 +556,7 @@
 `${name}님, 집앞세차-앳홈 카케어입니다.
 
 방문 일정이 확정되었습니다.
-· 일시: ${when || '(일시 입력 필요)'}
+· 일시: ${when || '(방문 예정 칸에 일시를 입력해주세요)'}
 · 위치: ${apt}
 · 차량: ${car}
 
