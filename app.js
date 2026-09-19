@@ -158,7 +158,8 @@ function renderSettings() {
 }
 
 let autoBenefits = { first: false, apt5: false, loyal: false };
-const manualPromos = new Set();
+let myCoupons = [];
+let selectedBenefit = '';
 
 function promoLabel(promo) {
   return `${promo.text || ''}${promo.highlight || ''}`.trim();
@@ -248,7 +249,16 @@ function bindEvents() {
       id: uid('r'), author: fd.get('author'), car: fd.get('car'),
       rating: Number(fd.get('rating')), text: fd.get('text')
     });
+    const phone = String(fd.get('phone') || '').trim();
     save(); event.currentTarget.reset(); render();
+    if (phone.replace(/\D/g, '').length >= 9 && typeof window.requestReviewCoupon === 'function') {
+      window.requestReviewCoupon(phone).then((result) => {
+        toast(result?.ok
+          ? `후기 감사합니다! 리뷰 혜택 쿠폰(${result.code})을 신청했습니다. 승인 후 사용하실 수 있습니다.`
+          : '후기가 등록되었습니다.');
+      });
+      return;
+    }
     toast('후기가 등록되었습니다.');
   });
 
@@ -385,14 +395,22 @@ function buildQuote(form) {
   const car = form.querySelector('#carHidden')?.value || '';
   const options = Array.from(form.querySelectorAll('[name="options"]:checked')).map((el) => el.value);
 
-  const promoIds = Array.from(form.querySelectorAll('[name="promos"]:checked')).map((el) => el.value);
-  const promos = (state.promos || DEFAULT_PROMOS).filter((promo) => promoIds.includes(promo.id));
+  const picked = form.querySelector('[name="promo"]:checked');
+  const key = picked ? picked.value : '';
+  const promos = [];
+  if (key.startsWith('promo:')) {
+    const promo = (state.promos || DEFAULT_PROMOS).find((item) => item.id === key.slice(6));
+    if (promo) promos.push({ label: promoLabel(promo), amount: promo.amount || 0, gift: promo.gift || '' });
+  } else if (key.startsWith('coupon:')) {
+    const coupon = (window.__myCoupons || []).find((item) => item.code === key.slice(7));
+    if (coupon) promos.push({ label: `${coupon.label} (${coupon.code})`, amount: coupon.amount || 0, gift: coupon.gift || '' });
+  }
 
   const base = PRICE_TABLE[cls] ? PRICE_TABLE[cls][svc] : undefined;
   const lines = [];
   if (base) lines.push([`${svc} (${cls})`, base]);
   options.forEach((name) => lines.push([name, OPTION_PRICES[name] || 0]));
-  promos.forEach((promo) => lines.push([promoLabel(promo), -(promo.amount || 0), promo.gift || (promo.amount ? '' : '혜택 제공')]));
+  promos.forEach((promo) => lines.push([promo.label, -(promo.amount || 0), promo.gift || (promo.amount ? '' : '혜택 제공')]));
 
   const monthly = svc === '월 2회' || svc === '월 4회';
   const total = Math.max(0, lines.reduce((sum, [, price]) => sum + price, 0));
@@ -496,26 +514,71 @@ function bindBookingExtras() {
   const promoField = form.querySelector('#promoField');
   const promoGrid = form.querySelector('#promoGrid');
 
-  function renderPromoOptions() {
-    if (!promoGrid || !promoField) return;
+  function benefitChoices() {
     const svc = svcSel ? svcSel.value : '';
-    const checked = new Set(Array.from(promoGrid.querySelectorAll('input:checked')).map((el) => el.value));
-    const list = (state.promos || DEFAULT_PROMOS).filter((promo) =>
-      !promo.services || !promo.services.length || promo.services.includes(svc));
-    promoField.classList.toggle('hidden', !list.length);
-    promoGrid.innerHTML = list.map((promo) => {
-      const label = promoLabel(promo);
-      const auto = promo.auto && autoBenefits[promo.auto];
-      const on = manualPromos.has(promo.id) ? checked.has(promo.id) : (auto || checked.has(promo.id));
-      const badge = promo.amount ? `-${promo.amount.toLocaleString('ko-KR')}원` : '혜택 제공';
-      const mark = auto ? ' <em class="auto-mark">자동 확인</em>' : '';
-      return `<label class="opt-chip promo-chip"><input type="checkbox" name="promos" value="${esc(promo.id)}"${on ? ' checked' : ''}><span>${esc(label)}<small>${badge}${mark}</small></span></label>`;
+    const list = (state.promos || DEFAULT_PROMOS)
+      .filter((promo) => promo.auto && autoBenefits[promo.auto])
+      .filter((promo) => !promo.services || !promo.services.length || promo.services.includes(svc))
+      .map((promo) => ({
+        key: `promo:${promo.id}`,
+        label: promoLabel(promo),
+        amount: promo.amount || 0,
+        gift: promo.gift || '',
+        auto: true,
+      }));
+    const coupons = myCoupons.map((coupon) => ({
+      key: `coupon:${coupon.code}`,
+      label: `${coupon.label} (${coupon.code})`,
+      amount: coupon.amount || 0,
+      gift: coupon.gift || '',
+      auto: false,
+    }));
+    return [...list, ...coupons];
+  }
+
+  function renderPromoOptions() {
+    if (!promoGrid) return;
+    const choices = benefitChoices();
+    if (!choices.some((choice) => choice.key === selectedBenefit)) selectedBenefit = '';
+    const rows = [{ key: '', label: '혜택 사용 안 함', amount: 0, gift: '', auto: false }, ...choices];
+    promoGrid.innerHTML = rows.map((row) => {
+      const badge = row.key === ''
+        ? ''
+        : `<small>${row.amount ? `-${row.amount.toLocaleString('ko-KR')}원` : (row.gift || '혜택 제공')}${row.auto ? ' <em class="auto-mark">자동 확인</em>' : ''}</small>`;
+      return `<label class="opt-chip promo-chip"><input type="radio" name="promo" value="${esc(row.key)}"${row.key === selectedBenefit ? ' checked' : ''}><span>${esc(row.label)}${badge}</span></label>`;
     }).join('');
   }
 
   promoGrid?.addEventListener('change', (event) => {
-    const box = event.target.closest('[name="promos"]');
-    if (box) manualPromos.add(box.value);
+    const picked = event.target.closest('[name="promo"]');
+    if (picked) { selectedBenefit = picked.value; renderQuote(form); }
+  });
+
+  form.querySelector('#couponCheck')?.addEventListener('click', async () => {
+    const input = form.querySelector('#couponCode');
+    const msg = form.querySelector('#couponMsg');
+    const code = (input.value || '').trim().toUpperCase();
+    if (!code) return;
+    msg.textContent = '확인 중…';
+    msg.className = 'coupon-msg';
+    const result = await (window.checkCoupon ? window.checkCoupon(code) : Promise.resolve(null));
+    if (!result) { msg.textContent = '쿠폰 확인 기능을 사용할 수 없습니다. 전화로 문의해주세요.'; return; }
+    if (!result.valid) { msg.textContent = result.reason || '사용할 수 없는 쿠폰입니다.'; msg.className = 'coupon-msg bad'; return; }
+    if (!myCoupons.some((coupon) => coupon.code === result.code)) myCoupons.push(result);
+    window.__myCoupons = myCoupons;
+    selectedBenefit = `coupon:${result.code}`;
+    msg.textContent = `${result.label} 쿠폰이 적용되었습니다.`;
+    msg.className = 'coupon-msg good';
+    input.value = '';
+    renderPromoOptions();
+    renderQuote(form);
+  });
+
+  window.addEventListener('coupons:update', (event) => {
+    myCoupons = Array.isArray(event.detail) ? event.detail : [];
+    window.__myCoupons = myCoupons;
+    renderPromoOptions();
+    renderQuote(form);
   });
 
   window.addEventListener('benefits:update', (event) => {

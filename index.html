@@ -416,6 +416,7 @@
           <form id="reviewForm" class="form-grid">
             <label>지역/이름<input name="author" placeholder="예: 사월동 고객" required></label>
             <label>차종<input name="car" placeholder="예: GV80"></label>
+            <label class="span-2">연락처 <small class="field-hint">리뷰 혜택 쿠폰을 받으실 번호입니다 (선택)</small><input name="phone" inputmode="tel" placeholder="010-0000-0000" autocomplete="off"></label>
             <label>별점<select name="rating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
             <label class="span-2">후기<textarea name="text" rows="4" placeholder="이용후기를 적어주세요." required></textarea></label>
             <button class="primary-btn span-2" type="submit">후기 등록</button>
@@ -475,10 +476,16 @@
                 <label class="opt-chip"><input type="checkbox" name="options" value="벌레·타르 제거"><span>벌레·타르 제거<small>+10,000원</small></span></label>
               </div>
             </div>
-            <div class="span-2 opt-field hidden" id="promoField">
-              <span class="opt-title">적용 가능한 혜택 <small class="field-hint">해당되는 항목을 모두 선택하세요 (중복 적용 가능)</small></span>
+            <div class="span-2 opt-field" id="promoField">
+              <span class="opt-title">혜택 적용 <small class="field-hint">예약 1건당 1개만 적용됩니다 (중복 불가)</small></span>
               <div class="opt-grid" id="promoGrid"></div>
+              <div class="coupon-row">
+                <input id="couponCode" placeholder="쿠폰 번호 (예: AHC-3F7K2Q)" autocomplete="off">
+                <button type="button" class="secondary-btn" id="couponCheck">쿠폰 확인</button>
+              </div>
+              <p class="coupon-msg" id="couponMsg"></p>
             </div>
+            <label class="span-2">추천인 연락처 <small class="field-hint">소개해주신 분의 번호를 적으면 그분께 외부세차 1회 쿠폰이 신청됩니다 (선택)</small><input name="referrer" inputmode="tel" placeholder="010-0000-0000" autocomplete="off"></label>
             <label class="span-2">요청사항<textarea name="memo" rows="3" placeholder="주차 위치, 가능한 요일, 그 외 요청사항을 적어주세요."></textarea></label>
             <div class="span-2 quote-box" id="quoteBox">
               <div class="quote-head"><span>예상 금액</span><em id="quoteCar">차량을 선택해주세요</em></div>
@@ -531,7 +538,7 @@
   <div id="toast" class="toast"></div>
   <script src="compat-fix.js?v=20260916-6"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
-  <script src="app.js?v=20260919-auto"></script>
-  <script src="supabase-integration.js?v=20260919-auto"></script>
+  <script src="app.js?v=20260919-coupon"></script>
+  <script src="supabase-integration.js?v=20260919-coupon"></script>
 </body>
 </html>

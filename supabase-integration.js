@@ -159,6 +159,17 @@
       .form-grid .promo-chip:has(input:checked){border-color:#c99a2e;background:#fff8e6;box-shadow:0 0 0 2px rgba(201,154,46,.12)}
       .form-grid .promo-chip input{accent-color:#c99a2e}
       .quote-lines li.quote-discount b{color:#c0392b}
+      .coupon-row{display:flex;gap:8px;margin-top:4px}
+      .coupon-row input{flex:1 1 auto;border:1px solid #cfdcda;border-radius:13px;padding:11px 13px;background:#fff}
+      .coupon-row .secondary-btn{flex:0 0 auto;white-space:nowrap}
+      .coupon-msg{margin:6px 0 0;font-size:13px;font-weight:700;color:#6b7f7a}
+      .coupon-msg.good{color:#087c68}
+      .coupon-msg.bad{color:#c0392b}
+      .coupon-badge{border-radius:999px;padding:3px 10px;font-size:12px;font-weight:800}
+      .coupon-badge.wait{background:#fff3d6;color:#8a6200}
+      .coupon-badge.ok{background:#e7f6f1;color:#087c68}
+      .coupon-badge.used{background:#eef1f0;color:#5c6b68}
+      .coupon-badge.off{background:#fdecea;color:#c0392b}
       .auto-mark{font-style:normal;margin-left:6px;background:#e7f6f1;color:#087c68;border-radius:999px;padding:1px 7px;font-size:11px;font-weight:800}
       .quote-box{border:1px solid #bee1d8;background:#f2fbf8;border-radius:16px;padding:16px 18px}
       .quote-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:900;margin-bottom:10px}
@@ -732,6 +743,44 @@
     }
   }
 
+  /* ── 쿠폰(혜택) RPC ─────────────────────────────────────────── */
+
+  async function rpc(name, body) {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
+      method: 'POST',
+      headers: api(null, { 'Content-Type': 'application/json' }),
+      body: JSON.stringify(body || {}),
+    });
+    if (!r.ok) throw new Error(`${name} ${r.status}`);
+    return r.json();
+  }
+
+  window.checkCoupon = async (code) => {
+    try { return await rpc('check_coupon', { p_code: code, p_phone: '' }); }
+    catch (err) { console.warn('쿠폰 확인 실패', err); return null; }
+  };
+
+  async function loadMyCoupons(phone) {
+    try {
+      const list = await rpc('list_my_coupons', { p_phone: phone });
+      window.dispatchEvent(new CustomEvent('coupons:update', { detail: Array.isArray(list) ? list : [] }));
+    } catch (err) {
+      console.warn('쿠폰 목록을 불러오지 못했습니다.', err);
+    }
+  }
+
+  async function requestCoupon(phone, kind, refPhone) {
+    try { return await rpc('request_coupon', { p_phone: phone, p_kind: kind, p_ref_phone: refPhone || null }); }
+    catch (err) { console.warn('쿠폰 신청 실패', err); return null; }
+  }
+
+  window.requestReviewCoupon = (phone) => requestCoupon(phone, 'review', null);
+
+  async function useCoupon(code) {
+    try { return await rpc('use_coupon', { p_code: code, p_phone: '' }); }
+    catch (err) { console.warn('쿠폰 사용 처리 실패', err); return null; }
+  }
+
   /* ── 혜택 자동 판별 (RPC) ───────────────────────────────────── */
 
   let benefitTimer = null;
@@ -761,6 +810,7 @@
       try {
         const data = await checkBenefits(phone, apartment);
         lastBenefitKey = key;
+        if (tel(phone).length >= 9) loadMyCoupons(phone);
         window.dispatchEvent(new CustomEvent('benefits:update', {
           detail: {
             first: Boolean(data?.is_first) && tel(phone).length >= 9,
@@ -819,9 +869,12 @@
     const memo     = String(fd.get('memo') || '').trim();
     const options  = fd.getAll('options').map(v => String(v).trim()).filter(Boolean);
     const quoteTotal = (document.querySelector('#quoteTotal')?.textContent || '').trim();
-    const promoLabels = Array.from(document.querySelectorAll('[name="promos"]:checked'))
-      .map(el => (el.closest('label')?.querySelector('span')?.firstChild?.textContent || '').trim())
-      .filter(Boolean);
+    const pickedPromo = document.querySelector('[name="promo"]:checked');
+    const promoKey = pickedPromo ? pickedPromo.value : '';
+    const promoLabels = promoKey
+      ? [(pickedPromo.closest('label')?.querySelector('span')?.firstChild?.textContent || '').trim()].filter(Boolean)
+      : [];
+    const referrer = String(fd.get('referrer') || '').trim();
     const payload  = {
       customer_name:  String(fd.get('customerName') || '').trim(),
       phone:          String(fd.get('phone')        || '').trim(),
@@ -831,7 +884,7 @@
       service_type:   normalizeService(exactSvc),
       preferred_date: fd.get('preferredDate') || null,
       preferred_time: fd.get('preferredTime') || null,
-      memo: `[희망 서비스: ${exactSvc}]${options.length ? `\n[추가 옵션: ${options.join(', ')}]` : ''}${promoLabels.length ? `\n[적용 혜택: ${promoLabels.join(', ')}]` : ''}${quoteTotal && quoteTotal !== '-' ? `\n[예상 금액: ${quoteTotal}]` : ''}${memo ? `\n${memo}` : ''}`,
+      memo: `[희망 서비스: ${exactSvc}]${options.length ? `\n[추가 옵션: ${options.join(', ')}]` : ''}${promoLabels.length ? `\n[적용 혜택: ${promoLabels.join(', ')}]` : ''}${referrer ? `\n[추천인: ${referrer}]` : ''}${quoteTotal && quoteTotal !== '-' ? `\n[예상 금액: ${quoteTotal}]` : ''}${memo ? `\n${memo}` : ''}`,
       status: '접수',
     };
 
@@ -842,6 +895,9 @@
         body: JSON.stringify(payload),
       });
       if (!r.ok) throw new Error(await r.text());
+
+      if (promoKey.startsWith('coupon:')) await useCoupon(promoKey.slice(7));
+      if (tel(referrer).length >= 9) await requestCoupon(referrer, 'refer', payload.phone);
 
       const result = document.querySelector('#bookingResult');
       if (result) {
@@ -864,6 +920,74 @@
       if (submit) { submit.disabled = false; submit.textContent = orig || '예약 접수하기'; }
     }
   }
+
+  /* ── 쿠폰 관리 ──────────────────────────────────────────────── */
+
+  const COUPON_BADGE = { '승인대기': 'wait', '발급': 'ok', '사용': 'used', '취소': 'off' };
+
+  async function loadCoupons() {
+    const box = document.querySelector('#couponList');
+    if (!box) return;
+    const s = await getSession();
+    if (!s) { box.innerHTML = '<div class="reservation-empty">로그인이 필요합니다.</div>'; return; }
+    box.innerHTML = '<div class="reservation-empty">쿠폰 목록을 불러오는 중…</div>';
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/coupons?select=id,code,kind,label,amount,gift,phone,ref_phone,status,created_at&order=created_at.desc&limit=200`,
+        { headers: api(s.access_token) });
+      if (!r.ok) throw new Error(await r.text());
+      renderCoupons(await r.json());
+    } catch (err) {
+      console.error('쿠폰 조회 실패', err);
+      box.innerHTML = '<div class="reservation-empty">쿠폰 테이블이 아직 없거나 조회에 실패했습니다. coupons.sql을 실행했는지 확인해주세요.</div>';
+    }
+  }
+
+  function renderCoupons(rows) {
+    const box = document.querySelector('#couponList');
+    if (!box) return;
+    if (!rows.length) { box.innerHTML = '<div class="reservation-empty">발급된 쿠폰이 없습니다.</div>'; return; }
+    box.innerHTML = rows.map(row => `
+      <div class="member-card">
+        <div class="member-top">
+          <b>${esc(row.label)}</b>
+          <span class="coupon-badge ${COUPON_BADGE[row.status] || 'off'}">${esc(row.status)}</span>
+        </div>
+        <div class="member-meta">
+          <span>🎟 ${esc(row.code)}</span>
+          <span>📞 ${esc(row.phone)}</span>
+          ${row.ref_phone ? `<span>↩ 소개한 고객 ${esc(row.ref_phone)}</span>` : ''}
+          <span>${row.amount ? `${Number(row.amount).toLocaleString('ko-KR')}원 할인` : esc(row.gift || '혜택 제공')}</span>
+          <span>${fmt(row.created_at)}</span>
+        </div>
+        <div class="admin-buttons">
+          ${row.status === '승인대기' ? `<button class="primary-btn coupon-act" data-id="${row.id}" data-to="발급">승인</button>` : ''}
+          ${row.status !== '취소' && row.status !== '사용' ? `<button class="danger-btn coupon-act" data-id="${row.id}" data-to="취소">취소</button>` : ''}
+        </div>
+      </div>`).join('');
+  }
+
+  document.addEventListener('click', async e => {
+    const btn = e.target.closest('.coupon-act');
+    if (!btn) return;
+    const s = await getSession();
+    if (!s) return;
+    const patch = { status: btn.dataset.to };
+    if (btn.dataset.to === '발급') patch.approved_at = new Date().toISOString();
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/coupons?id=eq.${btn.dataset.id}`, {
+        method: 'PATCH',
+        headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+        body: JSON.stringify(patch),
+      });
+      if (!r.ok) throw new Error(await r.text());
+      toast(btn.dataset.to === '발급' ? '쿠폰을 승인했습니다.' : '쿠폰을 취소했습니다.');
+      loadCoupons();
+    } catch (err) {
+      console.error('쿠폰 상태 변경 실패', err);
+      toast('쿠폰 상태를 변경하지 못했습니다.');
+    }
+  });
 
   /* ── 관리자 화면 UI ──────────────────────────────────────────── */
 
@@ -909,6 +1033,7 @@
         <div class="admin-section-tabs">
           <button class="admin-sec-tab active" data-sec="reservations">예약 관리</button>
           <button class="admin-sec-tab" data-sec="members">월 회원</button>
+          <button class="admin-sec-tab" data-sec="coupons">쿠폰</button>
         </div>
         <!-- 예약 관리 -->
         <div id="adminSecReservations">
@@ -922,6 +1047,14 @@
             <button id="memberRefresh" class="secondary-btn">새로고침</button>
           </div>
           <div id="memberList" class="member-list"><div class="reservation-empty">회원 목록을 불러오는 중…</div></div>
+        </div>
+        <!-- 쿠폰 -->
+        <div id="adminSecCoupons" class="hidden">
+          <div class="member-controls">
+            <span style="font-weight:800">혜택 쿠폰 · 승인해야 고객이 사용할 수 있습니다</span>
+            <button id="couponRefresh" class="secondary-btn">새로고침</button>
+          </div>
+          <div id="couponList" class="member-list"><div class="reservation-empty">쿠폰 목록을 불러오는 중…</div></div>
         </div>
       </div>`;
 
@@ -1224,10 +1357,13 @@
       card.querySelectorAll('.admin-sec-tab').forEach(t => t.classList.toggle('active', t === tab));
       card.querySelector('#adminSecReservations').classList.toggle('hidden', sec !== 'reservations');
       card.querySelector('#adminSecMembers').classList.toggle('hidden', sec !== 'members');
+      card.querySelector('#adminSecCoupons').classList.toggle('hidden', sec !== 'coupons');
       if (sec === 'members' && memberRows.length === 0) await loadMembers(false);
+      if (sec === 'coupons') await loadCoupons();
     });
 
     card.querySelector('#memberRefresh').addEventListener('click', () => loadMembers(false));
+    card.querySelector('#couponRefresh').addEventListener('click', () => loadCoupons());
 
     let searchTimer;
     card.querySelector('#memberSearch').addEventListener('input', e => {
