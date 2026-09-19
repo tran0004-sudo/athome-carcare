@@ -156,6 +156,16 @@
       .member-history .hist-amt{font-weight:700;color:#087c68;flex:0 0 auto}
       /* 예약 페이지 하단 연락 버튼 */
       .booking-contact-strip{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 0}
+      .quote-box{border:1px solid #bee1d8;background:#f2fbf8;border-radius:16px;padding:16px 18px}
+      .quote-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:900;margin-bottom:10px}
+      .quote-head em{font-style:normal;font-weight:700;font-size:13px;color:#4f6b65;text-align:right}
+      .quote-lines{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+      .quote-lines li{display:flex;justify-content:space-between;gap:12px;font-size:14px;font-weight:700}
+      .quote-lines li b{font-weight:800;white-space:nowrap}
+      .quote-empty{color:#6b7f7a;font-weight:600!important}
+      .quote-total{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid #cfe6de;font-weight:900}
+      .quote-total b{font-size:20px;color:#087c68;white-space:nowrap}
+      .quote-note{margin:9px 0 0;font-size:12px;color:#6b7f7a;font-weight:600}
       .field-hint{display:block;font-weight:500;font-size:12px;color:#6b7f7a;margin-top:2px}
       .opt-field{display:flex;flex-direction:column;gap:9px}
       .opt-title{font-weight:800;font-size:13px}
@@ -749,6 +759,7 @@
     const exactSvc = String(fd.get('service') || '기타 상담');
     const memo     = String(fd.get('memo') || '').trim();
     const options  = fd.getAll('options').map(v => String(v).trim()).filter(Boolean);
+    const quoteTotal = (document.querySelector('#quoteTotal')?.textContent || '').trim();
     const payload  = {
       customer_name:  String(fd.get('customerName') || '').trim(),
       phone:          String(fd.get('phone')        || '').trim(),
@@ -758,7 +769,7 @@
       service_type:   normalizeService(exactSvc),
       preferred_date: fd.get('preferredDate') || null,
       preferred_time: fd.get('preferredTime') || null,
-      memo: `[희망 서비스: ${exactSvc}]${options.length ? `\n[추가 옵션: ${options.join(', ')}]` : ''}${memo ? `\n${memo}` : ''}`,
+      memo: `[희망 서비스: ${exactSvc}]${options.length ? `\n[추가 옵션: ${options.join(', ')}]` : ''}${quoteTotal && quoteTotal !== '-' ? `\n[예상 금액: ${quoteTotal}]` : ''}${memo ? `\n${memo}` : ''}`,
       status: '접수',
     };
 

@@ -330,6 +330,67 @@ const CAR_DB = [
   ['폴스타', [['폴스타2','중형·준대형 세단'], ['폴스타4','중형 SUV']]],
 ];
 
+
+/* ── 예상 금액 계산 ───────────────────────────────────────────── */
+const PRICE_TABLE = {
+  '경차·소형':        { '월 4회': 60000, '월 2회': 45000, '일일 외부세차': 20000, '외부+내부세차': 35000 },
+  '준중형 세단':      { '월 4회': 65000, '월 2회': 49000, '일일 외부세차': 25000, '외부+내부세차': 38000 },
+  '중형·준대형 세단': { '월 4회': 69000, '월 2회': 55000, '일일 외부세차': 28000, '외부+내부세차': 40000 },
+  '대형 세단':        { '월 4회': 75000, '월 2회': 59000, '일일 외부세차': 32000, '외부+내부세차': 45000 },
+  '소형 SUV':         { '월 4회': 69000, '월 2회': 55000, '일일 외부세차': 28000, '외부+내부세차': 40000 },
+  '중형 SUV':         { '월 4회': 75000, '월 2회': 59000, '일일 외부세차': 32000, '외부+내부세차': 45000 },
+  '대형 SUV':         { '월 4회': 89000, '월 2회': 69000, '일일 외부세차': 34000, '외부+내부세차': 48000 },
+  '대형 MPV·특대형':  { '월 4회': 99000, '월 2회': 79000, '일일 외부세차': 35000, '외부+내부세차': 50000 },
+};
+const OPTION_PRICES = {
+  '휠 철분·집중세정': 10000,
+  '고급 왁스·실런트': 20000,
+  '실내 진공·먼지관리': 15000,
+  '실내 집중세차': 30000,
+  '트렁크 청소': 10000,
+  '벌레·타르 제거': 10000,
+};
+const won = (n) => `${n.toLocaleString('ko-KR')}원`;
+
+function buildQuote(form) {
+  const cls = form.querySelector('#carClassSelect')?.value || '';
+  const svc = form.querySelector('[name="service"]')?.value || '';
+  const car = form.querySelector('#carHidden')?.value || '';
+  const options = Array.from(form.querySelectorAll('[name="options"]:checked')).map((el) => el.value);
+
+  const base = PRICE_TABLE[cls] ? PRICE_TABLE[cls][svc] : undefined;
+  const lines = [];
+  if (base) lines.push([`${svc} (${cls})`, base]);
+  options.forEach((name) => lines.push([name, OPTION_PRICES[name] || 0]));
+
+  const monthly = svc === '월 2회' || svc === '월 4회';
+  const total = lines.reduce((sum, [, price]) => sum + price, 0);
+  const ready = Boolean(base);
+  return { car, cls, svc, lines, total, monthly, ready, options };
+}
+
+function renderQuote(form) {
+  const linesEl = form.querySelector('#quoteLines');
+  const totalEl = form.querySelector('#quoteTotal');
+  const labelEl = form.querySelector('#quoteTotalLabel');
+  const carEl   = form.querySelector('#quoteCar');
+  if (!linesEl || !totalEl) return;
+
+  const q = buildQuote(form);
+  carEl.textContent = q.car ? `${q.car}${q.cls ? ` · ${q.cls}` : ''}` : '차량을 선택해주세요';
+  labelEl.textContent = q.monthly ? '합계 (월 기준)' : '합계';
+
+  if (!q.lines.length) {
+    linesEl.innerHTML = '<li class="quote-empty">차종 구분과 희망 서비스를 선택하면 금액이 계산됩니다.</li>';
+    totalEl.textContent = '-';
+    return;
+  }
+  linesEl.innerHTML = q.lines
+    .map(([name, price]) => `<li><span>${esc(name)}</span><b>${won(price)}</b></li>`)
+    .join('');
+  totalEl.textContent = q.ready ? won(q.total) : `${won(q.total)} + 세차 요금 상담`;
+}
+
 function bindBookingExtras() {
   const form = document.querySelector('#bookingForm');
   if (!form || form.dataset.extrasReady) return;
@@ -396,6 +457,10 @@ function bindBookingExtras() {
   modelSel.addEventListener('change', syncCar);
   customInput.addEventListener('input', syncCar);
 
+  const refreshQuote = () => renderQuote(form);
+  form.addEventListener('change', refreshQuote);
+  form.addEventListener('input', refreshQuote);
+
   form.addEventListener('reset', () => setTimeout(() => {
     classSel.dataset.manual = '';
     fillModels();
@@ -403,6 +468,7 @@ function bindBookingExtras() {
   }, 0));
 
   fillModels();
+  renderQuote(form);
 }
 
 async function init() {
