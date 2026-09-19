@@ -933,6 +933,13 @@
 
   const COUPON_BADGE = { '승인대기': 'wait', '발급': 'ok', '사용': 'used', '취소': 'off' };
 
+  const SCOPE_SERVICES = {
+    m2: ['월 2회'],
+    m4: ['월 4회'],
+    monthly: ['월 2회', '월 4회'],
+    any: null,
+  };
+
   const newCouponCode = () =>
     'AHC-' + Math.random().toString(36).slice(2, 8).toUpperCase();
 
@@ -945,7 +952,7 @@
       if (form.preset.value === 'newmonthly') {
         form.label.value = '신규 월세차 할인';
         form.amount.value = 10000;
-        form.scope.value = 'monthly';
+        form.scope.value = 'm2';
       }
     });
 
@@ -959,10 +966,15 @@
       const rows = Array.from({ length: count }, () => ({
         code: newCouponCode(),
         kind: form.preset.value === 'newmonthly' ? 'newmonthly' : 'manual',
-        label: String(form.label.value || '').trim() || '할인 쿠폰',
+        label: (() => {
+          const base = String(form.label.value || '').trim() || '할인 쿠폰';
+          const scope = SCOPE_SERVICES[form.scope.value];
+          if (!scope || scope.length !== 1) return base;
+          return base.includes(scope[0]) ? base : `${base} (${scope[0]})`;
+        })(),
         amount: Number(form.amount.value) || 0,
         phone: phone || null,
-        services: form.scope.value === 'monthly' ? ['월 2회', '월 4회'] : null,
+        services: SCOPE_SERVICES[form.scope.value] || null,
         status: '발급',
         approved_at: new Date().toISOString(),
       }));
@@ -1021,7 +1033,7 @@
         </div>
         <div class="member-meta">
           <span>🎟 ${esc(row.code)}</span>
-          <span>📞 ${esc(row.phone)}</span>
+          ${row.phone ? `<span>📞 ${esc(row.phone)}</span>` : ''}
           ${row.ref_phone ? `<span>↩ 소개한 고객 ${esc(row.ref_phone)}</span>` : ''}
           ${Array.isArray(row.services) && row.services.length ? `<span>🧾 ${esc(row.services.join(' · '))} 전용</span>` : ''}
           ${row.phone ? '' : '<span>🎫 공용 쿠폰</span>'}
@@ -1130,7 +1142,9 @@
             <label>혜택 이름<input name="label" value="신규 월세차 할인"></label>
             <label>할인 금액<input name="amount" type="number" min="0" step="1000" value="10000"></label>
             <label>적용 서비스<select name="scope">
-              <option value="monthly">월세차 전용 (월 2회·월 4회)</option>
+              <option value="m2">월 2회 전용</option>
+              <option value="m4">월 4회 전용</option>
+              <option value="monthly">월세차 전체 (월 2회·월 4회)</option>
               <option value="any">전체 서비스</option>
             </select></label>
             <label>대상 번호 <small>비우면 누구나 쓰는 공용 쿠폰</small><input name="phone" inputmode="tel" placeholder="010-0000-0000"></label>
