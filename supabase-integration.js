@@ -188,6 +188,7 @@
       .quote-total{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid #cfe6de;font-weight:900}
       .quote-total b{font-size:20px;color:#087c68;white-space:nowrap}
       .quote-note{margin:9px 0 0;font-size:12px;color:#6b7f7a;font-weight:600}
+      .form-grid select:disabled{background:#f1f6f5;color:#2f4d47;opacity:1;cursor:default}
       .field-hint{display:block;font-weight:500;font-size:12px;color:#6b7f7a;margin-top:2px}
       .opt-field{display:flex;flex-direction:column;gap:9px}
       .opt-title{font-weight:800;font-size:13px}

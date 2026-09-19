@@ -390,7 +390,7 @@ const OPTION_PRICES = {
 const won = (n) => `${n.toLocaleString('ko-KR')}원`;
 
 function buildQuote(form) {
-  const cls = form.querySelector('#carClassSelect')?.value || '';
+  const cls = form.querySelector('#carClassHidden')?.value || form.querySelector('#carClassSelect')?.value || '';
   const svc = form.querySelector('[name="service"]')?.value || '';
   const car = form.querySelector('#carHidden')?.value || '';
   const options = Array.from(form.querySelectorAll('[name="options"]:checked')).map((el) => el.value);
@@ -479,6 +479,14 @@ function bindBookingExtras() {
     syncCar();
   }
 
+  const classHidden = form.querySelector('#carClassHidden');
+
+  function setCarClass(value, locked) {
+    classSel.value = value;
+    classSel.disabled = locked;
+    if (classHidden) classHidden.value = value;
+  }
+
   function syncCar() {
     const brand = brandSel.value;
     const model = modelSel.value;
@@ -489,6 +497,7 @@ function bindBookingExtras() {
     if (isEtc) {
       const typed = (customInput.value || '').trim();
       hiddenCar.value = typed ? (brand && brand !== '기타' ? `${brand} ${typed}` : typed) : '';
+      setCarClass(classSel.value, false);
       if (hint) hint.textContent = '차종 구분을 직접 선택해주세요';
       return;
     }
@@ -496,15 +505,12 @@ function bindBookingExtras() {
 
     const picked = modelSel.selectedOptions[0];
     const cls = picked ? picked.dataset.class || '' : '';
-    if (classSel.dataset.manual !== '1') {
-      classSel.value = cls;
-      if (hint) hint.textContent = cls ? `자동 선택: ${cls} (다르면 직접 바꾸세요)` : '모델을 고르면 자동으로 선택됩니다';
-    }
+    setCarClass(cls, Boolean(cls));
+    if (hint) hint.textContent = cls ? `자동 선택: ${cls}` : '모델을 고르면 자동으로 선택됩니다';
   }
 
   classSel.addEventListener('change', () => {
-    classSel.dataset.manual = classSel.value ? '1' : '';
-    if (hint) hint.textContent = classSel.value ? '직접 선택한 구분이 적용됩니다' : '모델을 고르면 자동으로 선택됩니다';
+    if (classHidden) classHidden.value = classSel.value;
   });
   brandSel.addEventListener('change', fillModels);
   modelSel.addEventListener('change', syncCar);
@@ -603,7 +609,6 @@ function bindBookingExtras() {
   form.addEventListener('input', refreshQuote);
 
   form.addEventListener('reset', () => setTimeout(() => {
-    classSel.dataset.manual = '';
     fillModels();
     if (hint) hint.textContent = '모델을 고르면 자동으로 선택됩니다';
   }, 0));

@@ -445,7 +445,8 @@
             </select></label>
             <label class="span-2 hidden" id="carCustomWrap">차종 직접 입력<input name="carCustom" id="carCustomInput" placeholder="예: 벤츠 CLE 쿠페"></label>
             <input type="hidden" name="car" id="carHidden">
-            <label>차종 구분 <small class="field-hint" id="carClassHint">모델을 고르면 자동으로 선택됩니다</small><select name="carClass" id="carClassSelect">
+            <input type="hidden" name="carClass" id="carClassHidden">
+            <label>차종 구분 <small class="field-hint" id="carClassHint">모델을 고르면 자동으로 선택됩니다</small><select id="carClassSelect">
               <option value="">선택 (선택사항)</option>
               <option>경차·소형</option>
               <option>준중형 세단</option>
@@ -538,7 +539,7 @@
   <div id="toast" class="toast"></div>
   <script src="compat-fix.js?v=20260916-6"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
-  <script src="app.js?v=20260919-coupon2"></script>
-  <script src="supabase-integration.js?v=20260919-coupon2"></script>
+  <script src="app.js?v=20260919-lockclass"></script>
+  <script src="supabase-integration.js?v=20260919-lockclass"></script>
 </body>
 </html>
