@@ -11,7 +11,8 @@
       "amount": 10000,
       "services": [
         "월 4회"
-      ]
+      ],
+      "auto": "first"
     },
     {
       "id": "first2",
@@ -20,7 +21,8 @@
       "amount": 5000,
       "services": [
         "월 2회"
-      ]
+      ],
+      "auto": "first"
     },
     {
       "id": "refer",
@@ -38,7 +40,8 @@
       "services": [
         "월 2회",
         "월 4회"
-      ]
+      ],
+      "auto": "apt5"
     },
     {
       "id": "loyal",
@@ -49,7 +52,8 @@
       "services": [
         "월 2회",
         "월 4회"
-      ]
+      ],
+      "auto": "loyal"
     },
     {
       "id": "review",

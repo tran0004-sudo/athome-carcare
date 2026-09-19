@@ -13,11 +13,11 @@ const esc = (s = '') => String(s).replace(/[&<>'"]/g, (c) => ({
 }[c]));
 
 const DEFAULT_PROMOS = [
-  { id: 'first4', text: '첫 달 월 4회 ', highlight: '10,000원 할인', amount: 10000, services: ['월 4회'] },
-  { id: 'first2', text: '첫 달 월 2회 ', highlight: '5,000원 할인', amount: 5000, services: ['월 2회'] },
+  { id: 'first4', auto: 'first', text: '첫 달 월 4회 ', highlight: '10,000원 할인', amount: 10000, services: ['월 4회'] },
+  { id: 'first2', auto: 'first', text: '첫 달 월 2회 ', highlight: '5,000원 할인', amount: 5000, services: ['월 2회'] },
   { id: 'refer', text: '가족·지인 소개 시 ', highlight: '외부세차 1회', amount: 0, gift: '외부세차 1회 제공', services: [] },
-  { id: 'apt5', text: '같은 아파트 5대 이상 ', highlight: '차량당 5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
-  { id: 'loyal', text: '꾸준히 이용 시 ', highlight: '3개월마다 외부세차 1회', amount: 0, gift: '3개월마다 외부세차 1회', services: ['월 2회', '월 4회'] },
+  { id: 'apt5', auto: 'apt5', text: '같은 아파트 5대 이상 ', highlight: '차량당 5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
+  { id: 'loyal', auto: 'loyal', text: '꾸준히 이용 시 ', highlight: '3개월마다 외부세차 1회', amount: 0, gift: '3개월마다 외부세차 1회', services: ['월 2회', '월 4회'] },
   { id: 'review', text: '리뷰 작성 시 ', highlight: '3천원 할인 · 실외 전체 왁스 · 트렁크 청소 중 택 1', amount: 3000, services: [] },
 ];
 
@@ -156,6 +156,9 @@ function renderSettings() {
   document.querySelectorAll('[data-call]').forEach((el) => { el.href = `tel:${digits(phone)}`; });
   document.querySelectorAll('[data-sms]').forEach((el) => { el.href = `sms:${digits(phone)}`; });
 }
+
+let autoBenefits = { first: false, apt5: false, loyal: false };
+const manualPromos = new Set();
 
 function promoLabel(promo) {
   return `${promo.text || ''}${promo.highlight || ''}`.trim();
@@ -502,10 +505,24 @@ function bindBookingExtras() {
     promoField.classList.toggle('hidden', !list.length);
     promoGrid.innerHTML = list.map((promo) => {
       const label = promoLabel(promo);
+      const auto = promo.auto && autoBenefits[promo.auto];
+      const on = manualPromos.has(promo.id) ? checked.has(promo.id) : (auto || checked.has(promo.id));
       const badge = promo.amount ? `-${promo.amount.toLocaleString('ko-KR')}원` : '혜택 제공';
-      return `<label class="opt-chip promo-chip"><input type="checkbox" name="promos" value="${esc(promo.id)}"${checked.has(promo.id) ? ' checked' : ''}><span>${esc(label)}<small>${badge}</small></span></label>`;
+      const mark = auto ? ' <em class="auto-mark">자동 확인</em>' : '';
+      return `<label class="opt-chip promo-chip"><input type="checkbox" name="promos" value="${esc(promo.id)}"${on ? ' checked' : ''}><span>${esc(label)}<small>${badge}${mark}</small></span></label>`;
     }).join('');
   }
+
+  promoGrid?.addEventListener('change', (event) => {
+    const box = event.target.closest('[name="promos"]');
+    if (box) manualPromos.add(box.value);
+  });
+
+  window.addEventListener('benefits:update', (event) => {
+    autoBenefits = { ...autoBenefits, ...(event.detail || {}) };
+    renderPromoOptions();
+    renderQuote(form);
+  });
 
   const refreshQuote = () => renderQuote(form);
   if (svcSel) svcSel.addEventListener('change', () => { renderPromoOptions(); renderQuote(form); });

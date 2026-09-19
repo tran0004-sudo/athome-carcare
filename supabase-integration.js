@@ -159,6 +159,7 @@
       .form-grid .promo-chip:has(input:checked){border-color:#c99a2e;background:#fff8e6;box-shadow:0 0 0 2px rgba(201,154,46,.12)}
       .form-grid .promo-chip input{accent-color:#c99a2e}
       .quote-lines li.quote-discount b{color:#c0392b}
+      .auto-mark{font-style:normal;margin-left:6px;background:#e7f6f1;color:#087c68;border-radius:999px;padding:1px 7px;font-size:11px;font-weight:800}
       .quote-box{border:1px solid #bee1d8;background:#f2fbf8;border-radius:16px;padding:16px 18px}
       .quote-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:900;margin-bottom:10px}
       .quote-head em{font-style:normal;font-weight:700;font-size:13px;color:#4f6b65;text-align:right}
@@ -731,6 +732,61 @@
     }
   }
 
+  /* ── 혜택 자동 판별 (RPC) ───────────────────────────────────── */
+
+  let benefitTimer = null;
+  let lastBenefitKey = '';
+
+  async function checkBenefits(phone, apartment) {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/check_customer_benefits`, {
+      method: 'POST',
+      headers: api(null, { 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ p_phone: phone, p_apartment: apartment }),
+    });
+    if (!r.ok) throw new Error(`RPC ${r.status}`);
+    return r.json();
+  }
+
+  function scheduleBenefitCheck() {
+    const form = document.querySelector('#bookingForm');
+    if (!form) return;
+    const phone = String(form.querySelector('[name="phone"]')?.value || '').trim();
+    const apartment = String(form.querySelector('[name="apartment"]')?.value || '').trim();
+    const key = `${tel(phone)}|${apartment}`;
+    if (key === lastBenefitKey) return;
+    if (tel(phone).length < 9 && apartment.length < 2) return;
+
+    clearTimeout(benefitTimer);
+    benefitTimer = setTimeout(async () => {
+      try {
+        const data = await checkBenefits(phone, apartment);
+        lastBenefitKey = key;
+        window.dispatchEvent(new CustomEvent('benefits:update', {
+          detail: {
+            first: Boolean(data?.is_first) && tel(phone).length >= 9,
+            apt5: Number(data?.apt_count || 0) >= 5,
+            loyal: Number(data?.months_used || 0) >= 3,
+            raw: data,
+          },
+        }));
+      } catch (err) {
+        console.warn('혜택 자동 확인을 사용할 수 없습니다.', err);
+      }
+    }, 700);
+  }
+
+  function bindBenefitWatcher() {
+    const form = document.querySelector('#bookingForm');
+    if (!form || form.dataset.benefitWatch) return;
+    form.dataset.benefitWatch = '1';
+    ['[name="phone"]', '[name="apartment"]'].forEach((sel) => {
+      const el = form.querySelector(sel);
+      if (!el) return;
+      el.addEventListener('input', scheduleBenefitCheck);
+      el.addEventListener('blur', scheduleBenefitCheck);
+    });
+  }
+
   /* ── 고객 예약 폼 (개선점 2: 차종 구분 선택) ─────────────────── */
 
   function enhanceBookingForm() {
@@ -1206,5 +1262,6 @@
   /* ── 초기화 ──────────────────────────────────────────────────── */
   injectStyles();
   enhanceBookingForm();
+  bindBenefitWatcher();
   setupAdminUI();
 })();
