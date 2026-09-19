@@ -61,7 +61,7 @@
   const prefInput = row => {
     if (row.scheduled_at) return toInput(row.scheduled_at);
     if (row.preferred_date) {
-      const t = row.preferred_time ? String(row.preferred_time).slice(0,5) : '14:00';
+      const t = row.preferred_time ? String(row.preferred_time).slice(0,5) : '20:00';
       return `${row.preferred_date}T${t}`;
     }
     return toInput(null);
