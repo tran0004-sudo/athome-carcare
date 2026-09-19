@@ -167,6 +167,7 @@
       .coupon-msg.bad{color:#c0392b}
       .partner-poster{margin:0 32px 22px;border-radius:18px;overflow:hidden;border:1px solid #dfe8e6;box-shadow:0 8px 24px rgba(16,40,58,.08);background:#fff}
       .partner-poster img{display:block;width:100%;height:auto}
+      .partner-poster figcaption{padding:14px 18px;font-size:14px;font-weight:700;color:#2f4d47;background:#f2fbf8;border-top:1px solid #dfe8e6;line-height:1.55}
       @media(max-width:760px){.partner-poster{margin:0 16px 18px;border-radius:14px}}
       .res-plate{display:inline-block;background:#10283a;color:#fff;border-radius:7px;padding:2px 8px;font-size:13px;font-weight:900;letter-spacing:.5px;margin-left:4px}
       .coupon-issue{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;margin:12px 0;padding:14px;border:1px solid var(--line,#dfe8e6);border-radius:14px;background:#fbfdfd}
