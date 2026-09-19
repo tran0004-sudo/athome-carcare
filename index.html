@@ -444,6 +444,8 @@
               <option value="">제조사를 먼저 선택하세요</option>
             </select></label>
             <label class="span-2 hidden" id="carCustomWrap">차종 직접 입력<input name="carCustom" id="carCustomInput" placeholder="예: 벤츠 CLE 쿠페"></label>
+            <label>차량 번호<input name="plate" placeholder="예: 12가 3456" autocomplete="off" required></label>
+            <label>상세 주소 <small class="field-hint">동·호수 또는 주차 위치</small><input name="address" placeholder="예: 103동 지하 2층 B구역" autocomplete="off"></label>
             <input type="hidden" name="car" id="carHidden">
             <input type="hidden" name="carClass" id="carClassHidden">
             <label>차종 구분 <small class="field-hint" id="carClassHint">모델을 고르면 자동으로 선택됩니다</small><select id="carClassSelect">
@@ -539,7 +541,7 @@
   <div id="toast" class="toast"></div>
   <script src="compat-fix.js?v=20260916-6"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
-  <script src="app.js?v=20260919-lockclass"></script>
-  <script src="supabase-integration.js?v=20260919-scope"></script>
+  <script src="app.js?v=20260919-vehicle"></script>
+  <script src="supabase-integration.js?v=20260919-vehicle"></script>
 </body>
 </html>

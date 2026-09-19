@@ -165,6 +165,7 @@
       .coupon-msg{margin:6px 0 0;font-size:13px;font-weight:700;color:#6b7f7a}
       .coupon-msg.good{color:#087c68}
       .coupon-msg.bad{color:#c0392b}
+      .res-plate{display:inline-block;background:#10283a;color:#fff;border-radius:7px;padding:2px 8px;font-size:13px;font-weight:900;letter-spacing:.5px;margin-left:4px}
       .coupon-issue{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;margin:12px 0;padding:14px;border:1px solid var(--line,#dfe8e6);border-radius:14px;background:#fbfdfd}
       .coupon-issue label{display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:13px}
       .coupon-issue label small{font-weight:600;color:#6b7f7a}
@@ -373,7 +374,7 @@
       // [버그3] scheduled_at, done_at, amount 컬럼을 select에 명시
       //         컬럼이 없으면 Supabase가 무시하므로 SQL 업그레이드 전후 모두 동작
       const r = await fetch(
-        `${SUPABASE_URL}/rest/v1/reservations?select=id,created_at,updated_at,customer_name,phone,apartment,car_model,car_class,service_type,preferred_date,preferred_time,memo,status,scheduled_at,done_at,amount,admin_memo&order=created_at.desc&limit=300`,
+        `${SUPABASE_URL}/rest/v1/reservations?select=id,created_at,updated_at,customer_name,phone,apartment,car_model,car_class,plate,address,service_type,preferred_date,preferred_time,memo,status,scheduled_at,done_at,amount,admin_memo&order=created_at.desc&limit=300`,
         { headers: api(s.access_token) }
       );
       if (r.status === 401 || r.status === 403) return handleExpired();
@@ -463,13 +464,13 @@
     return `<article class="reservation-item" data-status="${esc(row.status)}">
   <div class="reservation-top">
     <div>
-      <h3>${esc(row.customer_name)} · ${esc(row.car_model)}</h3>
+      <h3>${esc(row.customer_name)} · ${esc(row.car_model)}${row.plate ? ` <span class="res-plate">${esc(row.plate)}</span>` : ''}</h3>
       <a href="tel:${tel(row.phone)}">${esc(row.phone)}</a>
     </div>
     <span class="res-badge">${esc(row.status)}</span>
   </div>
   <div class="reservation-meta">
-    <span>📍 ${esc(row.apartment)}</span>
+    <span>📍 ${esc(row.apartment)}${row.address ? ` ${esc(row.address)}` : ''}</span>
     <span>🚗 ${esc(row.service_type)}</span>
     ${carClass}
     ${preferred  ? `<span>희망 ${esc(preferred)}</span>` : ''}
@@ -889,6 +890,8 @@
       apartment:      String(fd.get('apartment')    || '').trim(),
       car_model:      String(fd.get('car')          || '').trim(),
       car_class:      String(fd.get('carClass')     || '').trim() || null,
+      plate:          String(fd.get('plate')        || '').trim().toUpperCase() || null,
+      address:        String(fd.get('address')      || '').trim() || null,
       service_type:   normalizeService(exactSvc),
       preferred_date: fd.get('preferredDate') || null,
       preferred_time: fd.get('preferredTime') || null,
@@ -1123,7 +1126,7 @@
         <!-- 월 회원 -->
         <div id="adminSecMembers" class="hidden">
           <div class="member-controls">
-            <input id="memberSearch" type="search" placeholder="이름·전화·아파트 검색" autocomplete="off">
+            <input id="memberSearch" type="search" placeholder="이름·전화·아파트·차량번호 검색" autocomplete="off">
             <button id="memberRefresh" class="secondary-btn">새로고침</button>
           </div>
           <div id="memberList" class="member-list"><div class="reservation-empty">회원 목록을 불러오는 중…</div></div>
@@ -1322,6 +1325,8 @@
           customer_name: r.customer_name,
           apartment:     r.apartment,
           car_model:     r.car_model,
+          plate:         r.plate,
+          address:       r.address,
           done_count:    0,
           last_done_at:  null,
           total_amount:  0,
@@ -1369,8 +1374,9 @@
       <p class="member-name">${esc(m.customer_name||'이름 없음')}</p>
       <p class="member-phone">
         <a href="tel:${tel(m.phone)}">${esc(m.phone)}</a>
-        · ${esc(m.apartment||'')} · ${esc(m.car_model||'')}
+        · ${esc(m.apartment||'')}${m.address ? ` ${esc(m.address)}` : ''}
       </p>
+      <p class="member-phone">🚘 ${esc(m.car_model||'')}${m.plate ? ` <span class="res-plate">${esc(m.plate)}</span>` : ''}</p>
     </div>
     <span class="member-badge ${tierCls}">${tierLabel}</span>
   </div>
@@ -1411,7 +1417,9 @@
         (m.customer_name||'').toLowerCase().includes(q) ||
         (m.phone||'').includes(q) ||
         (m.apartment||'').toLowerCase().includes(q) ||
-        (m.car_model||'').toLowerCase().includes(q)
+        (m.car_model||'').toLowerCase().includes(q) ||
+        (m.plate||'').toLowerCase().includes(q) ||
+        (m.address||'').toLowerCase().includes(q)
       );
     }
     if (!rows.length) {
