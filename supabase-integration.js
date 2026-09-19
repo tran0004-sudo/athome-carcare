@@ -778,12 +778,12 @@
     }
   }
 
-  async function requestCoupon(phone, kind, refPhone) {
-    try { return await rpc('request_coupon', { p_phone: phone, p_kind: kind, p_ref_phone: refPhone || null }); }
+  async function requestCoupon(phone, kind, refPhone, choice) {
+    try { return await rpc('request_coupon', { p_phone: phone, p_kind: kind, p_ref_phone: refPhone || null, p_choice: choice || null }); }
     catch (err) { console.warn('쿠폰 신청 실패', err); return null; }
   }
 
-  window.requestReviewCoupon = (phone) => requestCoupon(phone, 'review', null);
+  window.requestReviewCoupon = (phone, choice) => requestCoupon(phone, 'review', null, choice);
 
   async function useCoupon(code) {
     try { return await rpc('use_coupon', { p_code: code, p_phone: '' }); }

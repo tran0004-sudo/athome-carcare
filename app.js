@@ -18,7 +18,7 @@ const DEFAULT_PROMOS = [
   { id: 'refer', text: '가족·지인 소개 시 ', highlight: '외부세차 1회', amount: 0, gift: '외부세차 1회 제공', services: [] },
   { id: 'apt5', auto: 'apt5', text: '같은 아파트 5대 이상 ', highlight: '차량당 5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
   { id: 'loyal', auto: 'loyal', text: '꾸준히 이용 시 ', highlight: '3개월마다 외부세차 1회', amount: 0, gift: '3개월마다 외부세차 1회', services: ['월 2회', '월 4회'] },
-  { id: 'review', text: '리뷰 작성 시 ', highlight: '3천원 할인 · 실외 전체 왁스 · 트렁크 청소 중 택 1', amount: 3000, services: [] },
+  { id: 'review', text: '리뷰 작성 시 ', highlight: '3,000원 할인 · 실외 전체 왁스 · 트렁크 청소 중 택 1 쿠폰', amount: 3000, services: [] },
 ];
 
 function normalize(data = {}) {
@@ -250,12 +250,14 @@ function bindEvents() {
       rating: Number(fd.get('rating')), text: fd.get('text')
     });
     const phone = String(fd.get('phone') || '').trim();
+    const gift = String(fd.get('reviewGift') || 'cash');
     save(); event.currentTarget.reset(); render();
     if (phone.replace(/\D/g, '').length >= 9 && typeof window.requestReviewCoupon === 'function') {
-      window.requestReviewCoupon(phone).then((result) => {
-        toast(result?.ok
-          ? `후기 감사합니다! 리뷰 혜택 쿠폰(${result.code})을 신청했습니다. 승인 후 사용하실 수 있습니다.`
-          : '후기가 등록되었습니다.');
+      window.requestReviewCoupon(phone, gift).then((result) => {
+        if (!result?.ok) { toast('후기가 등록되었습니다.'); return; }
+        toast(result.duplicated
+          ? `이미 발급된 리뷰 쿠폰이 있습니다 — ${result.label} (${result.code})`
+          : `후기 감사합니다! ${result.label} 쿠폰(${result.code})이 발급되었습니다. 예약할 때 번호를 입력하세요.`);
       });
       return;
     }
