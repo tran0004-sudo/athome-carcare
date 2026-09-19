@@ -14,7 +14,7 @@ const esc = (s = '') => String(s).replace(/[&<>'"]/g, (c) => ({
 
 function normalize(data = {}) {
   const base = publishedState || {
-    settings: { phone: '010-8391-8999', kakaoUrl: '', area: '경산 중산지구 · 사월동 · 시지 · 신매동 · 대구 전지역' },
+    settings: { phone: '010-8391-8999', area: '경산 중산지구 · 사월동 · 시지 · 신매동 · 대구 전지역' },
     gallery: [], reviews: [], tips: [], inquiries: []
   };
   return {
@@ -138,7 +138,6 @@ function renderSettings() {
   const form = document.querySelector('#settingsForm');
   if (form) {
     form.phone.value = state.settings.phone || '010-8391-8999';
-    form.kakaoUrl.value = state.settings.kakaoUrl || '';
     if (form.area) form.area.value = state.settings.area || '';
   }
   const phone = state.settings.phone || '010-8391-8999';
@@ -203,12 +202,6 @@ function bindEvents() {
     const goButton = event.target.closest('[data-go]');
     if (goButton) { go(goButton.dataset.go); return; }
 
-    const kakaoButton = event.target.closest('[data-kakao]');
-    if (kakaoButton) {
-      window.open('https://pf.kakao.com/_gpDrX', '_blank', 'noopener');
-      return;
-    }
-
     const filter = event.target.closest('[data-filter]');
     if (filter) { renderTips(filter.dataset.filter); return; }
 
@@ -247,15 +240,12 @@ function bindEvents() {
       box.innerHTML = `<pre>${esc(message)}</pre><div class="actions">
         <button class="secondary-btn" id="copyPartner">문의내용 복사</button>
         <a class="secondary-btn button-link" href="tel:${digits(state.settings.phone)}">전화하기</a>
-        <button class="primary-btn" id="openPartnerKakao">카카오채널 열기</button>
+        <a class="primary-btn button-link" href="sms:${digits(state.settings.phone)}">문자 보내기</a>
       </div>`;
       document.querySelector('#copyPartner').onclick = () =>
         navigator.clipboard?.writeText(message)
           .then(() => toast('입점문의 내용을 복사했습니다.'))
           .catch(() => toast('복사 기능을 사용할 수 없습니다.'));
-      document.querySelector('#openPartnerKakao').onclick = () => {
-        window.open('https://pf.kakao.com/_gpDrX', '_blank', 'noopener');
-      };
     }
     toast('입점문의 내용이 준비되었습니다.');
   });
@@ -265,7 +255,7 @@ function bindEvents() {
   if (settingsForm) settingsForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const fd = new FormData(event.currentTarget);
-    state.settings = { phone: fd.get('phone'), kakaoUrl: fd.get('kakaoUrl'), area: fd.get('area') };
+    state.settings = { phone: fd.get('phone'), area: fd.get('area') };
     save(); renderSettings();
     toast('업체 설정을 저장했습니다.');
   });

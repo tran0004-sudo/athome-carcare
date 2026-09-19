@@ -158,7 +158,6 @@
       .booking-contact-strip{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 0}
       .booking-contact-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 12px;border-radius:18px;border:2px solid #cfdcda;background:#fff;font-weight:900;font-size:16px;text-align:center;cursor:pointer;text-decoration:none;color:#132c27;line-height:1.3;box-shadow:0 4px 14px rgba(0,0,0,.06)}
       .booking-contact-btn:active{transform:scale(.97)}
-      .booking-contact-btn.kakao-btn{background:#fee500;border-color:#f0d900;color:#3c1e1e;box-shadow:0 4px 14px rgba(254,229,0,.35)}
       .booking-contact-btn.sms-btn{background:linear-gradient(135deg,#087c68,#0a9a80);border-color:#087c68;color:#fff;box-shadow:0 4px 14px rgba(8,124,104,.28)}
       @media(max-width:400px){.booking-contact-strip{grid-template-columns:1fr}}
       /* 예약 성공 결과 */
@@ -188,7 +187,6 @@
       .msg-actions a,.msg-actions button{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 10px;border:0;border-radius:14px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;text-decoration:none}
       .msg-send{background:#087c68;color:#fff;grid-column:1/-1}
       .msg-copy{background:#eef4f3;color:#4a5f5b}
-      .msg-kakao{background:#fee500;color:#3c1e1e}
       .msg-call{background:#e7f8f3;color:#05594b;grid-column:1/-1}
             .member-del-row{margin-top:10px;text-align:right}
       .member-del-btn{border:1px solid #f5c6c6;background:#fff5f5;color:#c94141;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer}
@@ -623,7 +621,6 @@
         <div class="msg-actions">
           <a class="msg-send" id="msgSms" href="#">📱 문자 보내기</a>
           <button class="msg-copy" id="msgCopy">📋 복사</button>
-          <a class="msg-kakao" href="https://pf.kakao.com/_gpDrX" target="_blank" rel="noopener">💬 카카오</a>
           <a class="msg-call" href="tel:${tel(row.phone)}">📞 전화</a>
         </div>
       </div>`;
@@ -772,7 +769,7 @@
           <p>${esc(payload.customer_name)}님, ${esc(payload.apartment)} · ${esc(payload.car_model)} 예약을 확인 후 연락드리겠습니다.</p>
           <div class="booking-success-btns">
             <a class="primary-btn button-link" href="tel:01083918999">☎ 전화 확인</a>
-            <a class="secondary-btn button-link" href="https://pf.kakao.com/_gpDrX" target="_blank" rel="noopener">💬 카카오채널</a>
+            <a class="secondary-btn button-link" href="sms:01083918999">💬 문자 문의</a>
           </div>
         </div>`;
       }
