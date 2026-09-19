@@ -12,13 +12,24 @@ const esc = (s = '') => String(s).replace(/[&<>'"]/g, (c) => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
 }[c]));
 
+const DEFAULT_PROMOS = [
+  { id: 'first4', text: '첫 달 월 4회 ', highlight: '10,000원 할인', amount: 10000, services: ['월 4회'] },
+  { id: 'first2', text: '첫 달 월 2회 ', highlight: '5,000원 할인', amount: 5000, services: ['월 2회'] },
+  { id: 'refer', text: '가족·지인 소개 시 ', highlight: '외부세차 1회', amount: 0, gift: '외부세차 1회 제공', services: [] },
+  { id: 'apt5', text: '같은 아파트 5대 이상 ', highlight: '차량당 5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
+  { id: 'loyal', text: '꾸준히 이용 시 ', highlight: '3개월마다 외부세차 1회', amount: 0, gift: '3개월마다 외부세차 1회', services: ['월 2회', '월 4회'] },
+  { id: 'review', text: '리뷰 작성 시 ', highlight: '3천원 할인 · 실외 전체 왁스 · 트렁크 청소 중 택 1', amount: 3000, services: [] },
+];
+
 function normalize(data = {}) {
   const base = publishedState || {
     settings: { phone: '010-8391-8999', area: '경산 중산지구 · 사월동 · 시지 · 신매동 · 대구 전지역' },
+    promos: deepClone(DEFAULT_PROMOS),
     gallery: [], reviews: [], tips: [], inquiries: []
   };
   return {
     settings: { ...base.settings, ...(data.settings || {}) },
+    promos: Array.isArray(data.promos) && data.promos.length ? data.promos : deepClone(base.promos || DEFAULT_PROMOS),
     gallery: Array.isArray(data.gallery) ? data.gallery : deepClone(base.gallery || []),
     reviews: Array.isArray(data.reviews) ? data.reviews : deepClone(base.reviews || []),
     tips: Array.isArray(data.tips) ? data.tips : deepClone(base.tips || []),
@@ -146,6 +157,18 @@ function renderSettings() {
   document.querySelectorAll('[data-sms]').forEach((el) => { el.href = `sms:${digits(phone)}`; });
 }
 
+function promoLabel(promo) {
+  return `${promo.text || ''}${promo.highlight || ''}`.trim();
+}
+
+function renderPromos() {
+  const el = document.querySelector('#promoList');
+  if (!el) return;
+  const promos = state.promos || DEFAULT_PROMOS;
+  el.innerHTML = promos.map((promo) =>
+    `<li>${esc(promo.text || '')}<b>${esc(promo.highlight || '')}</b></li>`).join('');
+}
+
 function render() {
   document.querySelector('#homeComparisons').innerHTML = state.gallery.slice(0, 3).map(comparisonMarkup).join('');
   document.querySelector('#galleryList').innerHTML = state.gallery.length
@@ -159,6 +182,7 @@ function render() {
 
   document.querySelector('#homeTips').innerHTML = state.tips.slice(0, 4).map(tipMarkup).join('');
   renderTips('전체');
+  renderPromos();
   renderSettings();
   bindComparisons();
 }
@@ -358,15 +382,20 @@ function buildQuote(form) {
   const car = form.querySelector('#carHidden')?.value || '';
   const options = Array.from(form.querySelectorAll('[name="options"]:checked')).map((el) => el.value);
 
+  const promoIds = Array.from(form.querySelectorAll('[name="promos"]:checked')).map((el) => el.value);
+  const promos = (state.promos || DEFAULT_PROMOS).filter((promo) => promoIds.includes(promo.id));
+
   const base = PRICE_TABLE[cls] ? PRICE_TABLE[cls][svc] : undefined;
   const lines = [];
   if (base) lines.push([`${svc} (${cls})`, base]);
   options.forEach((name) => lines.push([name, OPTION_PRICES[name] || 0]));
+  promos.forEach((promo) => lines.push([promoLabel(promo), -(promo.amount || 0), promo.gift || (promo.amount ? '' : '혜택 제공')]));
 
   const monthly = svc === '월 2회' || svc === '월 4회';
-  const total = lines.reduce((sum, [, price]) => sum + price, 0);
+  const total = Math.max(0, lines.reduce((sum, [, price]) => sum + price, 0));
   const ready = Boolean(base);
-  return { car, cls, svc, lines, total, monthly, ready, options };
+  const discount = promos.reduce((sum, promo) => sum + (promo.amount || 0), 0);
+  return { car, cls, svc, lines, total, monthly, ready, options, promos, discount };
 }
 
 function renderQuote(form) {
@@ -386,7 +415,10 @@ function renderQuote(form) {
     return;
   }
   linesEl.innerHTML = q.lines
-    .map(([name, price]) => `<li><span>${esc(name)}</span><b>${won(price)}</b></li>`)
+    .map(([name, price, gift]) => {
+      const value = gift && !price ? gift : `${price < 0 ? '-' : ''}${won(Math.abs(price))}`;
+      return `<li class="${price < 0 || gift ? 'quote-discount' : ''}"><span>${esc(name)}</span><b>${esc(value)}</b></li>`;
+    })
     .join('');
   totalEl.textContent = q.ready ? won(q.total) : `${won(q.total)} + 세차 요금 상담`;
 }
@@ -457,7 +489,26 @@ function bindBookingExtras() {
   modelSel.addEventListener('change', syncCar);
   customInput.addEventListener('input', syncCar);
 
+  const svcSel = form.querySelector('[name="service"]');
+  const promoField = form.querySelector('#promoField');
+  const promoGrid = form.querySelector('#promoGrid');
+
+  function renderPromoOptions() {
+    if (!promoGrid || !promoField) return;
+    const svc = svcSel ? svcSel.value : '';
+    const checked = new Set(Array.from(promoGrid.querySelectorAll('input:checked')).map((el) => el.value));
+    const list = (state.promos || DEFAULT_PROMOS).filter((promo) =>
+      !promo.services || !promo.services.length || promo.services.includes(svc));
+    promoField.classList.toggle('hidden', !list.length);
+    promoGrid.innerHTML = list.map((promo) => {
+      const label = promoLabel(promo);
+      const badge = promo.amount ? `-${promo.amount.toLocaleString('ko-KR')}원` : '혜택 제공';
+      return `<label class="opt-chip promo-chip"><input type="checkbox" name="promos" value="${esc(promo.id)}"${checked.has(promo.id) ? ' checked' : ''}><span>${esc(label)}<small>${badge}</small></span></label>`;
+    }).join('');
+  }
+
   const refreshQuote = () => renderQuote(form);
+  if (svcSel) svcSel.addEventListener('change', () => { renderPromoOptions(); renderQuote(form); });
   form.addEventListener('change', refreshQuote);
   form.addEventListener('input', refreshQuote);
 
@@ -468,6 +519,7 @@ function bindBookingExtras() {
   }, 0));
 
   fillModels();
+  renderPromoOptions();
   renderQuote(form);
 }
 

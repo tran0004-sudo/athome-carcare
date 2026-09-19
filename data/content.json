@@ -3,6 +3,62 @@
     "phone": "010-8391-8999",
     "area": "경산 중산지구 · 사월동 · 시지 · 신매동 · 집중관리"
   },
+  "promos": [
+    {
+      "id": "first4",
+      "text": "첫 달 월 4회 ",
+      "highlight": "10,000원 할인",
+      "amount": 10000,
+      "services": [
+        "월 4회"
+      ]
+    },
+    {
+      "id": "first2",
+      "text": "첫 달 월 2회 ",
+      "highlight": "5,000원 할인",
+      "amount": 5000,
+      "services": [
+        "월 2회"
+      ]
+    },
+    {
+      "id": "refer",
+      "text": "가족·지인 소개 시 ",
+      "highlight": "외부세차 1회",
+      "amount": 0,
+      "gift": "외부세차 1회 제공",
+      "services": []
+    },
+    {
+      "id": "apt5",
+      "text": "같은 아파트 5대 이상 ",
+      "highlight": "차량당 5,000원 할인",
+      "amount": 5000,
+      "services": [
+        "월 2회",
+        "월 4회"
+      ]
+    },
+    {
+      "id": "loyal",
+      "text": "꾸준히 이용 시 ",
+      "highlight": "3개월마다 외부세차 1회",
+      "amount": 0,
+      "gift": "3개월마다 외부세차 1회",
+      "services": [
+        "월 2회",
+        "월 4회"
+      ]
+    },
+    {
+      "id": "review",
+      "text": "리뷰 작성 시 ",
+      "highlight": "3천원 할인 · 실외 전체 왁스 · 트렁크 청소 중 택 1",
+      "amount": 3000,
+      "services": []
+    }
+  ],
   "gallery": [
     {
       "id": "g1",

@@ -398,7 +398,7 @@
 
         <div class="two-col">
           <article class="panel"><h2>추가 옵션</h2><div class="option-list"><div><span>휠 철분·집중세정</span><b>+10,000원</b></div><div><span>고급 왁스·실런트</span><b>+20,000원</b></div><div><span>실내 진공·먼지관리</span><b>+15,000원</b></div><div><span>실내 집중세차</span><b>+30,000원</b></div><div><span>트렁크 청소</span><b>+10,000원</b></div><div><span>벌레·타르 제거</span><b>+10,000원</b></div></div></article>
-          <article class="panel promo"><h2>오픈 혜택</h2><ul class="check-list"><li>첫 달 월 4회 <b>10,000원 할인</b></li><li>첫 달 월 2회 <b>5,000원 할인</b></li><li>가족·지인 소개 시 <b>외부세차 1회</b></li><li>같은 아파트 5대 이상 <b>차량당 5,000원 할인</b></li><li>꾸준히 이용 시 <b>3개월마다 외부세차 1회</b></li><li>리뷰 작성 시 <b>3천원 할인 · 실외 전체 왁스 · 트렁크 청소</b> 중 택 1</li></ul></article>
+          <article class="panel promo"><h2>오픈 혜택</h2><ul class="check-list" id="promoList"></ul></article>
         </div>
         <button class="sticky-cta primary-btn" data-go="booking">이 가격으로 예약 문의하기</button>
       </section>
@@ -475,6 +475,10 @@
                 <label class="opt-chip"><input type="checkbox" name="options" value="벌레·타르 제거"><span>벌레·타르 제거<small>+10,000원</small></span></label>
               </div>
             </div>
+            <div class="span-2 opt-field hidden" id="promoField">
+              <span class="opt-title">적용 가능한 혜택 <small class="field-hint">해당되는 항목을 모두 선택하세요 (중복 적용 가능)</small></span>
+              <div class="opt-grid" id="promoGrid"></div>
+            </div>
             <label class="span-2">요청사항<textarea name="memo" rows="3" placeholder="주차 위치, 가능한 요일, 그 외 요청사항을 적어주세요."></textarea></label>
             <div class="span-2 quote-box" id="quoteBox">
               <div class="quote-head"><span>예상 금액</span><em id="quoteCar">차량을 선택해주세요</em></div>
@@ -527,7 +531,7 @@
   <div id="toast" class="toast"></div>
   <script src="compat-fix.js?v=20260916-6"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
-  <script src="app.js?v=20260919-quote"></script>
-  <script src="supabase-integration.js?v=20260919-quote"></script>
+  <script src="app.js?v=20260919-promo"></script>
+  <script src="supabase-integration.js?v=20260919-promo"></script>
 </body>
 </html>

@@ -156,6 +156,9 @@
       .member-history .hist-amt{font-weight:700;color:#087c68;flex:0 0 auto}
       /* 예약 페이지 하단 연락 버튼 */
       .booking-contact-strip{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 0}
+      .form-grid .promo-chip:has(input:checked){border-color:#c99a2e;background:#fff8e6;box-shadow:0 0 0 2px rgba(201,154,46,.12)}
+      .form-grid .promo-chip input{accent-color:#c99a2e}
+      .quote-lines li.quote-discount b{color:#c0392b}
       .quote-box{border:1px solid #bee1d8;background:#f2fbf8;border-radius:16px;padding:16px 18px}
       .quote-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:900;margin-bottom:10px}
       .quote-head em{font-style:normal;font-weight:700;font-size:13px;color:#4f6b65;text-align:right}
@@ -760,6 +763,9 @@
     const memo     = String(fd.get('memo') || '').trim();
     const options  = fd.getAll('options').map(v => String(v).trim()).filter(Boolean);
     const quoteTotal = (document.querySelector('#quoteTotal')?.textContent || '').trim();
+    const promoLabels = Array.from(document.querySelectorAll('[name="promos"]:checked'))
+      .map(el => (el.closest('label')?.querySelector('span')?.firstChild?.textContent || '').trim())
+      .filter(Boolean);
     const payload  = {
       customer_name:  String(fd.get('customerName') || '').trim(),
       phone:          String(fd.get('phone')        || '').trim(),
@@ -769,7 +775,7 @@
       service_type:   normalizeService(exactSvc),
       preferred_date: fd.get('preferredDate') || null,
       preferred_time: fd.get('preferredTime') || null,
-      memo: `[희망 서비스: ${exactSvc}]${options.length ? `\n[추가 옵션: ${options.join(', ')}]` : ''}${quoteTotal && quoteTotal !== '-' ? `\n[예상 금액: ${quoteTotal}]` : ''}${memo ? `\n${memo}` : ''}`,
+      memo: `[희망 서비스: ${exactSvc}]${options.length ? `\n[추가 옵션: ${options.join(', ')}]` : ''}${promoLabels.length ? `\n[적용 혜택: ${promoLabels.join(', ')}]` : ''}${quoteTotal && quoteTotal !== '-' ? `\n[예상 금액: ${quoteTotal}]` : ''}${memo ? `\n${memo}` : ''}`,
       status: '접수',
     };
 
