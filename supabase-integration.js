@@ -156,6 +156,14 @@
       .member-history .hist-amt{font-weight:700;color:#087c68;flex:0 0 auto}
       /* 예약 페이지 하단 연락 버튼 */
       .booking-contact-strip{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 0}
+      .field-hint{display:block;font-weight:500;font-size:12px;color:#6b7f7a;margin-top:2px}
+      .opt-field{display:flex;flex-direction:column;gap:9px}
+      .opt-title{font-weight:800;font-size:13px}
+      .opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:9px}
+      .form-grid .opt-chip{display:flex;flex-direction:row;align-items:center;gap:9px;border:1px solid #cfdcda;border-radius:13px;padding:11px 12px;background:#fff;cursor:pointer;font-weight:700;font-size:14px}
+      .form-grid .opt-chip input{width:18px;height:18px;accent-color:#087c68;flex:0 0 auto}
+      .form-grid .opt-chip small{display:block;font-weight:600;font-size:12px;color:#6b7f7a}
+      .form-grid .opt-chip:has(input:checked){border-color:#087c68;background:#effaf7;box-shadow:0 0 0 2px rgba(8,124,104,.10)}
       .booking-contact-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 12px;border-radius:18px;border:2px solid #cfdcda;background:#fff;font-weight:900;font-size:16px;text-align:center;cursor:pointer;text-decoration:none;color:#132c27;line-height:1.3;box-shadow:0 4px 14px rgba(0,0,0,.06)}
       .booking-contact-btn:active{transform:scale(.97)}
       .booking-contact-btn.sms-btn{background:linear-gradient(135deg,#087c68,#0a9a80);border-color:#087c68;color:#fff;box-shadow:0 4px 14px rgba(8,124,104,.28)}
@@ -740,6 +748,7 @@
 
     const exactSvc = String(fd.get('service') || '기타 상담');
     const memo     = String(fd.get('memo') || '').trim();
+    const options  = fd.getAll('options').map(v => String(v).trim()).filter(Boolean);
     const payload  = {
       customer_name:  String(fd.get('customerName') || '').trim(),
       phone:          String(fd.get('phone')        || '').trim(),
@@ -749,7 +758,7 @@
       service_type:   normalizeService(exactSvc),
       preferred_date: fd.get('preferredDate') || null,
       preferred_time: fd.get('preferredTime') || null,
-      memo: `[희망 서비스: ${exactSvc}]${memo ? `\n${memo}` : ''}`,
+      memo: `[희망 서비스: ${exactSvc}]${options.length ? `\n[추가 옵션: ${options.join(', ')}]` : ''}${memo ? `\n${memo}` : ''}`,
       status: '접수',
     };
 

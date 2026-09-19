@@ -299,12 +299,77 @@ function bindEvents() {
   });
 }
 
+
+/* ── 차종 → 차종 구분 자동 선택 ───────────────────────────────── */
+const CAR_CLASS_RULES = [
+  ['경차·소형', ['모닝','레이','캐스퍼','스파크','마티즈','비스토','다마스','트위지','아토즈']],
+  ['대형 MPV·특대형', ['카니발','스타리아','스타렉스','카운티','솔라티','X7','레인지로버','GLS','에스컬레이드','트래버스','팰리세이드하이브리드','시에나','알파드','카시카이밴']],
+  ['대형 SUV', ['팰리세이드','GV80','모하비','X5','X6','GLE','Q7','Q8','투아렉','디스커버리','익스플로러','텔루라이드','EV9','볼보XC90','XC90']],
+  ['중형 SUV', ['투싼','스포티지','쏘렌토','싼타페','X3','GLC','Q5','QM6','렉스턴','아웃랜더','EV6','아이오닉5','GV70','CR-V','RAV4','XC60','토레스']],
+  ['소형 SUV', ['셀토스','코나','트랙스','XM3','티볼리','베뉴','니로','캡처','2008','3008','X1','GLA','Q3','QM3','EV3','코란도','CX-3']],
+  ['대형 세단', ['G90','K9','S클래스','7시리즈','A8','LS','체어맨','에쿠스','팬텀','마이바흐','EQS']],
+  ['중형·준대형 세단', ['쏘나타','소나타','K5','그랜저','K7','K8','G80','E클래스','5시리즈','520','528','530','A6','ES','SM6','말리부','캠리','어코드','스팅어','아이오닉6','EQE','모델S','모델3']],
+  ['준중형 세단', ['아반떼','K3','크루즈','SM3','3시리즈','320','330','A3','A4','IS','C클래스','벨로스터','아이오닉']],
+];
+
+function guessCarClass(text) {
+  const raw = String(text || '').replace(/\s+/g, '').toUpperCase();
+  if (raw.length < 2) return '';
+  for (const [cls, keywords] of CAR_CLASS_RULES) {
+    for (const keyword of keywords) {
+      if (raw.includes(keyword.replace(/\s+/g, '').toUpperCase())) return cls;
+    }
+  }
+  return '';
+}
+
+function bindBookingExtras() {
+  const form = document.querySelector('#bookingForm');
+  if (!form || form.dataset.extrasReady) return;
+  form.dataset.extrasReady = '1';
+
+  const carInput = form.querySelector('[name="car"]');
+  const classSelect = form.querySelector('#carClassSelect');
+  const hint = form.querySelector('#carClassHint');
+  if (!carInput || !classSelect) return;
+
+  const list = document.querySelector('#carModelList');
+  if (list && !list.children.length) {
+    const models = [...new Set(CAR_CLASS_RULES.flatMap(([, keywords]) => keywords))];
+    list.innerHTML = models.map((m) => `<option value="${m}">`).join('');
+  }
+
+  classSelect.addEventListener('change', () => {
+    classSelect.dataset.manual = classSelect.value ? '1' : '';
+    if (hint) hint.textContent = classSelect.value ? '직접 선택한 구분이 적용됩니다' : '차종을 적으면 자동으로 선택됩니다';
+  });
+
+  const apply = () => {
+    if (classSelect.dataset.manual === '1') return;
+    const guessed = guessCarClass(carInput.value);
+    classSelect.value = guessed;
+    if (hint) hint.textContent = guessed
+      ? `자동 인식: ${guessed} (다르면 직접 선택하세요)`
+      : '차종을 적으면 자동으로 선택됩니다';
+  };
+  carInput.addEventListener('input', apply);
+  carInput.addEventListener('change', apply);
+
+  form.addEventListener('reset', () => {
+    setTimeout(() => {
+      classSelect.dataset.manual = '';
+      if (hint) hint.textContent = '차종을 적으면 자동으로 선택됩니다';
+    }, 0);
+  });
+}
+
 async function init() {
   await loadPublished();
   state = loadLocal();
   restorePublishedSectionsOnce();
   bindEvents();
   render();
+  bindBookingExtras();
 
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () =>

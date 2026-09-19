@@ -436,8 +436,8 @@
             <label>예약자 이름<input name="customerName" placeholder="예: 홍길동" autocomplete="name" required></label>
             <label>연락처<input name="phone" inputmode="tel" placeholder="010-0000-0000" autocomplete="tel" required></label>
             <label>아파트명<input name="apartment" placeholder="예: 중산지구 ○○아파트" required></label>
-            <label>차종<input name="car" placeholder="예: GV80, 아반떼" required></label>
-            <label>차종 구분<select name="carClass">
+            <label>차종<input name="car" placeholder="예: GV80, 아반떼" list="carModelList" autocomplete="off" required></label>
+            <label>차종 구분 <small class="field-hint" id="carClassHint">차종을 적으면 자동으로 선택됩니다</small><select name="carClass" id="carClassSelect">
               <option value="">선택 (선택사항)</option>
               <option>경차·소형</option>
               <option>준중형 세단</option>
@@ -457,8 +457,20 @@
             </select></label>
             <label>희망 날짜<input name="preferredDate" type="date"></label>
             <label>희망 시간<input name="preferredTime" type="time"></label>
-            <label class="span-2">요청사항<textarea name="memo" rows="3" placeholder="주차 위치, 가능한 요일, 추가 옵션 등을 적어주세요."></textarea></label>
+            <div class="span-2 opt-field">
+              <span class="opt-title">추가 옵션 <small class="field-hint">필요한 항목을 선택하세요 (선택사항)</small></span>
+              <div class="opt-grid">
+                <label class="opt-chip"><input type="checkbox" name="options" value="휠 철분·집중세정"><span>휠 철분·집중세정<small>+10,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="고급 왁스·실런트"><span>고급 왁스·실런트<small>+20,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="실내 진공·먼지관리"><span>실내 진공·먼지관리<small>+15,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="실내 집중세차"><span>실내 집중세차<small>+30,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="트렁크 청소"><span>트렁크 청소<small>+10,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="벌레·타르 제거"><span>벌레·타르 제거<small>+10,000원~</small></span></label>
+              </div>
+            </div>
+            <label class="span-2">요청사항<textarea name="memo" rows="3" placeholder="주차 위치, 가능한 요일, 그 외 요청사항을 적어주세요."></textarea></label>
             <button type="submit" class="primary-btn span-2">예약 접수하기</button>
+            <datalist id="carModelList"></datalist>
           </form>
           <div id="bookingResult" class="booking-result hidden"></div>
         </article>
@@ -503,7 +515,7 @@
   <div id="toast" class="toast"></div>
   <script src="compat-fix.js?v=20260916-6"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
-  <script src="app.js?v=20260919-sms2"></script>
-  <script src="supabase-integration.js?v=20260919-sms2"></script>
+  <script src="app.js?v=20260919-carclass"></script>
+  <script src="supabase-integration.js?v=20260919-carclass"></script>
 </body>
 </html>
