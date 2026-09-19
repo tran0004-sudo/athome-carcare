@@ -526,7 +526,9 @@ function bindBookingExtras() {
         gift: promo.gift || '',
         auto: true,
       }));
-    const coupons = myCoupons.map((coupon) => ({
+    const coupons = myCoupons
+      .filter((coupon) => !Array.isArray(coupon.services) || !coupon.services.length || coupon.services.includes(svc))
+      .map((coupon) => ({
       key: `coupon:${coupon.code}`,
       label: `${coupon.label} (${coupon.code})`,
       amount: coupon.amount || 0,
@@ -566,6 +568,14 @@ function bindBookingExtras() {
     if (!result.valid) { msg.textContent = result.reason || '사용할 수 없는 쿠폰입니다.'; msg.className = 'coupon-msg bad'; return; }
     if (!myCoupons.some((coupon) => coupon.code === result.code)) myCoupons.push(result);
     window.__myCoupons = myCoupons;
+    const svcNow = svcSel ? svcSel.value : '';
+    const usable = !Array.isArray(result.services) || !result.services.length || result.services.includes(svcNow);
+    if (!usable) {
+      msg.textContent = `이 쿠폰은 ${result.services.join(' · ')}에만 사용할 수 있습니다. 희망 서비스를 바꿔주세요.`;
+      msg.className = 'coupon-msg bad';
+      renderPromoOptions();
+      return;
+    }
     selectedBenefit = `coupon:${result.code}`;
     msg.textContent = `${result.label} 쿠폰이 적용되었습니다.`;
     msg.className = 'coupon-msg good';

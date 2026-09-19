@@ -165,6 +165,13 @@
       .coupon-msg{margin:6px 0 0;font-size:13px;font-weight:700;color:#6b7f7a}
       .coupon-msg.good{color:#087c68}
       .coupon-msg.bad{color:#c0392b}
+      .coupon-issue{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;margin:12px 0;padding:14px;border:1px solid var(--line,#dfe8e6);border-radius:14px;background:#fbfdfd}
+      .coupon-issue label{display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:13px}
+      .coupon-issue label small{font-weight:600;color:#6b7f7a}
+      .coupon-issue input,.coupon-issue select{border:1px solid #cfdcda;border-radius:11px;padding:10px 12px;background:#fff}
+      .coupon-issued{margin:0 0 14px;padding:14px;border-radius:14px;background:#effaf7;border:1px solid #bee1d8}
+      .coupon-codes{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+      .coupon-codes code{background:#fff;border:1px solid #bee1d8;border-radius:9px;padding:6px 10px;font-weight:800}
       .coupon-badge{border-radius:999px;padding:3px 10px;font-size:12px;font-weight:800}
       .coupon-badge.wait{background:#fff3d6;color:#8a6200}
       .coupon-badge.ok{background:#e7f6f1;color:#087c68}
@@ -925,6 +932,64 @@
 
   const COUPON_BADGE = { '승인대기': 'wait', '발급': 'ok', '사용': 'used', '취소': 'off' };
 
+  const newCouponCode = () =>
+    'AHC-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+
+  function bindCouponIssue(card) {
+    const form = card.querySelector('#couponIssueForm');
+    if (!form || form.dataset.ready) return;
+    form.dataset.ready = '1';
+
+    form.preset.addEventListener('change', () => {
+      if (form.preset.value === 'newmonthly') {
+        form.label.value = '신규 월세차 할인';
+        form.amount.value = 10000;
+        form.scope.value = 'monthly';
+      }
+    });
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const s = await getSession();
+      if (!s) { toast('로그인이 필요합니다.'); return; }
+
+      const count = Math.min(50, Math.max(1, Number(form.count.value) || 1));
+      const phone = tel(form.phone.value);
+      const rows = Array.from({ length: count }, () => ({
+        code: newCouponCode(),
+        kind: form.preset.value === 'newmonthly' ? 'newmonthly' : 'manual',
+        label: String(form.label.value || '').trim() || '할인 쿠폰',
+        amount: Number(form.amount.value) || 0,
+        phone: phone || null,
+        services: form.scope.value === 'monthly' ? ['월 2회', '월 4회'] : null,
+        status: '발급',
+        approved_at: new Date().toISOString(),
+      }));
+
+      const btn = form.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/coupons`, {
+          method: 'POST',
+          headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+          body: JSON.stringify(rows),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        const box = card.querySelector('#couponIssueResult');
+        box.classList.remove('hidden');
+        box.innerHTML = `<b>${rows.length}장 발급 완료 — 고객에게 아래 번호를 전달하세요.</b>
+          <div class="coupon-codes">${rows.map(row => `<code>${esc(row.code)}</code>`).join('')}</div>`;
+        toast('쿠폰을 발급했습니다.');
+        loadCoupons();
+      } catch (err) {
+        console.error('쿠폰 발급 실패', err);
+        toast('쿠폰 발급에 실패했습니다. coupons-newmonthly.sql 실행 여부를 확인해주세요.');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
+
   async function loadCoupons() {
     const box = document.querySelector('#couponList');
     if (!box) return;
@@ -933,7 +998,7 @@
     box.innerHTML = '<div class="reservation-empty">쿠폰 목록을 불러오는 중…</div>';
     try {
       const r = await fetch(
-        `${SUPABASE_URL}/rest/v1/coupons?select=id,code,kind,label,amount,gift,phone,ref_phone,status,created_at&order=created_at.desc&limit=200`,
+        `${SUPABASE_URL}/rest/v1/coupons?select=id,code,kind,label,amount,gift,phone,ref_phone,services,status,created_at&order=created_at.desc&limit=200`,
         { headers: api(s.access_token) });
       if (!r.ok) throw new Error(await r.text());
       renderCoupons(await r.json());
@@ -957,6 +1022,8 @@
           <span>🎟 ${esc(row.code)}</span>
           <span>📞 ${esc(row.phone)}</span>
           ${row.ref_phone ? `<span>↩ 소개한 고객 ${esc(row.ref_phone)}</span>` : ''}
+          ${Array.isArray(row.services) && row.services.length ? `<span>🧾 ${esc(row.services.join(' · '))} 전용</span>` : ''}
+          ${row.phone ? '' : '<span>🎫 공용 쿠폰</span>'}
           <span>${row.amount ? `${Number(row.amount).toLocaleString('ko-KR')}원 할인` : esc(row.gift || '혜택 제공')}</span>
           <span>${fmt(row.created_at)}</span>
         </div>
@@ -1054,6 +1121,22 @@
             <span style="font-weight:800">혜택 쿠폰 · 승인해야 고객이 사용할 수 있습니다</span>
             <button id="couponRefresh" class="secondary-btn">새로고침</button>
           </div>
+          <form id="couponIssueForm" class="coupon-issue">
+            <label>쿠폰 종류<select name="preset">
+              <option value="newmonthly">신규 월세차 할인</option>
+              <option value="manual">직접 입력</option>
+            </select></label>
+            <label>혜택 이름<input name="label" value="신규 월세차 할인"></label>
+            <label>할인 금액<input name="amount" type="number" min="0" step="1000" value="10000"></label>
+            <label>적용 서비스<select name="scope">
+              <option value="monthly">월세차 전용 (월 2회·월 4회)</option>
+              <option value="any">전체 서비스</option>
+            </select></label>
+            <label>대상 번호 <small>비우면 누구나 쓰는 공용 쿠폰</small><input name="phone" inputmode="tel" placeholder="010-0000-0000"></label>
+            <label>수량<input name="count" type="number" min="1" max="50" value="1"></label>
+            <button class="primary-btn" type="submit">쿠폰 발급</button>
+          </form>
+          <div id="couponIssueResult" class="coupon-issued hidden"></div>
           <div id="couponList" class="member-list"><div class="reservation-empty">쿠폰 목록을 불러오는 중…</div></div>
         </div>
       </div>`;
@@ -1364,6 +1447,7 @@
 
     card.querySelector('#memberRefresh').addEventListener('click', () => loadMembers(false));
     card.querySelector('#couponRefresh').addEventListener('click', () => loadCoupons());
+    bindCouponIssue(card);
 
     let searchTimer;
     card.querySelector('#memberSearch').addEventListener('input', e => {
