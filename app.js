@@ -144,6 +144,7 @@ function renderSettings() {
   const phone = state.settings.phone || '010-8391-8999';
   document.querySelectorAll('[data-phone-text]').forEach((el) => { el.textContent = phone; });
   document.querySelectorAll('[data-call]').forEach((el) => { el.href = `tel:${digits(phone)}`; });
+  document.querySelectorAll('[data-sms]').forEach((el) => { el.href = `sms:${digits(phone)}`; });
 }
 
 function render() {
