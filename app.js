@@ -300,67 +300,109 @@ function bindEvents() {
 }
 
 
-/* ── 차종 → 차종 구분 자동 선택 ───────────────────────────────── */
-const CAR_CLASS_RULES = [
-  ['경차·소형', ['모닝','레이','캐스퍼','스파크','마티즈','비스토','다마스','트위지','아토즈']],
-  ['대형 MPV·특대형', ['카니발','스타리아','스타렉스','카운티','솔라티','X7','레인지로버','GLS','에스컬레이드','트래버스','팰리세이드하이브리드','시에나','알파드','카시카이밴']],
-  ['대형 SUV', ['팰리세이드','GV80','모하비','X5','X6','GLE','Q7','Q8','투아렉','디스커버리','익스플로러','텔루라이드','EV9','볼보XC90','XC90']],
-  ['중형 SUV', ['투싼','스포티지','쏘렌토','싼타페','X3','GLC','Q5','QM6','렉스턴','아웃랜더','EV6','아이오닉5','GV70','CR-V','RAV4','XC60','토레스']],
-  ['소형 SUV', ['셀토스','코나','트랙스','XM3','티볼리','베뉴','니로','캡처','2008','3008','X1','GLA','Q3','QM3','EV3','코란도','CX-3']],
-  ['대형 세단', ['G90','K9','S클래스','7시리즈','A8','LS','체어맨','에쿠스','팬텀','마이바흐','EQS']],
-  ['중형·준대형 세단', ['쏘나타','소나타','K5','그랜저','K7','K8','G80','E클래스','5시리즈','520','528','530','A6','ES','SM6','말리부','캠리','어코드','스팅어','아이오닉6','EQE','모델S','모델3']],
-  ['준중형 세단', ['아반떼','K3','크루즈','SM3','3시리즈','320','330','A3','A4','IS','C클래스','벨로스터','아이오닉']],
+/* ── 제조사 · 모델 선택 + 차종 구분 자동 지정 ─────────────────── */
+const CAR_DB = [
+  ['현대', [['캐스퍼','경차·소형'], ['아반떼','준중형 세단'], ['쏘나타','중형·준대형 세단'], ['그랜저','중형·준대형 세단'], ['아이오닉5','중형 SUV'], ['아이오닉6','중형·준대형 세단'], ['아이오닉9','대형 SUV'], ['베뉴','소형 SUV'], ['코나','소형 SUV'], ['투싼','중형 SUV'], ['싼타페','중형 SUV'], ['넥쏘','중형 SUV'], ['팰리세이드','대형 SUV'], ['스타리아','대형 MPV·특대형'], ['포터','대형 MPV·특대형']]],
+  ['기아', [['모닝','경차·소형'], ['레이','경차·소형'], ['K3','준중형 세단'], ['K5','중형·준대형 세단'], ['K8','중형·준대형 세단'], ['K9','대형 세단'], ['스팅어','중형·준대형 세단'], ['EV3','소형 SUV'], ['셀토스','소형 SUV'], ['니로','소형 SUV'], ['EV6','중형 SUV'], ['스포티지','중형 SUV'], ['쏘렌토','중형 SUV'], ['EV9','대형 SUV'], ['모하비','대형 SUV'], ['카니발','대형 MPV·특대형'], ['봉고','대형 MPV·특대형']]],
+  ['제네시스', [['G70','준중형 세단'], ['G80','중형·준대형 세단'], ['G90','대형 세단'], ['GV60','소형 SUV'], ['GV70','중형 SUV'], ['GV80','대형 SUV']]],
+  ['KG모빌리티(쌍용)', [['티볼리','소형 SUV'], ['코란도','소형 SUV'], ['액티언','중형 SUV'], ['토레스','중형 SUV'], ['렉스턴','대형 SUV'], ['렉스턴 스포츠','대형 SUV']]],
+  ['르노코리아', [['SM6','중형·준대형 세단'], ['XM3·아르카나','소형 SUV'], ['캡처','소형 SUV'], ['QM6','중형 SUV'], ['그랑 콜레오스','중형 SUV']]],
+  ['쉐보레', [['스파크','경차·소형'], ['말리부','중형·준대형 세단'], ['트랙스 크로스오버','소형 SUV'], ['트레일블레이저','소형 SUV'], ['이쿼녹스','중형 SUV'], ['트래버스','대형 SUV'], ['콜로라도','대형 MPV·특대형'], ['타호','대형 MPV·특대형']]],
+  ['메르세데스-벤츠', [['A클래스','준중형 세단'], ['CLA','준중형 세단'], ['C클래스','중형·준대형 세단'], ['E클래스','중형·준대형 세단'], ['CLS','중형·준대형 세단'], ['EQE','중형·준대형 세단'], ['S클래스','대형 세단'], ['EQS','대형 세단'], ['마이바흐','대형 세단'], ['GLA','소형 SUV'], ['GLB','중형 SUV'], ['GLC','중형 SUV'], ['EQA','소형 SUV'], ['GLE','대형 SUV'], ['GLS','대형 MPV·특대형'], ['V클래스','대형 MPV·특대형']]],
+  ['BMW', [['1시리즈','준중형 세단'], ['2시리즈','준중형 세단'], ['3시리즈','준중형 세단'], ['4시리즈','중형·준대형 세단'], ['5시리즈','중형·준대형 세단'], ['6시리즈','중형·준대형 세단'], ['i4','중형·준대형 세단'], ['i5','중형·준대형 세단'], ['7시리즈','대형 세단'], ['8시리즈','대형 세단'], ['i7','대형 세단'], ['X1','소형 SUV'], ['X2','소형 SUV'], ['X3','중형 SUV'], ['X4','중형 SUV'], ['X5','대형 SUV'], ['X6','대형 SUV'], ['iX','대형 SUV'], ['X7','대형 MPV·특대형']]],
+  ['아우디', [['A3','준중형 세단'], ['A4','준중형 세단'], ['A5','중형·준대형 세단'], ['A6','중형·준대형 세단'], ['A7','중형·준대형 세단'], ['e-트론 GT','중형·준대형 세단'], ['A8','대형 세단'], ['Q2','소형 SUV'], ['Q3','소형 SUV'], ['Q4 e-트론','중형 SUV'], ['Q5','중형 SUV'], ['Q7','대형 SUV'], ['Q8','대형 SUV']]],
+  ['폭스바겐', [['폴로','경차·소형'], ['골프','준중형 세단'], ['제타','준중형 세단'], ['파사트','중형·준대형 세단'], ['아테온','중형·준대형 세단'], ['티록','소형 SUV'], ['티구안','중형 SUV'], ['ID.4','중형 SUV'], ['투아렉','대형 SUV']]],
+  ['볼보', [['S60','중형·준대형 세단'], ['S90','중형·준대형 세단'], ['V60','중형·준대형 세단'], ['EX30','소형 SUV'], ['XC40','소형 SUV'], ['XC60','중형 SUV'], ['XC90','대형 SUV'], ['EX90','대형 SUV']]],
+  ['테슬라', [['모델3','중형·준대형 세단'], ['모델Y','중형 SUV'], ['모델S','대형 세단'], ['모델X','대형 SUV']]],
+  ['렉서스', [['IS','준중형 세단'], ['ES','중형·준대형 세단'], ['LS','대형 세단'], ['UX','소형 SUV'], ['NX','중형 SUV'], ['RX','대형 SUV'], ['LM','대형 MPV·특대형']]],
+  ['토요타', [['코롤라','준중형 세단'], ['프리우스','준중형 세단'], ['캠리','중형·준대형 세단'], ['크라운','중형·준대형 세단'], ['RAV4','중형 SUV'], ['하이랜더','대형 SUV'], ['시에나','대형 MPV·특대형'], ['알파드','대형 MPV·특대형']]],
+  ['혼다', [['시빅','준중형 세단'], ['어코드','중형·준대형 세단'], ['CR-V','중형 SUV'], ['파일럿','대형 SUV'], ['오딧세이','대형 MPV·특대형']]],
+  ['포르쉐', [['911','중형·준대형 세단'], ['타이칸','중형·준대형 세단'], ['파나메라','대형 세단'], ['마칸','중형 SUV'], ['카이엔','대형 SUV']]],
+  ['MINI', [['쿠퍼','경차·소형'], ['클럽맨','준중형 세단'], ['컨트리맨','소형 SUV']]],
+  ['랜드로버', [['레인지로버 이보크','소형 SUV'], ['디스커버리 스포츠','중형 SUV'], ['레인지로버 벨라','중형 SUV'], ['디스커버리','대형 SUV'], ['디펜더','대형 SUV'], ['레인지로버 스포츠','대형 SUV'], ['레인지로버','대형 MPV·특대형']]],
+  ['지프', [['레니게이드','소형 SUV'], ['컴패스','중형 SUV'], ['랭글러','중형 SUV'], ['체로키','중형 SUV'], ['그랜드 체로키','대형 SUV']]],
+  ['포드', [['머스탱','중형·준대형 세단'], ['브롱코','대형 SUV'], ['익스플로러','대형 SUV'], ['익스페디션','대형 MPV·특대형'], ['F-150','대형 MPV·특대형']]],
+  ['링컨', [['노틸러스','중형 SUV'], ['에비에이터','대형 SUV'], ['내비게이터','대형 MPV·특대형']]],
+  ['캐딜락', [['CT4','준중형 세단'], ['CT5','중형·준대형 세단'], ['CT6','대형 세단'], ['XT4','소형 SUV'], ['XT5','중형 SUV'], ['XT6','대형 SUV'], ['에스컬레이드','대형 MPV·특대형']]],
+  ['마세라티', [['기블리','중형·준대형 세단'], ['콰트로포르테','대형 세단'], ['그레칼레','중형 SUV'], ['르반떼','대형 SUV']]],
+  ['푸조', [['208','경차·소형'], ['308','준중형 세단'], ['2008','소형 SUV'], ['3008','중형 SUV'], ['5008','대형 SUV']]],
+  ['BYD', [['돌핀','경차·소형'], ['아토3','소형 SUV'], ['씰','중형·준대형 세단']]],
+  ['폴스타', [['폴스타2','중형·준대형 세단'], ['폴스타4','중형 SUV']]],
 ];
-
-function guessCarClass(text) {
-  const raw = String(text || '').replace(/\s+/g, '').toUpperCase();
-  if (raw.length < 2) return '';
-  for (const [cls, keywords] of CAR_CLASS_RULES) {
-    for (const keyword of keywords) {
-      if (raw.includes(keyword.replace(/\s+/g, '').toUpperCase())) return cls;
-    }
-  }
-  return '';
-}
 
 function bindBookingExtras() {
   const form = document.querySelector('#bookingForm');
   if (!form || form.dataset.extrasReady) return;
   form.dataset.extrasReady = '1';
 
-  const carInput = form.querySelector('[name="car"]');
-  const classSelect = form.querySelector('#carClassSelect');
-  const hint = form.querySelector('#carClassHint');
-  if (!carInput || !classSelect) return;
+  const brandSel  = form.querySelector('#carBrandSelect');
+  const modelSel  = form.querySelector('#carModelSelect');
+  const customWrap = form.querySelector('#carCustomWrap');
+  const customInput = form.querySelector('#carCustomInput');
+  const hiddenCar = form.querySelector('#carHidden');
+  const classSel  = form.querySelector('#carClassSelect');
+  const hint      = form.querySelector('#carClassHint');
+  if (!brandSel || !modelSel || !hiddenCar || !classSel) return;
 
-  const list = document.querySelector('#carModelList');
-  if (list && !list.children.length) {
-    const models = [...new Set(CAR_CLASS_RULES.flatMap(([, keywords]) => keywords))];
-    list.innerHTML = models.map((m) => `<option value="${m}">`).join('');
+  brandSel.innerHTML = '<option value="">제조사를 선택하세요</option>'
+    + CAR_DB.map(([brand]) => `<option value="${brand}">${brand}</option>`).join('')
+    + '<option value="기타">기타 (직접 입력)</option>';
+
+  const ETC = '기타 (직접 입력)';
+
+  function fillModels() {
+    const entry = CAR_DB.find(([brand]) => brand === brandSel.value);
+    if (!brandSel.value) {
+      modelSel.innerHTML = '<option value="">제조사를 먼저 선택하세요</option>';
+    } else if (!entry) {
+      modelSel.innerHTML = `<option value="${ETC}">${ETC}</option>`;
+      modelSel.value = ETC;
+    } else {
+      modelSel.innerHTML = '<option value="">모델을 선택하세요</option>'
+        + entry[1].map(([model, cls]) => `<option value="${model}" data-class="${cls}">${model}</option>`).join('')
+        + `<option value="${ETC}">${ETC}</option>`;
+    }
+    syncCar();
   }
 
-  classSelect.addEventListener('change', () => {
-    classSelect.dataset.manual = classSelect.value ? '1' : '';
-    if (hint) hint.textContent = classSelect.value ? '직접 선택한 구분이 적용됩니다' : '차종을 적으면 자동으로 선택됩니다';
-  });
+  function syncCar() {
+    const brand = brandSel.value;
+    const model = modelSel.value;
+    const isEtc = !brand || model === ETC || (brand === '기타');
+    customWrap.classList.toggle('hidden', !isEtc || !brand);
+    customInput.required = isEtc && !!brand;
 
-  const apply = () => {
-    if (classSelect.dataset.manual === '1') return;
-    const guessed = guessCarClass(carInput.value);
-    classSelect.value = guessed;
-    if (hint) hint.textContent = guessed
-      ? `자동 인식: ${guessed} (다르면 직접 선택하세요)`
-      : '차종을 적으면 자동으로 선택됩니다';
-  };
-  carInput.addEventListener('input', apply);
-  carInput.addEventListener('change', apply);
+    if (isEtc) {
+      const typed = (customInput.value || '').trim();
+      hiddenCar.value = typed ? (brand && brand !== '기타' ? `${brand} ${typed}` : typed) : '';
+      if (hint) hint.textContent = '차종 구분을 직접 선택해주세요';
+      return;
+    }
+    hiddenCar.value = model ? `${brand} ${model}` : '';
 
-  form.addEventListener('reset', () => {
-    setTimeout(() => {
-      classSelect.dataset.manual = '';
-      if (hint) hint.textContent = '차종을 적으면 자동으로 선택됩니다';
-    }, 0);
+    const picked = modelSel.selectedOptions[0];
+    const cls = picked ? picked.dataset.class || '' : '';
+    if (classSel.dataset.manual !== '1') {
+      classSel.value = cls;
+      if (hint) hint.textContent = cls ? `자동 선택: ${cls} (다르면 직접 바꾸세요)` : '모델을 고르면 자동으로 선택됩니다';
+    }
+  }
+
+  classSel.addEventListener('change', () => {
+    classSel.dataset.manual = classSel.value ? '1' : '';
+    if (hint) hint.textContent = classSel.value ? '직접 선택한 구분이 적용됩니다' : '모델을 고르면 자동으로 선택됩니다';
   });
+  brandSel.addEventListener('change', fillModels);
+  modelSel.addEventListener('change', syncCar);
+  customInput.addEventListener('input', syncCar);
+
+  form.addEventListener('reset', () => setTimeout(() => {
+    classSel.dataset.manual = '';
+    fillModels();
+    if (hint) hint.textContent = '모델을 고르면 자동으로 선택됩니다';
+  }, 0));
+
+  fillModels();
 }
 
 async function init() {
