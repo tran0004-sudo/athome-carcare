@@ -1,6 +1,6 @@
-const CACHE = 'athome-carcare-v63';
+const CACHE = 'athome-carcare-v64';
 const ASSETS = [
-  './', './index.html', './styles.css?v=20260916-1line', './home-polish.css?v=20260916-nohero1', './restore-classic.js?v=20260916-2', './compat-fix.js?v=20260916-3', './app.js?v=20260920-kakao1', './supabase-integration.js?v=20260920-notify1', './manifest.webmanifest?v=20260919-icon5', './data/content.json',
+  './', './index.html', './styles.css?v=20260916-1line', './home-polish.css?v=20260916-nohero1', './restore-classic.js?v=20260916-2', './compat-fix.js?v=20260916-3', './app.js?v=20260920-kakao1', './supabase-integration.js?v=20260920-push1', './manifest.webmanifest?v=20260919-icon5', './data/content.json',
 './icons/icon-192.png?v=20260919-icon5', './icons/icon-512.png?v=20260919-icon5', './icons/icon-maskable-512.png?v=20260919-icon5',
   './assets/partner-recruit.jpg?v=20260919', './assets/wheel-before.svg', './assets/wheel-after.svg', './assets/body-before.svg', './assets/body-after.svg',
   './assets/interior-before.svg', './assets/interior-after.svg'
@@ -108,6 +108,23 @@ self.addEventListener('notificationclick', (event) => {
     for (const client of list) {
       if (client.url.includes(self.registration.scope)) return client.focus();
     }
-    return self.clients.openWindow('./');
+    return self.clients.openWindow((event.notification.data && event.notification.data.url) || './');
   })());
+});
+
+/* 서버 푸시 수신 — 앱이 꺼져 있어도 동작합니다 */
+self.addEventListener('push', (event) => {
+  let data = { title: '새 예약이 접수되었습니다', body: '관리자 화면에서 확인해주세요.' };
+  try { if (event.data) data = { ...data, ...event.data.json() }; }
+  catch { if (event.data) data.body = event.data.text(); }
+
+  event.waitUntil(self.registration.showNotification(data.title, {
+    body: data.body,
+    icon: './icons/icon-192.png',
+    badge: './icons/icon-192.png',
+    tag: 'ahc-reservation',
+    renotify: true,
+    vibrate: [200, 100, 200],
+    data: { url: data.url || './' },
+  }));
 });

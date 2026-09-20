@@ -807,6 +807,51 @@
     try { localStorage.setItem(SEEN_KEY, JSON.stringify(ids.slice(0, 300))); } catch {}
   };
 
+  const VAPID_PUBLIC_KEY = 'BH5aQqjhFkvj-V-8WS_qb2oubYNFJna446aTV7ceHBio8u3UhPIklA83FYNDxMCCL7X24vVbr8C8i8EAwbqhcVc';
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const raw = atob(base64);
+    return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+  }
+
+  /* 이 기기를 서버 푸시 대상으로 등록 — 앱을 꺼둬도 알림이 옵니다 */
+  async function registerPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return false;
+    const s = await getSession();
+    if (!s) return false;
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+        });
+      }
+      const json = sub.toJSON();
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/push_subscriptions?on_conflict=endpoint`, {
+        method: 'POST',
+        headers: api(s.access_token, {
+          'Content-Type': 'application/json',
+          Prefer: 'resolution=merge-duplicates,return=minimal',
+        }),
+        body: JSON.stringify({
+          endpoint: json.endpoint,
+          p256dh: json.keys.p256dh,
+          auth: json.keys.auth,
+          label: navigator.userAgent.slice(0, 80),
+        }),
+      });
+      if (!r.ok) throw new Error(await r.text());
+      return true;
+    } catch (err) {
+      console.warn('서버 푸시 등록 실패 (앱이 열려 있을 때만 알림이 옵니다)', err);
+      return false;
+    }
+  }
+
   async function enableNotify(btn) {
     if (!('Notification' in window)) {
       toast('이 브라우저는 알림을 지원하지 않습니다.');
@@ -824,7 +869,10 @@
     localStorage.setItem(NOTIFY_KEY, '1');
     rememberSeen(allRows.map(r => r.id));          // 기존 예약은 알리지 않음
     updateNotifyButton(btn);
-    showNotify('알림이 켜졌습니다', '새 예약이 들어오면 알려드립니다.');
+    const pushed = await registerPush();
+    showNotify('알림이 켜졌습니다', pushed
+      ? '앱을 꺼두셔도 새 예약 알림이 옵니다.'
+      : '앱이 실행 중일 때 새 예약을 알려드립니다.');
   }
 
   function disableNotify(btn) {
