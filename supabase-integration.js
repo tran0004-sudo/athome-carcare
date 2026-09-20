@@ -180,6 +180,7 @@
       .blog-photo-chip:has(input:checked){border-color:#087c68;background:#effaf7}
       .blog-photo-empty{font-size:13px;font-weight:600;color:#6b7f7a}
       .blog-dl{display:flex;flex-wrap:wrap;gap:8px}
+      .secondary-btn.notify-on{background:#e7f6f1;border-color:#087c68;color:#087c68}
       .mosaic-overlay{align-items:flex-start;overflow:auto;padding:24px 12px}
       .mosaic-box{background:#fff;border-radius:18px;padding:18px;max-width:880px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}
       .mosaic-tip{margin:10px 0 12px;font-size:13px;font-weight:700;color:#8a6200;background:#fff7e3;border:1px solid #f0dcae;border-radius:11px;padding:11px 13px;line-height:1.6}
@@ -418,6 +419,7 @@
       if (silent && newAccepted > prevAccepted) {
         toast(`새 예약 ${newAccepted - prevAccepted}건이 접수되었습니다.`);
       }
+      notifyNewRows(allRows);
       renderReservations();
     } catch (err) {
       console.error(err);
@@ -789,6 +791,88 @@
       toast('상태 변경에 실패했습니다. SQL 업그레이드(reservations-upgrade.sql)가 완료됐는지 확인해주세요.');
       button.disabled = false; button.textContent = orig;
     }
+  }
+
+  /* ── 새 예약 알림 (브라우저 알림) ─────────────────────────────── */
+
+  const SEEN_KEY = 'ahc.notify.seen';
+  const NOTIFY_KEY = 'ahc.notify.on';
+
+  const notifyOn = () => localStorage.getItem(NOTIFY_KEY) === '1';
+  const seenIds = () => {
+    try { return new Set(JSON.parse(localStorage.getItem(SEEN_KEY) || '[]')); }
+    catch { return new Set(); }
+  };
+  const rememberSeen = (ids) => {
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify(ids.slice(0, 300))); } catch {}
+  };
+
+  async function enableNotify(btn) {
+    if (!('Notification' in window)) {
+      toast('이 브라우저는 알림을 지원하지 않습니다.');
+      return;
+    }
+    if (Notification.permission === 'denied') {
+      toast('브라우저 설정에서 이 사이트의 알림을 허용해주세요.');
+      return;
+    }
+    const perm = Notification.permission === 'granted'
+      ? 'granted'
+      : await Notification.requestPermission();
+    if (perm !== 'granted') { toast('알림이 허용되지 않았습니다.'); return; }
+
+    localStorage.setItem(NOTIFY_KEY, '1');
+    rememberSeen(allRows.map(r => r.id));          // 기존 예약은 알리지 않음
+    updateNotifyButton(btn);
+    showNotify('알림이 켜졌습니다', '새 예약이 들어오면 알려드립니다.');
+  }
+
+  function disableNotify(btn) {
+    localStorage.removeItem(NOTIFY_KEY);
+    updateNotifyButton(btn);
+    toast('알림을 껐습니다.');
+  }
+
+  function updateNotifyButton(btn) {
+    const el = btn || document.querySelector('#notifyToggle');
+    if (!el) return;
+    const on = notifyOn() && ('Notification' in window) && Notification.permission === 'granted';
+    el.textContent = on ? '🔔 알림 켜짐' : '🔕 알림 켜기';
+    el.classList.toggle('notify-on', on);
+  }
+
+  async function showNotify(title, body) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const opts = {
+      body,
+      icon: './icons/icon-192.png',
+      badge: './icons/icon-192.png',
+      tag: 'ahc-reservation',
+      renotify: true,
+      vibrate: [200, 100, 200],
+    };
+    try {
+      const reg = await navigator.serviceWorker?.ready;
+      if (reg) { reg.showNotification(title, opts); return; }
+    } catch {}
+    try { new Notification(title, opts); } catch {}
+  }
+
+  /* 새로 들어온 접수 건을 알림으로 */
+  function notifyNewRows(rows) {
+    if (!notifyOn()) return;
+    const seen = seenIds();
+    const fresh = rows.filter(r => r.status === '접수' && !seen.has(r.id));
+    if (!fresh.length) { rememberSeen(rows.map(r => r.id)); return; }
+
+    if (fresh.length === 1) {
+      const r = fresh[0];
+      showNotify('새 예약이 접수되었습니다',
+        `${r.customer_name || '고객'} · ${r.car_model || ''}\n${r.apartment || ''} · ${r.service_type || ''}`);
+    } else {
+      showNotify(`새 예약 ${fresh.length}건`, '관리자 화면에서 확인해주세요.');
+    }
+    rememberSeen(rows.map(r => r.id));
   }
 
   /* ── 쿠폰(혜택) RPC ─────────────────────────────────────────── */
@@ -1576,6 +1660,7 @@
         <div class="admin-session-bar">
           <div>관리자 <b id="adminEmail"></b> 로그인됨 <span id="autoRefreshStatus"></span></div>
           <div class="bar-btns">
+            <button id="notifyToggle" class="secondary-btn">🔕 알림 켜기</button>
             <button id="reloadReservations" class="secondary-btn">새로고침</button>
             <button id="adminLogout" class="danger-btn">로그아웃</button>
           </div>
@@ -1682,6 +1767,12 @@
 
     /* 새로고침 */
     card.querySelector('#reloadReservations').addEventListener('click', () => loadReservations(false));
+    const notifyBtn = card.querySelector('#notifyToggle');
+    notifyBtn.addEventListener('click', () => {
+      if (notifyOn() && Notification.permission === 'granted') disableNotify(notifyBtn);
+      else enableNotify(notifyBtn);
+    });
+    updateNotifyButton(notifyBtn);
 
     /* 로그아웃 */
     card.querySelector('#adminLogout').addEventListener('click', async () => {

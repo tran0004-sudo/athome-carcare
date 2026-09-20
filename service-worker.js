@@ -1,6 +1,6 @@
-const CACHE = 'athome-carcare-v62';
+const CACHE = 'athome-carcare-v63';
 const ASSETS = [
-  './', './index.html', './styles.css?v=20260916-1line', './home-polish.css?v=20260916-nohero1', './restore-classic.js?v=20260916-2', './compat-fix.js?v=20260916-3', './app.js?v=20260920-kakao1', './supabase-integration.js?v=20260920-mosaic1', './manifest.webmanifest?v=20260919-icon5', './data/content.json',
+  './', './index.html', './styles.css?v=20260916-1line', './home-polish.css?v=20260916-nohero1', './restore-classic.js?v=20260916-2', './compat-fix.js?v=20260916-3', './app.js?v=20260920-kakao1', './supabase-integration.js?v=20260920-notify1', './manifest.webmanifest?v=20260919-icon5', './data/content.json',
 './icons/icon-192.png?v=20260919-icon5', './icons/icon-512.png?v=20260919-icon5', './icons/icon-maskable-512.png?v=20260919-icon5',
   './assets/partner-recruit.jpg?v=20260919', './assets/wheel-before.svg', './assets/wheel-after.svg', './assets/body-before.svg', './assets/body-after.svg',
   './assets/interior-before.svg', './assets/interior-after.svg'
@@ -98,4 +98,16 @@ self.addEventListener('fetch', (event) => {
       return response;
     }))
   );
+});
+
+/* 알림 클릭 시 앱 열기 */
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil((async () => {
+    const list = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const client of list) {
+      if (client.url.includes(self.registration.scope)) return client.focus();
+    }
+    return self.clients.openWindow('./');
+  })());
 });
