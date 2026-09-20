@@ -68,11 +68,6 @@
           <div id="homeReviews" class="review-grid"></div>
         </section>
 
-        <section class="content-section">
-          <div class="section-head"><div><span class="section-kicker">CAR CARE</span><h2>세차 카테고리 & 세차 팁</h2></div><button class="text-link" data-go="tips">전체 글 보기 →</button></div>
-          <div id="homeTips" class="tip-grid"></div>
-        </section>
-
         <section class="quick-book-card">
           <div><span class="bubble">💬</span><h2>간편문의/예약</h2><p>아파트명 · 차종 · 월 2회 또는 월 4회를 보내주시면 빠르게 안내해드립니다.</p></div>
           <button class="primary-btn" data-go="booking">상담 요청 →</button>
@@ -429,11 +424,12 @@
         </article>
       </section>
 
-      <section id="tips" class="page">
-        <div class="page-title"><span>CAR CARE</span><h1>세차 카테고리 & 세차 팁</h1><p>차를 더 오래, 더 깨끗하게 관리하는 방법을 정리했습니다.</p></div>
-        <div id="tipFilters" class="chips"></div>
-        <div id="tipList" class="tip-grid big"></div>
-      </section>
+      <!-- 세차팁 기능 제거 (2026-09-20) — app.js 등 기존 스크립트 호환용 숨김 플레이스홀더 -->
+      <div id="tipsCompat" hidden style="display:none !important">
+        <div id="tipFilters"></div>
+        <div id="tipList"></div>
+        <div id="homeTips"></div>
+      </div>
 
       <section id="booking" class="page">
         <div class="page-title"><span>BOOKING</span><h1>문의 / 예약</h1><p>아래 내용을 입력하면 예약이 바로 접수됩니다. 접수 후 확인 연락을 드립니다.</p></div>
@@ -544,10 +540,27 @@
     </main>
 
     <nav class="bottom-nav" aria-label="하단 메뉴">
-      <button data-go="home" class="active"><span>⌂</span><small>홈</small></button><button data-go="menu"><span>₩</span><small>요금</small></button><button data-go="gallery"><span>◫</span><small>전후</small></button><button data-go="tips"><span>✦</span><small>세차팁</small></button><button data-go="booking"><span>✉</span><small>예약</small></button>
+      <button data-go="home" class="active"><span>⌂</span><small>홈</small></button><button data-go="menu"><span>₩</span><small>요금</small></button><button data-go="gallery"><span>◫</span><small>전후</small></button><button data-go="booking"><span>✉</span><small>예약</small></button>
     </nav>
   </div>
   <div id="toast" class="toast"></div>
+  <script>
+  /* 세차팁 기능 제거 (2026-09-20)
+     - 이미 저장된 #/tips 주소나 남아 있는 data-go="tips" 링크로 들어오면 홈으로 되돌립니다. */
+  (function(){
+    function killTips(){
+      if(location.hash && location.hash.replace('#/','').replace('#','') === 'tips'){
+        location.hash = '#/home';
+      }
+    }
+    killTips();
+    window.addEventListener('hashchange', killTips);
+    document.addEventListener('click', function(e){
+      var t = e.target && e.target.closest ? e.target.closest('[data-go="tips"]') : null;
+      if(t){ e.preventDefault(); e.stopPropagation(); }
+    }, true);
+  })();
+  </script>
   <script src="compat-fix.js?v=20260916-6"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
   <script src="app.js?v=20260919-when"></script>
