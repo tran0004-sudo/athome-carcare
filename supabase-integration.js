@@ -180,6 +180,13 @@
       .blog-photo-chip:has(input:checked){border-color:#087c68;background:#effaf7}
       .blog-photo-empty{font-size:13px;font-weight:600;color:#6b7f7a}
       .blog-dl{display:flex;flex-wrap:wrap;gap:8px}
+      .mosaic-overlay{align-items:flex-start;overflow:auto;padding:24px 12px}
+      .mosaic-box{background:#fff;border-radius:18px;padding:18px;max-width:880px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+      .mosaic-tip{margin:10px 0 12px;font-size:13px;font-weight:700;color:#8a6200;background:#fff7e3;border:1px solid #f0dcae;border-radius:11px;padding:11px 13px;line-height:1.6}
+      .mosaic-stage{display:flex;justify-content:center;background:#eef4f3;border-radius:12px;padding:10px;overflow:auto}
+      .mosaic-stage canvas{cursor:crosshair;touch-action:none;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.12);max-width:100%}
+      .mosaic-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+      .mosaic-actions .primary-btn{margin-left:auto}
       .blog-result{margin:0 0 16px;padding:16px;border:1px solid #dfe8e6;border-radius:14px;background:#fbfdfd;display:grid;gap:12px}
       .blog-field{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:center}
       .blog-field.col{grid-template-columns:1fr;gap:8px}
@@ -1266,42 +1273,177 @@
   }
 
   /* 전후 사진을 한 장으로 합쳐 내려받기 */
-  async function downloadCompare(galleryId, filename, quiet) {
+  const loadImg = src => new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => res(img);
+    img.onerror = rej;
+    img.src = src;
+  });
+
+  /* 전후 두 장을 한 장으로 합친 캔버스 */
+  async function buildCompareCanvas(item) {
+    const [a, b] = await Promise.all([loadImg(item.before), loadImg(item.after)]);
+    const H = 900, gap = 16, label = 56;
+    const w1 = Math.round(a.width * (H / a.height));
+    const w2 = Math.round(b.width * (H / b.height));
+    const cv = document.createElement('canvas');
+    cv.width = w1 + w2 + gap;
+    cv.height = H + label;
+    const g = cv.getContext('2d');
+    g.fillStyle = '#ffffff'; g.fillRect(0, 0, cv.width, cv.height);
+    g.drawImage(a, 0, label, w1, H);
+    g.drawImage(b, w1 + gap, label, w2, H);
+    g.fillStyle = '#0b7d68';
+    g.font = 'bold 30px "Malgun Gothic", sans-serif';
+    g.fillText('BEFORE', 12, 38);
+    g.fillText('AFTER', w1 + gap + 12, 38);
+    return cv;
+  }
+
+  function saveCanvas(cv, filename) {
+    const link = document.createElement('a');
+    link.href = cv.toDataURL('image/jpeg', 0.9);
+    link.download = filename;
+    link.click();
+  }
+
+  /* 지정한 영역을 모자이크 처리 */
+  function pixelate(cv, x, y, w, h, size = 14) {
+    if (w < 4 || h < 4) return;
+    const g = cv.getContext('2d');
+    const sw = Math.max(1, Math.round(w / size));
+    const sh = Math.max(1, Math.round(h / size));
+    const tmp = document.createElement('canvas');
+    tmp.width = sw; tmp.height = sh;
+    const tg = tmp.getContext('2d');
+    tg.imageSmoothingEnabled = true;
+    tg.drawImage(cv, x, y, w, h, 0, 0, sw, sh);
+    g.imageSmoothingEnabled = false;
+    g.drawImage(tmp, 0, 0, sw, sh, x, y, w, h);
+    g.imageSmoothingEnabled = true;
+  }
+
+  /* 모자이크 편집창 — 드래그로 가릴 영역 지정 */
+  function openMosaicEditor(cv, filename, { index, total }) {
+    return new Promise((resolve) => {
+      const original = document.createElement('canvas');
+      original.width = cv.width; original.height = cv.height;
+      original.getContext('2d').drawImage(cv, 0, 0);
+      const boxes = [];
+
+      const wrap = document.createElement('div');
+      wrap.className = 'msg-overlay mosaic-overlay';
+      wrap.innerHTML = `
+        <div class="mosaic-box" role="dialog" aria-modal="true" aria-label="번호판 모자이크">
+          <div class="msg-head">
+            <div>
+              <b>번호판 모자이크</b>
+              <span class="msg-phone">${index} / ${total} · ${esc(filename)}</span>
+            </div>
+            <button class="msg-close" aria-label="닫기">✕</button>
+          </div>
+          <p class="mosaic-tip">가릴 부분을 드래그하세요. 번호판, 창문에 비친 사람, 동호수 표지 등을 가리시면 됩니다. 여러 번 드래그할 수 있습니다.</p>
+          <div class="mosaic-stage"><canvas id="mosaicCanvas"></canvas></div>
+          <div class="mosaic-actions">
+            <button class="secondary-btn" id="mosaicUndo">마지막 취소</button>
+            <button class="secondary-btn" id="mosaicReset">전체 되돌리기</button>
+            <button class="primary-btn" id="mosaicSave">저장하고 ${index < total ? '다음' : '닫기'}</button>
+          </div>
+        </div>`;
+      document.body.appendChild(wrap);
+
+      const view = wrap.querySelector('#mosaicCanvas');
+      const vg = view.getContext('2d');
+      const maxW = Math.min(820, window.innerWidth - 60);
+      const scale = maxW / cv.width;
+      view.width = cv.width; view.height = cv.height;
+      view.style.width = Math.round(cv.width * scale) + 'px';
+      view.style.height = 'auto';
+
+      const paint = (live) => {
+        vg.drawImage(cv, 0, 0);
+        if (live) {
+          vg.strokeStyle = '#087c68';
+          vg.lineWidth = 4;
+          vg.setLineDash([10, 8]);
+          vg.strokeRect(live.x, live.y, live.w, live.h);
+          vg.setLineDash([]);
+        }
+      };
+      paint();
+
+      let startPt = null;
+      const toCanvas = (e) => {
+        const r = view.getBoundingClientRect();
+        const p = e.touches ? e.touches[0] : e;
+        return {
+          x: (p.clientX - r.left) / r.width * cv.width,
+          y: (p.clientY - r.top) / r.height * cv.height,
+        };
+      };
+      const down = (e) => { e.preventDefault(); startPt = toCanvas(e); };
+      const move = (e) => {
+        if (!startPt) return;
+        e.preventDefault();
+        const p = toCanvas(e);
+        paint({ x: Math.min(startPt.x, p.x), y: Math.min(startPt.y, p.y),
+                w: Math.abs(p.x - startPt.x), h: Math.abs(p.y - startPt.y) });
+      };
+      const up = (e) => {
+        if (!startPt) return;
+        const p = toCanvas(e.changedTouches ? { clientX: e.changedTouches[0].clientX, clientY: e.changedTouches[0].clientY } : e);
+        const box = { x: Math.min(startPt.x, p.x), y: Math.min(startPt.y, p.y),
+                      w: Math.abs(p.x - startPt.x), h: Math.abs(p.y - startPt.y) };
+        startPt = null;
+        if (box.w < 6 || box.h < 6) { paint(); return; }
+        boxes.push(box);
+        pixelate(cv, box.x, box.y, box.w, box.h);
+        paint();
+      };
+      view.addEventListener('mousedown', down);
+      window.addEventListener('mousemove', move);
+      window.addEventListener('mouseup', up);
+      view.addEventListener('touchstart', down, { passive: false });
+      view.addEventListener('touchmove', move, { passive: false });
+      view.addEventListener('touchend', up);
+
+      const redrawAll = () => {
+        cv.getContext('2d').drawImage(original, 0, 0);
+        boxes.forEach(b => pixelate(cv, b.x, b.y, b.w, b.h));
+        paint();
+      };
+
+      const finish = (saved) => {
+        window.removeEventListener('mousemove', move);
+        window.removeEventListener('mouseup', up);
+        wrap.remove();
+        resolve(saved);
+      };
+
+      wrap.querySelector('#mosaicUndo').onclick = () => { boxes.pop(); redrawAll(); };
+      wrap.querySelector('#mosaicReset').onclick = () => { boxes.length = 0; redrawAll(); };
+      wrap.querySelector('#mosaicSave').onclick = () => { saveCanvas(cv, filename); finish(true); };
+      wrap.querySelector('.msg-close').onclick = () => finish(false);
+      wrap.addEventListener('click', (e) => { if (e.target === wrap) finish(false); });
+    });
+  }
+
+  async function downloadCompare(galleryId, filename, quiet, mosaic, pos) {
     const gallery = (typeof state !== 'undefined' && Array.isArray(state.gallery)) ? state.gallery : [];
     const item = gallery.find(g => g.id === galleryId);
-    if (!item || !item.before || !item.after) { toast('전후 사진을 찾을 수 없습니다.'); return; }
-
-    const load = src => new Promise((res, rej) => {
-      const img = new Image();
-      img.onload = () => res(img);
-      img.onerror = rej;
-      img.src = src;
-    });
+    if (!item || !item.before || !item.after) { toast('전후 사진을 찾을 수 없습니다.'); return false; }
     try {
-      const [a, b] = await Promise.all([load(item.before), load(item.after)]);
-      const H = 900, gap = 16, label = 56;
-      const w1 = Math.round(a.width * (H / a.height));
-      const w2 = Math.round(b.width * (H / b.height));
-      const cv = document.createElement('canvas');
-      cv.width = w1 + w2 + gap;
-      cv.height = H + label;
-      const g = cv.getContext('2d');
-      g.fillStyle = '#ffffff'; g.fillRect(0, 0, cv.width, cv.height);
-      g.drawImage(a, 0, label, w1, H);
-      g.drawImage(b, w1 + gap, label, w2, H);
-      g.fillStyle = '#0b7d68';
-      g.font = 'bold 30px "Malgun Gothic", sans-serif';
-      g.fillText('BEFORE', 12, 38);
-      g.fillText('AFTER', w1 + gap + 12, 38);
-      const url = cv.toDataURL('image/jpeg', 0.9);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      link.click();
+      const cv = await buildCompareCanvas(item);
+      if (mosaic) {
+        return await openMosaicEditor(cv, filename, pos || { index: 1, total: 1 });
+      }
+      saveCanvas(cv, filename);
       if (!quiet) toast('전후 비교 이미지를 저장했습니다.');
+      return true;
     } catch (err) {
       console.error('전후 이미지 합성 실패', err);
       toast('이미지를 합치지 못했습니다.');
+      return false;
     }
   }
 
@@ -1377,16 +1519,22 @@
         };
       });
       const nameFor = (i) => fname.replace(/\.jpg$/, `_${i}.jpg`);
+      const wantMosaic = () => Boolean(card.querySelector('#blogMosaic')?.checked);
       box.querySelectorAll('.blog-dl-one').forEach(btn => {
-        btn.onclick = () => downloadCompare(btn.dataset.id, nameFor(btn.dataset.idx));
+        btn.onclick = () => downloadCompare(btn.dataset.id, nameFor(btn.dataset.idx), false, wantMosaic(),
+          { index: Number(btn.dataset.idx), total: photos.length });
       });
       const allBtn = box.querySelector('#blogPhotoAllDl');
       if (allBtn) allBtn.onclick = async () => {
+        const mosaic = wantMosaic();
+        let saved = 0;
         for (let i = 0; i < photos.length; i++) {
-          await downloadCompare(photos[i].id, nameFor(i + 1), true);
-          await new Promise(r => setTimeout(r, 600));   // 브라우저가 연속 저장을 막지 않도록 간격
+          const ok = await downloadCompare(photos[i].id, nameFor(i + 1), true, mosaic,
+            { index: i + 1, total: photos.length });
+          if (ok) saved += 1;
+          await new Promise(r => setTimeout(r, mosaic ? 200 : 600));  // 브라우저가 연속 저장을 막지 않도록 간격
         }
-        toast(`${photos.length}장을 저장했습니다.`);
+        toast(saved ? `${saved}장을 저장했습니다.` : '저장을 취소했습니다.');
       };
     });
 
@@ -1495,6 +1643,7 @@
             <div class="blog-photos" id="blogPhotoBox">
               <span class="blog-photos-title">전후 사진 <small>여러 장 선택할 수 있습니다</small>
                 <label class="blog-all"><input type="checkbox" id="blogPhotoAll"> 전체 선택</label>
+                <label class="blog-all"><input type="checkbox" id="blogMosaic" checked> 번호판 모자이크</label>
               </span>
               <div class="blog-photo-grid" id="blogPhotoGrid"></div>
             </div>
