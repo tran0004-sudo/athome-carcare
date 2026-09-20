@@ -170,6 +170,16 @@
       .partner-poster figcaption{padding:14px 18px;font-size:14px;font-weight:700;color:#2f4d47;background:#f2fbf8;border-top:1px solid #dfe8e6;line-height:1.55}
       @media(max-width:760px){.partner-poster{margin:0 16px 18px;border-radius:14px}}
       .res-plate{display:inline-block;background:#10283a;color:#fff;border-radius:7px;padding:2px 8px;font-size:13px;font-weight:900;letter-spacing:.5px;margin-left:4px}
+      .blog-photos{grid-column:1 / -1;display:grid;gap:8px}
+      .blog-photos-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:800;font-size:13px;color:#2f4d47}
+      .blog-photos-title small{font-weight:600;color:#6b7f7a}
+      .blog-all{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px;color:#087c68;cursor:pointer}
+      .blog-photo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+      .blog-photo-chip{display:flex;flex-direction:row;align-items:center;gap:8px;border:1px solid #cfdcda;border-radius:12px;padding:10px 11px;background:#fff;cursor:pointer;font-weight:700;font-size:13px}
+      .blog-photo-chip input{width:17px;height:17px;accent-color:#087c68;flex:0 0 auto}
+      .blog-photo-chip:has(input:checked){border-color:#087c68;background:#effaf7}
+      .blog-photo-empty{font-size:13px;font-weight:600;color:#6b7f7a}
+      .blog-dl{display:flex;flex-wrap:wrap;gap:8px}
       .blog-result{margin:0 0 16px;padding:16px;border:1px solid #dfe8e6;border-radius:14px;background:#fbfdfd;display:grid;gap:12px}
       .blog-field{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:center}
       .blog-field.col{grid-template-columns:1fr;gap:8px}
@@ -1134,7 +1144,6 @@
 
   function fillBlogSelects() {
     const jobSel = document.querySelector('#blogJob');
-    const photoSel = document.querySelector('#blogPhoto');
     if (!jobSel) return;
 
     const jobs = blogJobs();
@@ -1143,9 +1152,12 @@
       : '<option value="">완료된 작업이 없습니다</option>';
 
     const gallery = (typeof state !== 'undefined' && Array.isArray(state.gallery)) ? state.gallery : [];
-    if (photoSel) {
-      photoSel.innerHTML = '<option value="">사진 없이</option>'
-        + gallery.map(g => `<option value="${esc(g.id)}">${esc(g.title || '전후 사진')}</option>`).join('');
+    const grid = document.querySelector('#blogPhotoGrid');
+    if (grid) {
+      const checked = new Set(Array.from(grid.querySelectorAll('input:checked')).map(el => el.value));
+      grid.innerHTML = gallery.length
+        ? gallery.map(g => `<label class="blog-photo-chip"><input type="checkbox" name="photos" value="${esc(g.id)}"${checked.has(g.id) ? ' checked' : ''}><span>${esc(g.title || '전후 사진')}</span></label>`).join('')
+        : '<span class="blog-photo-empty">등록된 전후 사진이 없습니다.</span>';
     }
   }
 
@@ -1164,8 +1176,7 @@
       `차량은 ${car}${cls}이고, ${SERVICE_TEXT[svc] || `${svc}로 진행했습니다.`}`,
       opts ? `추가로 ${opts[1]} 작업도 함께 했습니다.` : null,
       '',
-      '[사진 1 — 작업 전]',
-      '[사진 2 — 작업 후]',
+      '@@PHOTOS@@',
       '',
       '※ 여기에 오늘 현장에서 느낀 점을 두세 줄 직접 적어주세요.',
       '   (예: 비 온 다음 날이라 하부 오염이 심했습니다 / 지하주차장이라 작업이 수월했습니다)',
@@ -1206,7 +1217,7 @@
       `■ 작업 지역`,
       `${apt}를 비롯해 경산 중산지구 · 사월동 · 시지 · 신매동에서 운영하고 있습니다.`,
       '',
-      '[사진 1 — 작업 전후 비교]',
+      '@@PHOTOS@@',
       '',
       '※ 여기에 최근 작업하면서 느낀 점이나 단골 고객 이야기를 두세 줄 적어주세요.',
       '',
@@ -1237,7 +1248,7 @@
       '그동안 받은 후기를 모아봤습니다. 실제 이용하신 분들 이야기입니다.',
       '',
       lines,
-      '[사진 1 — 작업 전후 비교]',
+      '@@PHOTOS@@',
       '',
       '※ 후기 중 기억에 남는 작업 한 건을 골라 두세 줄 덧붙여주세요.',
       '',
@@ -1251,7 +1262,7 @@
   }
 
   /* 전후 사진을 한 장으로 합쳐 내려받기 */
-  async function downloadCompare(galleryId, filename) {
+  async function downloadCompare(galleryId, filename, quiet) {
     const gallery = (typeof state !== 'undefined' && Array.isArray(state.gallery)) ? state.gallery : [];
     const item = gallery.find(g => g.id === galleryId);
     if (!item || !item.before || !item.after) { toast('전후 사진을 찾을 수 없습니다.'); return; }
@@ -1283,7 +1294,7 @@
       link.href = url;
       link.download = filename;
       link.click();
-      toast('전후 비교 이미지를 저장했습니다.');
+      if (!quiet) toast('전후 비교 이미지를 저장했습니다.');
     } catch (err) {
       console.error('전후 이미지 합성 실패', err);
       toast('이미지를 합치지 못했습니다.');
@@ -1297,6 +1308,15 @@
 
     card.querySelector('#blogRefresh').addEventListener('click', () => { fillBlogSelects(); toast('목록을 갱신했습니다.'); });
 
+    const allBox = card.querySelector('#blogPhotoAll');
+    if (allBox) allBox.addEventListener('change', () => {
+      card.querySelectorAll('[name="photos"]').forEach(el => { el.checked = allBox.checked; });
+    });
+    card.querySelector('#blogPhotoGrid')?.addEventListener('change', () => {
+      const all = Array.from(card.querySelectorAll('[name="photos"]'));
+      if (allBox) allBox.checked = all.length > 0 && all.every(el => el.checked);
+    });
+
     form.addEventListener('submit', e => {
       e.preventDefault();
       const row = allRows.find(r => r.id === form.job.value) || blogJobs()[0] || {};
@@ -1305,13 +1325,20 @@
                   : kind === 'review'  ? draftForReview()
                   : draftForWork(row);
 
-      const photoId = form.photo.value;
+      const gallery = (typeof state !== 'undefined' && Array.isArray(state.gallery)) ? state.gallery : [];
+      const photoIds = Array.from(card.querySelectorAll('[name="photos"]:checked')).map(el => el.value);
+      const photos = photoIds.map(id => gallery.find(g => g.id === id)).filter(Boolean);
       const fname = [
         (row.apartment || '방문세차').replace(/\s+/g, ''),
         (row.car_model || '').replace(/\s+/g, ''),
         (row.service_type || '').replace(/\s+/g, ''),
         '전후',
       ].filter(Boolean).join('_') + '.jpg';
+
+      const placeholder = photos.length
+        ? photos.map((g, i) => `[사진 ${i + 1} — ${g.title || '전후 비교'}]`).join('\n')
+        : '[사진 1 — 작업 전]\n[사진 2 — 작업 후]';
+      draft.body = draft.body.replace('@@PHOTOS@@', placeholder);
 
       const box = card.querySelector('#blogResult');
       box.classList.remove('hidden');
@@ -1331,7 +1358,10 @@
           <input id="blogTags" value="${esc(draft.tags.map(v => '#' + v).join(' '))}">
           <button class="secondary-btn" data-copy="#blogTags">복사</button>
         </div>
-        ${photoId ? `<button class="secondary-btn" id="blogPhotoDl">전후 비교 이미지 내려받기 (${esc(fname)})</button>` : ''}
+        ${photos.length ? `<div class="blog-dl">
+          <button class="primary-btn" id="blogPhotoAllDl">선택한 사진 ${photos.length}장 모두 내려받기</button>
+          ${photos.map((g, i) => `<button class="secondary-btn blog-dl-one" data-id="${esc(g.id)}" data-idx="${i + 1}">${i + 1}. ${esc(g.title || '전후 비교')}</button>`).join('')}
+        </div>` : ''}
         <p class="blog-tip">붙여넣은 뒤 ※ 표시된 줄은 지우고, 그 자리에 직접 쓴 문장을 두세 줄 넣어주세요. 같은 틀의 글이 반복되면 검색에서 밀립니다.</p>`;
 
       box.querySelectorAll('[data-copy]').forEach(btn => {
@@ -1342,8 +1372,18 @@
             .catch(() => toast('복사 기능을 사용할 수 없습니다.'));
         };
       });
-      const dl = box.querySelector('#blogPhotoDl');
-      if (dl) dl.onclick = () => downloadCompare(photoId, fname);
+      const nameFor = (i) => fname.replace(/\.jpg$/, `_${i}.jpg`);
+      box.querySelectorAll('.blog-dl-one').forEach(btn => {
+        btn.onclick = () => downloadCompare(btn.dataset.id, nameFor(btn.dataset.idx));
+      });
+      const allBtn = box.querySelector('#blogPhotoAllDl');
+      if (allBtn) allBtn.onclick = async () => {
+        for (let i = 0; i < photos.length; i++) {
+          await downloadCompare(photos[i].id, nameFor(i + 1), true);
+          await new Promise(r => setTimeout(r, 600));   // 브라우저가 연속 저장을 막지 않도록 간격
+        }
+        toast(`${photos.length}장을 저장했습니다.`);
+      };
     });
 
     fillBlogSelects();
@@ -1448,7 +1488,12 @@
               <option value="monthly">월세차 홍보</option>
               <option value="review">고객 후기 모음</option>
             </select></label>
-            <label>전후 사진<select name="photo" id="blogPhoto"><option value="">사진 없이</option></select></label>
+            <div class="blog-photos" id="blogPhotoBox">
+              <span class="blog-photos-title">전후 사진 <small>여러 장 선택할 수 있습니다</small>
+                <label class="blog-all"><input type="checkbox" id="blogPhotoAll"> 전체 선택</label>
+              </span>
+              <div class="blog-photo-grid" id="blogPhotoGrid"></div>
+            </div>
             <button class="primary-btn" type="submit">초안 만들기</button>
           </form>
           <div id="blogResult" class="blog-result hidden"></div>
