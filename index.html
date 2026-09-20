@@ -36,6 +36,7 @@
             <div class="location-pill">📍 경산 중산지구 · 사월동 · 시지 · 신매동 집중관리</div>
             <div class="hero-buttons">
               <a class="primary-btn button-link" href="sms:01083918999" data-sms>💬 문자 문의</a>
+              <a class="secondary-btn button-link kakao-link" href="https://pf.kakao.com/_gpDrX" target="_blank" rel="noopener" data-kakao-link>💬 카카오채널</a>
               <a class="secondary-btn button-link" href="tel:01083918999" data-call>☎ 전화 문의</a><button class="secondary-btn" data-go="booking">📅 예약하기</button>
             </div>
           </div>
@@ -508,6 +509,9 @@
           <a class="booking-contact-btn sms-btn" href="sms:01083918999" data-sms>
             <span style="font-size:22px">💬</span><span>문자 문의<br><small style="font-weight:500;font-size:13px">바로 문의하기</small></span>
           </a>
+          <a class="booking-contact-btn kakao-btn" href="https://pf.kakao.com/_gpDrX" target="_blank" rel="noopener" data-kakao-link>
+            <span style="font-size:22px">💬</span><span>카카오채널<br><small style="font-weight:500;font-size:13px">바로 문의하기</small></span>
+          </a>
         </div>
       </section>
 
@@ -533,7 +537,7 @@
 
       <section id="admin" class="page">
         <div class="admin-grid">
-          <article class="panel"><h2>운영 정보</h2><form id="settingsForm" class="form-grid"><label>전화번호<input name="phone"></label><label class="span-2">영업시간<input name="hours"></label><button class="primary-btn span-2" type="submit">저장</button></form></article>
+          <article class="panel"><h2>운영 정보</h2><form id="settingsForm" class="form-grid"><label>전화번호<input name="phone"></label><label>카카오채널 URL<input name="kakaoUrl" placeholder="https://pf.kakao.com/..."></label><label class="span-2">영업시간<input name="hours"></label><button class="primary-btn span-2" type="submit">저장</button></form></article>
           <article class="panel"><h2>세차 전·후 사진 추가</h2><form id="galleryForm" class="form-grid"><label>제목<input name="title" required></label><label>설명<input name="note"></label><label>Before 이미지<input type="file" accept="image/*" name="before" required></label><label>After 이미지<input type="file" accept="image/*" name="after" required></label><button class="primary-btn span-2" type="submit">사진 추가</button></form></article>
         </div>
       </section>
@@ -563,7 +567,7 @@
   </script>
   <script src="compat-fix.js?v=20260916-6"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
-  <script src="app.js?v=20260920-couponfix1"></script>
-  <script src="supabase-integration.js?v=20260920-blog2"></script>
+  <script src="app.js?v=20260920-kakao1"></script>
+  <script src="supabase-integration.js?v=20260920-kakao1"></script>
 </body>
 </html>

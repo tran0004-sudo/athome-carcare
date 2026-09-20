@@ -155,7 +155,7 @@
       .member-history .hist-svc{flex:1}
       .member-history .hist-amt{font-weight:700;color:#087c68;flex:0 0 auto}
       /* 예약 페이지 하단 연락 버튼 */
-      .booking-contact-strip{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 0}
+      .booking-contact-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0 0}
       .form-grid .promo-chip:has(input:checked){border-color:#c99a2e;background:#fff8e6;box-shadow:0 0 0 2px rgba(201,154,46,.12)}
       .form-grid .promo-chip input{accent-color:#c99a2e}
       .quote-lines li.quote-discount b{color:#c0392b}
@@ -222,8 +222,10 @@
       .form-grid .opt-chip:has(input:checked){border-color:#087c68;background:#effaf7;box-shadow:0 0 0 2px rgba(8,124,104,.10)}
       .booking-contact-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 12px;border-radius:18px;border:2px solid #cfdcda;background:#fff;font-weight:900;font-size:16px;text-align:center;cursor:pointer;text-decoration:none;color:#132c27;line-height:1.3;box-shadow:0 4px 14px rgba(0,0,0,.06)}
       .booking-contact-btn:active{transform:scale(.97)}
+      .booking-contact-btn.kakao-btn{background:#fee500;border-color:#f0d900;color:#3c1e1e;box-shadow:0 4px 14px rgba(254,229,0,.35)}
+      .msg-kakao{background:#fee500;color:#3c1e1e}
       .booking-contact-btn.sms-btn{background:linear-gradient(135deg,#087c68,#0a9a80);border-color:#087c68;color:#fff;box-shadow:0 4px 14px rgba(8,124,104,.28)}
-      @media(max-width:400px){.booking-contact-strip{grid-template-columns:1fr}}
+      @media(max-width:640px){.booking-contact-strip{grid-template-columns:1fr}}
       /* 예약 성공 결과 */
       .booking-success{padding:18px;background:#f0fbf8;border-radius:16px;border:1px solid #b8e8da}
       .booking-success-title{font-size:17px;font-weight:900;color:#087c68;margin:0 0 8px}
@@ -692,6 +694,7 @@
         <div class="msg-actions">
           <a class="msg-send" id="msgSms" href="#">📱 문자 보내기</a>
           <button class="msg-copy" id="msgCopy">📋 복사</button>
+          <a class="msg-kakao" href="https://pf.kakao.com/_gpDrX" target="_blank" rel="noopener">💬 카카오</a>
           <a class="msg-call" href="tel:${tel(row.phone)}">📞 전화</a>
         </div>
       </div>`;
@@ -959,6 +962,7 @@
           <div class="booking-success-btns">
             <a class="primary-btn button-link" href="tel:01083918999">☎ 전화 확인</a>
             <a class="secondary-btn button-link" href="sms:01083918999">💬 문자 문의</a>
+            <a class="secondary-btn button-link" href="https://pf.kakao.com/_gpDrX" target="_blank" rel="noopener">💬 카카오채널</a>
           </div>
         </div>`;
       }

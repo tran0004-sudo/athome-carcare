@@ -23,7 +23,7 @@ const DEFAULT_PROMOS = [
 
 function normalize(data = {}) {
   const base = publishedState || {
-    settings: { phone: '010-8391-8999', area: '경산 중산지구 · 사월동 · 시지 · 신매동 · 대구 전지역' },
+    settings: { phone: '010-8391-8999', kakaoUrl: 'https://pf.kakao.com/_gpDrX', area: '경산 중산지구 · 사월동 · 시지 · 신매동 · 대구 전지역' },
     promos: deepClone(DEFAULT_PROMOS),
     gallery: [], reviews: [], tips: [], inquiries: []
   };
@@ -149,12 +149,18 @@ function renderSettings() {
   const form = document.querySelector('#settingsForm');
   if (form) {
     form.phone.value = state.settings.phone || '010-8391-8999';
+    if (form.kakaoUrl) form.kakaoUrl.value = state.settings.kakaoUrl || '';
     if (form.area) form.area.value = state.settings.area || '';
   }
   const phone = state.settings.phone || '010-8391-8999';
   document.querySelectorAll('[data-phone-text]').forEach((el) => { el.textContent = phone; });
   document.querySelectorAll('[data-call]').forEach((el) => { el.href = `tel:${digits(phone)}`; });
   document.querySelectorAll('[data-sms]').forEach((el) => { el.href = `sms:${digits(phone)}`; });
+  const kakaoUrl = state.settings.kakaoUrl || '';
+  document.querySelectorAll('[data-kakao-link]').forEach((el) => {
+    el.classList.toggle('hidden', !kakaoUrl);
+    if (kakaoUrl) el.href = kakaoUrl;
+  });
 }
 
 let autoBenefits = { first: false, apt5: false, loyal: false };
@@ -280,6 +286,7 @@ function bindEvents() {
         <button class="secondary-btn" id="copyPartner">문의내용 복사</button>
         <a class="secondary-btn button-link" href="tel:${digits(state.settings.phone)}">전화하기</a>
         <a class="primary-btn button-link" href="sms:${digits(state.settings.phone)}">문자 보내기</a>
+        <a class="primary-btn button-link" href="${state.settings.kakaoUrl || 'https://pf.kakao.com/_gpDrX'}" target="_blank" rel="noopener">카카오채널 열기</a>
       </div>`;
       document.querySelector('#copyPartner').onclick = () =>
         navigator.clipboard?.writeText(message)
@@ -294,7 +301,7 @@ function bindEvents() {
   if (settingsForm) settingsForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const fd = new FormData(event.currentTarget);
-    state.settings = { phone: fd.get('phone'), area: fd.get('area') };
+    state.settings = { phone: fd.get('phone'), kakaoUrl: fd.get('kakaoUrl'), area: fd.get('area') };
     save(); renderSettings();
     toast('업체 설정을 저장했습니다.');
   });
