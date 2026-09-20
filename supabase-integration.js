@@ -775,8 +775,11 @@
     return r.json();
   }
 
+  const bookingPhone = () =>
+    String(document.querySelector('#bookingForm [name="phone"]')?.value || '').trim();
+
   window.checkCoupon = async (code) => {
-    try { return await rpc('check_coupon', { p_code: code, p_phone: '' }); }
+    try { return await rpc('check_coupon', { p_code: code, p_phone: bookingPhone() }); }
     catch (err) { console.warn('쿠폰 확인 실패', err); return null; }
   };
 
@@ -797,7 +800,7 @@
   window.requestReviewCoupon = (phone, choice) => requestCoupon(phone, 'review', null, choice);
 
   async function useCoupon(code) {
-    try { return await rpc('use_coupon', { p_code: code, p_phone: '' }); }
+    try { return await rpc('use_coupon', { p_code: code, p_phone: bookingPhone() }); }
     catch (err) { console.warn('쿠폰 사용 처리 실패', err); return null; }
   }
 
@@ -918,7 +921,14 @@
       });
       if (!r.ok) throw new Error(await r.text());
 
-      if (promoKey.startsWith('coupon:')) await useCoupon(promoKey.slice(7));
+      let couponUseWarning = '';
+      if (promoKey.startsWith('coupon:')) {
+        const used = await useCoupon(promoKey.slice(7));
+        if (!used?.ok) {
+          couponUseWarning = used?.reason || '쿠폰 사용 처리에 실패했습니다. 방문 시 확인해드리겠습니다.';
+          console.warn('쿠폰 사용 처리 실패', promoKey, used);
+        }
+      }
       if (tel(referrer).length >= 9) await requestCoupon(referrer, 'refer', payload.phone);
 
       const result = document.querySelector('#bookingResult');
@@ -927,6 +937,7 @@
         result.innerHTML = `<div class="booking-success">
           <p class="booking-success-title">✅ 예약이 접수되었습니다!</p>
           <p>${esc(payload.customer_name)}님, ${esc(payload.apartment)} · ${esc(payload.car_model)} 예약을 확인 후 연락드리겠습니다.</p>
+          ${couponUseWarning ? `<p class="coupon-msg bad">⚠️ ${esc(couponUseWarning)}</p>` : ''}
           <div class="booking-success-btns">
             <a class="primary-btn button-link" href="tel:01083918999">☎ 전화 확인</a>
             <a class="secondary-btn button-link" href="sms:01083918999">💬 문자 문의</a>
@@ -934,7 +945,9 @@
         </div>`;
       }
       form.reset();
-      toast('예약이 접수되었습니다. 곧 연락드리겠습니다.');
+      toast(couponUseWarning
+        ? '예약은 접수되었습니다. 쿠폰 적용은 방문 시 확인해드리겠습니다.'
+        : '예약이 접수되었습니다. 곧 연락드리겠습니다.');
     } catch (err) {
       console.error('예약 저장 실패', err);
       toast('예약 접수에 실패했습니다. 잠시 후 다시 시도하거나 전화로 문의해주세요.');
