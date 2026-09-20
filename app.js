@@ -564,6 +564,13 @@ function bindBookingExtras() {
     if (picked) { selectedBenefit = picked.value; renderQuote(form); }
   });
 
+  form.querySelector('#couponCode')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      form.querySelector('#couponCheck')?.click();
+    }
+  });
+
   form.querySelector('#couponCheck')?.addEventListener('click', async () => {
     const input = form.querySelector('#couponCode');
     const msg = form.querySelector('#couponMsg');
