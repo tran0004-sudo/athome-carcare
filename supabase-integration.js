@@ -170,6 +170,14 @@
       .partner-poster figcaption{padding:14px 18px;font-size:14px;font-weight:700;color:#2f4d47;background:#f2fbf8;border-top:1px solid #dfe8e6;line-height:1.55}
       @media(max-width:760px){.partner-poster{margin:0 16px 18px;border-radius:14px}}
       .res-plate{display:inline-block;background:#10283a;color:#fff;border-radius:7px;padding:2px 8px;font-size:13px;font-weight:900;letter-spacing:.5px;margin-left:4px}
+      .blog-result{margin:0 0 16px;padding:16px;border:1px solid #dfe8e6;border-radius:14px;background:#fbfdfd;display:grid;gap:12px}
+      .blog-field{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:center}
+      .blog-field.col{grid-template-columns:1fr;gap:8px}
+      .blog-field label{font-weight:800;font-size:13px;color:#2f4d47}
+      .blog-field input,.blog-field textarea{width:100%;border:1px solid #cfdcda;border-radius:11px;padding:11px 12px;background:#fff;font:inherit;line-height:1.6}
+      .blog-field textarea{resize:vertical;min-height:260px;white-space:pre-wrap}
+      .blog-tip{margin:0;font-size:13px;font-weight:700;color:#8a6200;background:#fff7e3;border:1px solid #f0dcae;border-radius:11px;padding:11px 13px;line-height:1.6}
+      @media(max-width:600px){.blog-field{grid-template-columns:1fr;align-items:stretch}}
       .coupon-issue{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;margin:12px 0;padding:14px;border:1px solid var(--line,#dfe8e6);border-radius:14px;background:#fbfdfd}
       .coupon-issue label{display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:13px}
       .coupon-issue label small{font-weight:600;color:#6b7f7a}
@@ -1096,6 +1104,251 @@
     }
   });
 
+  /* ── 블로그 초안 생성 ───────────────────────────────────────── */
+
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const nf = (n) => Number(n || 0).toLocaleString('ko-KR');
+
+  const OPENERS = [
+    '안녕하세요, 집앞세차 앳홈 카케어입니다.',
+    '집앞세차 앳홈 카케어입니다. 오늘 작업 기록 남겨봅니다.',
+    '안녕하세요. 오늘도 집 앞으로 찾아간 앳홈 카케어입니다.',
+  ];
+  const CLOSERS = [
+    '주차만 해두시면 저희가 찾아갑니다. 편하게 연락 주세요.',
+    '세차장 갈 시간 내기 어려우시면 언제든 문의 주세요.',
+    '집 앞에 세워두신 그대로, 퇴근하고 오시면 새 차입니다.',
+  ];
+  const SERVICE_TEXT = {
+    '월 2회': '월 2회 정기 방문세차로 진행했습니다.',
+    '월 4회': '월 4회 정기 방문세차로 진행했습니다.',
+    '일일 외부세차': '일일 외부세차로 진행했습니다.',
+    '외부+내부세차': '외부세차와 실내세차를 함께 진행했습니다.',
+  };
+
+  function blogJobs() {
+    return allRows
+      .filter(r => r.status === '완료' || r.status === '확정')
+      .slice(0, 60);
+  }
+
+  function fillBlogSelects() {
+    const jobSel = document.querySelector('#blogJob');
+    const photoSel = document.querySelector('#blogPhoto');
+    if (!jobSel) return;
+
+    const jobs = blogJobs();
+    jobSel.innerHTML = jobs.length
+      ? jobs.map(r => `<option value="${r.id}">${esc(r.apartment || '')} · ${esc(r.car_model || '')} · ${esc(r.service_type || '')}</option>`).join('')
+      : '<option value="">완료된 작업이 없습니다</option>';
+
+    const gallery = (typeof state !== 'undefined' && Array.isArray(state.gallery)) ? state.gallery : [];
+    if (photoSel) {
+      photoSel.innerHTML = '<option value="">사진 없이</option>'
+        + gallery.map(g => `<option value="${esc(g.id)}">${esc(g.title || '전후 사진')}</option>`).join('');
+    }
+  }
+
+  function draftForWork(row) {
+    const apt = row.apartment || '방문지';
+    const car = row.car_model || '고객 차량';
+    const cls = row.car_class ? ` (${row.car_class})` : '';
+    const svc = row.service_type || '방문세차';
+    const opts = String(row.memo || '').match(/\[추가 옵션: (.+?)\]/);
+
+    const title = `${apt} 방문세차 | ${car} ${svc} 전후 사진`;
+    const body = [
+      pick(OPENERS),
+      '',
+      `오늘은 ${apt}에 다녀왔습니다.`,
+      `차량은 ${car}${cls}이고, ${SERVICE_TEXT[svc] || `${svc}로 진행했습니다.`}`,
+      opts ? `추가로 ${opts[1]} 작업도 함께 했습니다.` : null,
+      '',
+      '[사진 1 — 작업 전]',
+      '[사진 2 — 작업 후]',
+      '',
+      '※ 여기에 오늘 현장에서 느낀 점을 두세 줄 직접 적어주세요.',
+      '   (예: 비 온 다음 날이라 하부 오염이 심했습니다 / 지하주차장이라 작업이 수월했습니다)',
+      '',
+      pick(CLOSERS),
+      '',
+      '── 집앞세차 앳홈 카케어 ──',
+      '경산 중산지구 · 사월동 · 시지 · 신매동',
+      '문의 010-8391-8999',
+    ].filter(v => v !== null).join('\n');
+
+    const tags = ['경산방문세차', '사월동세차', '중산지구세차', '시지세차', '출장세차', '집앞세차',
+                  `${String(car).split(' ')[0]}세차`, '방문세차추천'];
+    return { title, body, tags };
+  }
+
+  function draftForMonthly(row) {
+    const apt = row?.apartment || '중산지구';
+    const title = `경산 사월동·중산지구 월세차 | 한 달 두 번, 주차만 해두세요`;
+    const body = [
+      pick(OPENERS),
+      '',
+      '요즘 월세차 문의를 많이 주셔서 정리해 봅니다.',
+      '',
+      '■ 월세차가 뭔가요',
+      '정해진 날짜에 저희가 집 앞으로 찾아가 세차해드리는 정기 서비스입니다.',
+      '차는 늘 주차하시던 자리에 그대로 두시면 됩니다. 열쇠도 필요 없습니다.',
+      '',
+      '■ 이런 분께 맞습니다',
+      '· 세차장 갈 시간 내기 어려운 맞벌이 부부',
+      '· 아이 태우는 차라 실내 관리가 필요한 가정',
+      '· 지하주차장에 고정 주차하시는 분',
+      '',
+      '■ 요금',
+      '차종에 따라 다르고, 월 2회와 월 4회 중 고르실 수 있습니다.',
+      '앱에서 차종만 선택하면 예상 금액이 바로 계산됩니다.',
+      '',
+      `■ 작업 지역`,
+      `${apt}를 비롯해 경산 중산지구 · 사월동 · 시지 · 신매동에서 운영하고 있습니다.`,
+      '',
+      '[사진 1 — 작업 전후 비교]',
+      '',
+      '※ 여기에 최근 작업하면서 느낀 점이나 단골 고객 이야기를 두세 줄 적어주세요.',
+      '',
+      pick(CLOSERS),
+      '',
+      '── 집앞세차 앳홈 카케어 ──',
+      '문의 010-8391-8999',
+    ].join('\n');
+    const tags = ['경산월세차', '사월동월세차', '중산지구방문세차', '경산출장세차', '시지세차',
+                  '정기세차', '아파트방문세차', '집앞세차'];
+    return { title, body, tags };
+  }
+
+  function draftForReview() {
+    const reviews = (typeof state !== 'undefined' && Array.isArray(state.reviews)) ? state.reviews.slice(0, 5) : [];
+    const lines = reviews.length
+      ? reviews.map(r => [
+          `"${String(r.text || '').trim()}"`,
+          `— ${String(r.author || '고객').replace(/\s*고객$/, '')} 고객님${r.car ? ` · ${r.car}` : ''}`,
+          '',
+        ].join('\n')).join('\n')
+      : '※ 앱에 등록된 후기가 없습니다. 후기를 먼저 받아주세요.';
+
+    const title = '경산 방문세차 고객 후기 모음 | 집앞세차 앳홈 카케어';
+    const body = [
+      pick(OPENERS),
+      '',
+      '그동안 받은 후기를 모아봤습니다. 실제 이용하신 분들 이야기입니다.',
+      '',
+      lines,
+      '[사진 1 — 작업 전후 비교]',
+      '',
+      '※ 후기 중 기억에 남는 작업 한 건을 골라 두세 줄 덧붙여주세요.',
+      '',
+      pick(CLOSERS),
+      '',
+      '── 집앞세차 앳홈 카케어 ──',
+      '경산 중산지구 · 사월동 · 시지 · 신매동 | 010-8391-8999',
+    ].join('\n');
+    const tags = ['경산방문세차후기', '사월동세차후기', '중산지구세차', '출장세차후기', '집앞세차', '경산세차추천'];
+    return { title, body, tags };
+  }
+
+  /* 전후 사진을 한 장으로 합쳐 내려받기 */
+  async function downloadCompare(galleryId, filename) {
+    const gallery = (typeof state !== 'undefined' && Array.isArray(state.gallery)) ? state.gallery : [];
+    const item = gallery.find(g => g.id === galleryId);
+    if (!item || !item.before || !item.after) { toast('전후 사진을 찾을 수 없습니다.'); return; }
+
+    const load = src => new Promise((res, rej) => {
+      const img = new Image();
+      img.onload = () => res(img);
+      img.onerror = rej;
+      img.src = src;
+    });
+    try {
+      const [a, b] = await Promise.all([load(item.before), load(item.after)]);
+      const H = 900, gap = 16, label = 56;
+      const w1 = Math.round(a.width * (H / a.height));
+      const w2 = Math.round(b.width * (H / b.height));
+      const cv = document.createElement('canvas');
+      cv.width = w1 + w2 + gap;
+      cv.height = H + label;
+      const g = cv.getContext('2d');
+      g.fillStyle = '#ffffff'; g.fillRect(0, 0, cv.width, cv.height);
+      g.drawImage(a, 0, label, w1, H);
+      g.drawImage(b, w1 + gap, label, w2, H);
+      g.fillStyle = '#0b7d68';
+      g.font = 'bold 30px "Malgun Gothic", sans-serif';
+      g.fillText('BEFORE', 12, 38);
+      g.fillText('AFTER', w1 + gap + 12, 38);
+      const url = cv.toDataURL('image/jpeg', 0.9);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      toast('전후 비교 이미지를 저장했습니다.');
+    } catch (err) {
+      console.error('전후 이미지 합성 실패', err);
+      toast('이미지를 합치지 못했습니다.');
+    }
+  }
+
+  function bindBlogTab(card) {
+    const form = card.querySelector('#blogForm');
+    if (!form || form.dataset.ready) return;
+    form.dataset.ready = '1';
+
+    card.querySelector('#blogRefresh').addEventListener('click', () => { fillBlogSelects(); toast('목록을 갱신했습니다.'); });
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const row = allRows.find(r => r.id === form.job.value) || blogJobs()[0] || {};
+      const kind = form.kind.value;
+      const draft = kind === 'monthly' ? draftForMonthly(row)
+                  : kind === 'review'  ? draftForReview()
+                  : draftForWork(row);
+
+      const photoId = form.photo.value;
+      const fname = [
+        (row.apartment || '방문세차').replace(/\s+/g, ''),
+        (row.car_model || '').replace(/\s+/g, ''),
+        (row.service_type || '').replace(/\s+/g, ''),
+        '전후',
+      ].filter(Boolean).join('_') + '.jpg';
+
+      const box = card.querySelector('#blogResult');
+      box.classList.remove('hidden');
+      box.innerHTML = `
+        <div class="blog-field">
+          <label>제목</label>
+          <input id="blogTitle" value="${esc(draft.title)}">
+          <button class="secondary-btn" data-copy="#blogTitle">복사</button>
+        </div>
+        <div class="blog-field col">
+          <label>본문</label>
+          <textarea id="blogBody" rows="18">${esc(draft.body)}</textarea>
+          <button class="primary-btn" data-copy="#blogBody">본문 복사</button>
+        </div>
+        <div class="blog-field">
+          <label>해시태그</label>
+          <input id="blogTags" value="${esc(draft.tags.map(v => '#' + v).join(' '))}">
+          <button class="secondary-btn" data-copy="#blogTags">복사</button>
+        </div>
+        ${photoId ? `<button class="secondary-btn" id="blogPhotoDl">전후 비교 이미지 내려받기 (${esc(fname)})</button>` : ''}
+        <p class="blog-tip">붙여넣은 뒤 ※ 표시된 줄은 지우고, 그 자리에 직접 쓴 문장을 두세 줄 넣어주세요. 같은 틀의 글이 반복되면 검색에서 밀립니다.</p>`;
+
+      box.querySelectorAll('[data-copy]').forEach(btn => {
+        btn.onclick = () => {
+          const el = box.querySelector(btn.dataset.copy);
+          navigator.clipboard?.writeText(el.value)
+            .then(() => toast('복사했습니다.'))
+            .catch(() => toast('복사 기능을 사용할 수 없습니다.'));
+        };
+      });
+      const dl = box.querySelector('#blogPhotoDl');
+      if (dl) dl.onclick = () => downloadCompare(photoId, fname);
+    });
+
+    fillBlogSelects();
+  }
+
   /* ── 관리자 화면 UI ──────────────────────────────────────────── */
 
   function setProtected(visible) {
@@ -1141,6 +1394,7 @@
           <button class="admin-sec-tab active" data-sec="reservations">예약 관리</button>
           <button class="admin-sec-tab" data-sec="members">월 회원</button>
           <button class="admin-sec-tab" data-sec="coupons">쿠폰</button>
+          <button class="admin-sec-tab" data-sec="blog">블로그 초안</button>
         </div>
         <!-- 예약 관리 -->
         <div id="adminSecReservations">
@@ -1180,6 +1434,24 @@
           </form>
           <div id="couponIssueResult" class="coupon-issued hidden"></div>
           <div id="couponList" class="member-list"><div class="reservation-empty">쿠폰 목록을 불러오는 중…</div></div>
+        </div>
+        <!-- 블로그 초안 -->
+        <div id="adminSecBlog" class="hidden">
+          <div class="member-controls">
+            <span style="font-weight:800">작업 기록으로 네이버 블로그 초안을 만듭니다</span>
+            <button id="blogRefresh" class="secondary-btn">목록 새로고침</button>
+          </div>
+          <form id="blogForm" class="coupon-issue">
+            <label>작업 선택<select name="job" id="blogJob"><option value="">완료된 작업을 불러오는 중…</option></select></label>
+            <label>글 유형<select name="kind">
+              <option value="work">작업 기록 (전후 사진 중심)</option>
+              <option value="monthly">월세차 홍보</option>
+              <option value="review">고객 후기 모음</option>
+            </select></label>
+            <label>전후 사진<select name="photo" id="blogPhoto"><option value="">사진 없이</option></select></label>
+            <button class="primary-btn" type="submit">초안 만들기</button>
+          </form>
+          <div id="blogResult" class="blog-result hidden"></div>
         </div>
       </div>`;
 
@@ -1488,6 +1760,8 @@
       card.querySelector('#adminSecReservations').classList.toggle('hidden', sec !== 'reservations');
       card.querySelector('#adminSecMembers').classList.toggle('hidden', sec !== 'members');
       card.querySelector('#adminSecCoupons').classList.toggle('hidden', sec !== 'coupons');
+      card.querySelector('#adminSecBlog').classList.toggle('hidden', sec !== 'blog');
+      if (sec === 'blog') { bindBlogTab(card); fillBlogSelects(); }
       if (sec === 'members' && memberRows.length === 0) await loadMembers(false);
       if (sec === 'coupons') await loadCoupons();
     });
