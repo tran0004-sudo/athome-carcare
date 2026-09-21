@@ -807,7 +807,7 @@
     try { localStorage.setItem(SEEN_KEY, JSON.stringify(ids.slice(0, 300))); } catch {}
   };
 
-  const VAPID_PUBLIC_KEY = 'BH5aQqjhFkvj-V-8WS_qb2oubYNFJna446aTV7ceHBio8u3UhPIklA83FYNDxMCCL7X24vVbr8C8i8EAwbqhcVc';
+  const VAPID_PUBLIC_KEY = 'BM4LZJ-Jr98hfBk0LMrTF4sf2GGiCbrILKTaJLFFsdrGqpEjwtUGb987ihqhy6dsANynnnVBXIkYmrcYujALEdU';
 
   function urlBase64ToUint8Array(base64String) {
     const padding = '='.repeat((4 - base64String.length % 4) % 4);
@@ -823,11 +823,24 @@
     if (!s) return false;
     try {
       const reg = await navigator.serviceWorker.ready;
+      const wantedKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
       let sub = await reg.pushManager.getSubscription();
+
+      // VAPID 키를 교체한 경우 기존 구독은 이전 키에 묶여 있으므로 자동 재구독합니다.
+      if (sub?.options?.applicationServerKey) {
+        const currentKey = new Uint8Array(sub.options.applicationServerKey);
+        const sameKey = currentKey.length === wantedKey.length
+          && currentKey.every((value, index) => value === wantedKey[index]);
+        if (!sameKey) {
+          await sub.unsubscribe().catch(() => false);
+          sub = null;
+        }
+      }
+
       if (!sub) {
         sub = await reg.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+          applicationServerKey: wantedKey,
         });
       }
       const json = sub.toJSON();
