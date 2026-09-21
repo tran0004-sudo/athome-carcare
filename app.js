@@ -452,7 +452,12 @@ function refreshOptionChips(form) {
   const cls = form.querySelector('#carClassHidden')?.value || form.querySelector('#carClassSelect')?.value || '';
   const known = cls in SIZE_OF_CLASS;
   form.querySelectorAll('[name="options"]').forEach((box) => {
-    const small = box.closest('label')?.querySelector('small');
+    const chip = box.closest('label');
+    // 화물·탑차는 트렁크가 없어 트렁크 청소 옵션 숨김 (적재함은 별도 견적)
+    const hide = cls === '화물·탑차' && box.value === '트렁크 청소';
+    if (chip) chip.classList.toggle('hidden', hide);
+    if (hide) box.checked = false;
+    const small = chip?.querySelector('small');
     if (!small || !OPTION_PRICES[box.value]) return;
     small.textContent = known
       ? `+${won(optionPrice(box.value, cls))} (${SIZE_LABEL[optionSize(box.value, cls)]})`
