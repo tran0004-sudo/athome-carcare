@@ -24,13 +24,13 @@ Supabase 대시보드 → **Edge Functions** → **Secrets** (또는 Settings �
 
 | 이름 | 값 |
 |---|---|
-| `VAPID_PUBLIC_KEY` | `BH5aQqjhFkvj-V-8WS_qb2oubYNFJna446aTV7ceHBio8u3UhPIklA83FYNDxMCCL7X24vVbr8C8i8EAwbqhcVc` |
-| `VAPID_PRIVATE_KEY` | `d0U-lTtUa7nYHiIT4m8LhjoWXSvVRbmANLM2PTlY9TE` |
+| `VAPID_PUBLIC_KEY` | 새로 생성한 VAPID 공개키 |
+| `VAPID_PRIVATE_KEY` | 새로 생성한 VAPID 비공개키 — **Supabase Secrets에만 입력** |
 | `VAPID_SUBJECT` | `mailto:tran0004@gmail.com` |
 
-> **주의** — PRIVATE KEY는 절대 외부에 공개하지 마세요.
-> 이 키가 유출되면 다른 사람이 사장님 기기로 알림을 보낼 수 있습니다.
-> 유출이 의심되면 키를 새로 만들어 교체하면 됩니다.
+> **보안 주의** — 이전 VAPID 비공개키가 공개 저장소에 포함된 적이 있으므로 그 키는 사용하지 마세요.
+> 반드시 새 VAPID 키 쌍을 생성해 교체하고, PRIVATE KEY는 Supabase Secrets에만 저장하세요.
+> 공개 저장소나 문서에는 PRIVATE KEY를 다시 넣지 마세요.
 
 ---
 
