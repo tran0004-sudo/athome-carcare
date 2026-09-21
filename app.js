@@ -405,11 +405,16 @@ const SIZE_OF_CLASS = {
   '대형 SUV': 2, '대형 MPV·특대형': 2, '수입 대형·프리미엄': 2, '화물·탑차': 2,
 };
 const SIZE_LABEL = ['소형', '중형', '대형'];
+/* 화물·탑차는 캡 실내가 좁아 실내 옵션만 중형 요금 적용 */
+const INTERIOR_OPTIONS = new Set(['실내 진공·먼지관리', '실내 집중세차']);
+function optionSize(name, cls) {
+  if (cls === '화물·탑차' && INTERIOR_OPTIONS.has(name)) return 1;
+  return SIZE_OF_CLASS[cls] ?? 0;
+}
 function optionPrice(name, cls) {
   const tiers = OPTION_PRICES[name];
   if (!tiers) return 0;
-  const size = SIZE_OF_CLASS[cls];
-  return tiers[size ?? 0];
+  return tiers[optionSize(name, cls)];
 }
 const won = (n) => `${n.toLocaleString('ko-KR')}원`;
 
@@ -450,7 +455,7 @@ function refreshOptionChips(form) {
     const small = box.closest('label')?.querySelector('small');
     if (!small || !OPTION_PRICES[box.value]) return;
     small.textContent = known
-      ? `+${won(optionPrice(box.value, cls))} (${SIZE_LABEL[SIZE_OF_CLASS[cls]]})`
+      ? `+${won(optionPrice(box.value, cls))} (${SIZE_LABEL[optionSize(box.value, cls)]})`
       : `+${won(OPTION_PRICES[box.value][0])}~`;
   });
 }
