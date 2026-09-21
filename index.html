@@ -159,6 +159,8 @@
         }
         .pw-gtitle span{font-weight:400;font-size:.76rem;color:var(--pw-muted)}
         .pw-lines{margin:0;padding:0;list-style:none;background:var(--pw-paper);border-radius:12px;overflow:hidden}
+        .option-list .opt-size{display:block;margin-top:3px;font-size:12px;font-weight:600;color:#6b7f7a}
+        .opt-size-note{margin:-4px 0 10px;font-size:13px;font-weight:600;color:#6b7f7a;line-height:1.55}
         .pw-note{margin:10px 2px 0;font-size:13px;font-weight:600;color:#6b7f7a;line-height:1.55}
         .pw-lines li{
           display:flex;align-items:center;justify-content:space-between;gap:14px;
@@ -444,7 +446,7 @@
         <!-- ▲▲▲ 차종별 요금 아코디언 끝 ▲▲▲ -->
 
         <div class="two-col">
-          <article class="panel"><h2>추가 옵션</h2><div class="option-list"><div><span>휠 철분·집중세정</span><b>+10,000원</b></div><div><span>고급 왁스·실런트</span><b>+20,000원</b></div><div><span>실내 진공·먼지관리</span><b>+15,000원</b></div><div><span>실내 집중세차</span><b>+30,000원</b></div><div><span>트렁크 청소</span><b>+10,000원</b></div><div><span>벌레·타르 제거</span><b>+10,000원</b></div></div></article>
+          <article class="panel"><h2>추가 옵션</h2><p class="opt-size-note">차량 크기에 따라 금액이 달라집니다. 예약 화면에서 차종을 고르면 정확한 금액이 표시됩니다.</p><div class="option-list"><div><span>휠 철분·집중세정<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>고급 왁스·실런트<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div><div><span>실내 진공·먼지관리<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>실내 집중세차<small class="opt-size">소형 3만 · 중형 3.5만 · 대형 4.5만</small></span><b>+30,000원~</b></div><div><span>트렁크 청소<small class="opt-size">소형 1만 · 중형 1만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>벌레·타르 제거<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div></div></article>
           <article class="panel promo"><h2>오픈 혜택</h2><ul class="check-list" id="promoList"></ul></article>
         </div>
         <button class="sticky-cta primary-btn" data-go="booking">이 가격으로 예약 문의하기</button>
@@ -526,12 +528,12 @@
             <div class="span-2 opt-field">
               <span class="opt-title">추가 옵션 <small class="field-hint">필요한 항목을 선택하세요 (선택사항)</small></span>
               <div class="opt-grid">
-                <label class="opt-chip"><input type="checkbox" name="options" value="휠 철분·집중세정"><span>휠 철분·집중세정<small>+10,000원</small></span></label>
-                <label class="opt-chip"><input type="checkbox" name="options" value="고급 왁스·실런트"><span>고급 왁스·실런트<small>+20,000원</small></span></label>
-                <label class="opt-chip"><input type="checkbox" name="options" value="실내 진공·먼지관리"><span>실내 진공·먼지관리<small>+15,000원</small></span></label>
-                <label class="opt-chip"><input type="checkbox" name="options" value="실내 집중세차"><span>실내 집중세차<small>+30,000원</small></span></label>
-                <label class="opt-chip"><input type="checkbox" name="options" value="트렁크 청소"><span>트렁크 청소<small>+10,000원</small></span></label>
-                <label class="opt-chip"><input type="checkbox" name="options" value="벌레·타르 제거"><span>벌레·타르 제거<small>+10,000원</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="휠 철분·집중세정"><span>휠 철분·집중세정<small>+10,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="고급 왁스·실런트"><span>고급 왁스·실런트<small>+20,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="실내 진공·먼지관리"><span>실내 진공·먼지관리<small>+15,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="실내 집중세차"><span>실내 집중세차<small>+30,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="트렁크 청소"><span>트렁크 청소<small>+10,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="벌레·타르 제거"><span>벌레·타르 제거<small>+10,000원~</small></span></label>
               </div>
             </div>
             <div class="span-2 opt-field" id="promoField">
@@ -620,7 +622,7 @@
   </script>
   <script src="compat-fix.js?v=20260916-6"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
-  <script src="app.js?v=20260920-premium1"></script>
+  <script src="app.js?v=20260920-optsize1"></script>
   <script src="supabase-integration.js?v=20260921-vapid2"></script>
 </body>
 </html>

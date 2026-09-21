@@ -390,14 +390,27 @@ const PRICE_TABLE = {
   '수입 대형·프리미엄': { '월 4회': 109000, '월 2회': 89000, '일일 외부세차': 40000, '외부+내부세차': 55000 },
   '화물·탑차':        { '월 4회': 110000, '월 2회': 85000, '일일 외부세차': 45000, '외부+내부세차': 60000 },
 };
+/* 추가 옵션 — 차량 크기별 [소형, 중형, 대형] */
 const OPTION_PRICES = {
-  '휠 철분·집중세정': 10000,
-  '고급 왁스·실런트': 20000,
-  '실내 진공·먼지관리': 15000,
-  '실내 집중세차': 30000,
-  '트렁크 청소': 10000,
-  '벌레·타르 제거': 10000,
+  '휠 철분·집중세정':   [10000, 12000, 15000],
+  '고급 왁스·실런트':   [20000, 25000, 30000],
+  '실내 진공·먼지관리': [15000, 18000, 22000],
+  '실내 집중세차':      [30000, 35000, 45000],
+  '트렁크 청소':        [10000, 10000, 15000],
+  '벌레·타르 제거':     [10000, 12000, 15000],
 };
+const SIZE_OF_CLASS = {
+  '경차·소형': 0, '준중형 세단': 0,
+  '중형·준대형 세단': 1, '대형 세단': 1, '소형 SUV': 1, '중형 SUV': 1,
+  '대형 SUV': 2, '대형 MPV·특대형': 2, '수입 대형·프리미엄': 2, '화물·탑차': 2,
+};
+const SIZE_LABEL = ['소형', '중형', '대형'];
+function optionPrice(name, cls) {
+  const tiers = OPTION_PRICES[name];
+  if (!tiers) return 0;
+  const size = SIZE_OF_CLASS[cls];
+  return tiers[size ?? 0];
+}
 const won = (n) => `${n.toLocaleString('ko-KR')}원`;
 
 function buildQuote(form) {
@@ -420,7 +433,7 @@ function buildQuote(form) {
   const base = PRICE_TABLE[cls] ? PRICE_TABLE[cls][svc] : undefined;
   const lines = [];
   if (base) lines.push([`${svc} (${cls})`, base]);
-  options.forEach((name) => lines.push([name, OPTION_PRICES[name] || 0]));
+  options.forEach((name) => lines.push([name, optionPrice(name, cls)]));
   promos.forEach((promo) => lines.push([promo.label, -(promo.amount || 0), promo.gift || (promo.amount ? '' : '혜택 제공')]));
 
   const monthly = svc === '월 2회' || svc === '월 4회';
@@ -430,7 +443,20 @@ function buildQuote(form) {
   return { car, cls, svc, lines, total, monthly, ready, options, promos, discount };
 }
 
+function refreshOptionChips(form) {
+  const cls = form.querySelector('#carClassHidden')?.value || form.querySelector('#carClassSelect')?.value || '';
+  const known = cls in SIZE_OF_CLASS;
+  form.querySelectorAll('[name="options"]').forEach((box) => {
+    const small = box.closest('label')?.querySelector('small');
+    if (!small || !OPTION_PRICES[box.value]) return;
+    small.textContent = known
+      ? `+${won(optionPrice(box.value, cls))} (${SIZE_LABEL[SIZE_OF_CLASS[cls]]})`
+      : `+${won(OPTION_PRICES[box.value][0])}~`;
+  });
+}
+
 function renderQuote(form) {
+  refreshOptionChips(form);
   const linesEl = form.querySelector('#quoteLines');
   const totalEl = form.querySelector('#quoteTotal');
   const labelEl = form.querySelector('#quoteTotalLabel');
