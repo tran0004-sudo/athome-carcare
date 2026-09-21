@@ -181,6 +181,29 @@
       .blog-photo-empty{font-size:13px;font-weight:600;color:#6b7f7a}
       .blog-dl{display:flex;flex-wrap:wrap;gap:8px}
       .secondary-btn.notify-on{background:#e7f6f1;border-color:#087c68;color:#087c68}
+      .stats-range{display:flex;gap:6px}
+      .stats-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:6px 0 18px}
+      .stats-card{border:1px solid #dfe8e6;border-radius:14px;padding:14px;background:#fbfdfd;display:grid;gap:4px}
+      .stats-card span{font-size:12px;font-weight:800;color:#5c6b68}
+      .stats-card b{font-size:28px;font-weight:900;color:#10283a;line-height:1.1}
+      .stats-card small{font-size:12px;font-weight:600;color:#6b7f7a}
+      .stats-h{margin:18px 0 10px;font-size:16px;font-weight:900;color:#10283a}
+      .stats-h small{font-size:12px;font-weight:600;color:#6b7f7a;margin-left:6px}
+      .stats-bars{display:flex;align-items:flex-end;gap:4px;height:170px;padding:10px;border:1px solid #dfe8e6;border-radius:14px;background:#fff;overflow-x:auto}
+      .stats-bar{flex:1 0 18px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+      .stats-bar i{display:block;width:100%;max-width:34px;min-height:2px;background:#9fd6c7;border-radius:6px 6px 2px 2px}
+      .stats-bar.today i{background:#087c68}
+      .stats-bar em{font-style:normal;font-size:11px;font-weight:800;color:#2f4d47}
+      .stats-bar span{font-size:10px;font-weight:700;color:#6b7f7a;white-space:nowrap;height:13px}
+      .stats-sources{display:grid;gap:8px}
+      .stats-src{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;font-size:14px;font-weight:700}
+      .stats-track{height:12px;background:#eef4f3;border-radius:999px;overflow:hidden}
+      .stats-track i{display:block;height:100%;background:#087c68;border-radius:999px}
+      .stats-src b{font-size:13px;color:#2f4d47;white-space:nowrap}
+      .stats-links{display:grid;gap:6px;margin-bottom:12px}
+      .stats-link{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;font-size:13px;font-weight:700}
+      .stats-link code{font-size:12px;background:#f2fbf8;border:1px solid #d5ece5;border-radius:8px;padding:7px 9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      @media(max-width:600px){.stats-src,.stats-link{grid-template-columns:1fr}.stats-link code{white-space:normal;word-break:break-all}}
       .mosaic-overlay{align-items:flex-start;overflow:auto;padding:24px 12px}
       .mosaic-box{background:#fff;border-radius:18px;padding:18px;max-width:880px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}
       .mosaic-tip{margin:10px 0 12px;font-size:13px;font-weight:700;color:#8a6200;background:#fff7e3;border:1px solid #f0dcae;border-radius:11px;padding:11px 13px;line-height:1.6}
@@ -790,6 +813,92 @@
       console.error(err);
       toast('상태 변경에 실패했습니다. SQL 업그레이드(reservations-upgrade.sql)가 완료됐는지 확인해주세요.');
       button.disabled = false; button.textContent = orig;
+    }
+  }
+
+  /* ── 방문 기록 (유입경로 분석) ───────────────────────────────── */
+
+  const VISITOR_KEY = 'ahc.visitor';
+  const VISIT_SESSION_KEY = 'ahc.visit.logged';
+
+  // 추적 링크용 약어 → 표시 이름
+  const SRC_ALIAS = {
+    naver: '네이버', place: '네이버 플레이스', blog: '네이버 블로그', cafe: '네이버 카페',
+    daangn: '당근', karrot: '당근', kakao: '카카오톡', kakaoch: '카카오채널',
+    soomgo: '숨고', band: '밴드', insta: '인스타그램', instagram: '인스타그램',
+    google: '구글', flyer: '전단지 QR', qr: '전단지 QR', elevator: '엘리베이터 QR',
+    sms: '문자', card: '명함 QR', youtube: '유튜브',
+  };
+
+  function classifySource(refHost, utm) {
+    if (utm) {
+      const key = utm.toLowerCase();
+      return SRC_ALIAS[key] || utm;
+    }
+    if (!refHost) return '직접 방문';
+    const h = refHost.toLowerCase();
+    if (h.includes('blog.naver')) return '네이버 블로그';
+    if (h.includes('cafe.naver')) return '네이버 카페';
+    if (h.includes('place.naver') || h.includes('map.naver') || h.includes('m.place')) return '네이버 플레이스';
+    if (h.includes('naver')) return '네이버';
+    if (h.includes('daangn') || h.includes('karrot')) return '당근';
+    if (h.includes('pf.kakao')) return '카카오채널';
+    if (h.includes('kakao') || h.includes('daum')) return '카카오·다음';
+    if (h.includes('soomgo')) return '숨고';
+    if (h.includes('band.us')) return '밴드';
+    if (h.includes('instagram')) return '인스타그램';
+    if (h.includes('google')) return '구글';
+    if (h.includes('youtube') || h.includes('youtu.be')) return '유튜브';
+    if (h.includes('facebook')) return '페이스북';
+    return '기타 사이트';
+  }
+
+  async function logVisit() {
+    try {
+      if (loadSession()) return;                                   // 관리자 본인 방문은 제외
+      if (sessionStorage.getItem(VISIT_SESSION_KEY)) return;        // 한 번 연 창에서는 1회만
+      sessionStorage.setItem(VISIT_SESSION_KEY, '1');
+
+      let vid = localStorage.getItem(VISITOR_KEY);
+      const isNew = !vid;
+      if (!vid) {
+        vid = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2));
+        localStorage.setItem(VISITOR_KEY, vid);
+      }
+
+      const qs = new URLSearchParams(location.search);
+      const utm = qs.get('src') || qs.get('utm_source') || '';
+      let refHost = '';
+      try {
+        if (document.referrer) {
+          const r = new URL(document.referrer);
+          if (r.host !== location.host) refHost = r.host;
+        }
+      } catch {}
+
+      const installed = window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone === true;
+      let source = classifySource(refHost, utm);
+      if (!utm && !refHost && installed) source = '설치 앱';
+
+      await fetch(`${SUPABASE_URL}/rest/v1/rpc/log_visit`, {
+        method: 'POST',
+        keepalive: true,
+        headers: api(null, { 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          p_visitor_id: vid,
+          p_source: source,
+          p_referrer: refHost || null,
+          p_utm_source: utm || null,
+          p_utm_medium: qs.get('utm_medium'),
+          p_utm_campaign: qs.get('utm_campaign'),
+          p_landing: (location.hash || '#/home').slice(0, 60),
+          p_device: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+          p_installed: Boolean(installed),
+          p_is_new: isNew,
+        }),
+      });
+    } catch (err) {
+      // 기록 실패는 조용히 무시 — 고객 화면에 영향 없음
     }
   }
 
@@ -1686,6 +1795,136 @@
     fillBlogSelects();
   }
 
+  /* ── 방문 분석 ─────────────────────────────────────────────── */
+
+  let statsDays = 7;
+  const APP_URL = 'https://tran0004-sudo.github.io/athome-carcare/';
+  const TRACK_LINKS = [
+    ['당근', 'daangn'], ['네이버 플레이스', 'place'], ['네이버 블로그', 'blog'],
+    ['숨고', 'soomgo'], ['카카오채널', 'kakaoch'], ['문자 발송', 'sms'],
+    ['전단지 QR', 'flyer'], ['엘리베이터 QR', 'elevator'], ['명함 QR', 'card'],
+  ];
+
+  const dayKey = (d) => {
+    const x = new Date(d);
+    return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
+  };
+
+  async function loadStats() {
+    const box = document.querySelector('#statsBody');
+    if (!box) return;
+    const s = await getSession();
+    if (!s) { box.innerHTML = '<div class="reservation-empty">로그인이 필요합니다.</div>'; return; }
+    box.innerHTML = '<div class="reservation-empty">방문 기록을 불러오는 중…</div>';
+
+    const since = new Date();
+    since.setHours(0, 0, 0, 0);
+    since.setDate(since.getDate() - (statsDays - 1));
+
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/visits?select=created_at,visitor_id,source,device,installed,is_new,landing&created_at=gte.${since.toISOString()}&order=created_at.desc&limit=10000`,
+        { headers: api(s.access_token) });
+      if (r.status === 401 || r.status === 403) return handleExpired();
+      if (!r.ok) throw new Error(await r.text());
+      renderStats(await r.json(), since);
+    } catch (err) {
+      console.error('방문 기록 조회 실패', err);
+      box.innerHTML = '<div class="reservation-empty">방문 기록 테이블이 아직 없거나 조회에 실패했습니다. visits.sql을 실행했는지 확인해주세요.</div>';
+    }
+  }
+
+  function renderStats(rows, since) {
+    const box = document.querySelector('#statsBody');
+    const today = dayKey(new Date());
+
+    // 일별
+    const days = [];
+    for (let i = 0; i < statsDays; i++) {
+      const d = new Date(since); d.setDate(d.getDate() + i);
+      days.push({ key: dayKey(d), label: `${d.getMonth() + 1}/${d.getDate()}`, visits: 0, people: new Set() });
+    }
+    const byDay = Object.fromEntries(days.map(d => [d.key, d]));
+    const bySource = {};
+    const people = new Set();
+    let newcomers = 0, mobile = 0, installed = 0;
+
+    rows.forEach(v => {
+      const k = dayKey(v.created_at);
+      if (byDay[k]) { byDay[k].visits += 1; byDay[k].people.add(v.visitor_id); }
+      people.add(v.visitor_id);
+      bySource[v.source] = (bySource[v.source] || 0) + 1;
+      if (v.is_new) newcomers += 1;
+      if (v.device === 'mobile') mobile += 1;
+      if (v.installed) installed += 1;
+    });
+
+    const todayRow = byDay[today] || { visits: 0, people: new Set() };
+    const booked = allRows.filter(r => new Date(r.created_at) >= since).length;
+    const conv = people.size ? (booked / people.size * 100) : 0;
+    const maxDay = Math.max(1, ...days.map(d => d.people.size));
+    const sources = Object.entries(bySource).sort((a, b) => b[1] - a[1]);
+    const total = rows.length || 1;
+
+    box.innerHTML = `
+      <div class="stats-cards">
+        <div class="stats-card"><span>오늘 방문자</span><b>${todayRow.people.size}</b><small>방문 ${todayRow.visits}회</small></div>
+        <div class="stats-card"><span>${statsDays}일 방문자</span><b>${people.size}</b><small>방문 ${rows.length}회 · 신규 ${newcomers}</small></div>
+        <div class="stats-card"><span>예약 접수</span><b>${booked}</b><small>방문자 대비 ${conv.toFixed(1)}%</small></div>
+        <div class="stats-card"><span>휴대폰 비율</span><b>${rows.length ? Math.round(mobile / rows.length * 100) : 0}%</b><small>설치 앱 ${installed}회</small></div>
+      </div>
+
+      <h3 class="stats-h">일별 방문자</h3>
+      <div class="stats-bars">
+        ${days.map(d => `
+          <div class="stats-bar${d.key === today ? ' today' : ''}" title="${d.label} 방문자 ${d.people.size}명 · 방문 ${d.visits}회">
+            <em>${d.people.size || ''}</em>
+            <i style="height:${Math.round(d.people.size / maxDay * 100)}%"></i>
+            <span>${statsDays > 14 && d.label.split('/')[1] % 5 !== 0 && d.key !== today ? '' : d.label}</span>
+          </div>`).join('')}
+      </div>
+
+      <h3 class="stats-h">유입경로</h3>
+      ${sources.length ? `<div class="stats-sources">
+        ${sources.map(([name, n]) => `
+          <div class="stats-src">
+            <span>${esc(name)}</span>
+            <div class="stats-track"><i style="width:${Math.round(n / total * 100)}%"></i></div>
+            <b>${n}회 · ${Math.round(n / total * 100)}%</b>
+          </div>`).join('')}
+      </div>` : '<div class="reservation-empty">아직 기록된 방문이 없습니다.</div>'}
+
+      <h3 class="stats-h">추적 링크 <small>채널마다 다른 링크를 쓰면 어디서 왔는지 정확히 잡힙니다</small></h3>
+      <div class="stats-links">
+        ${TRACK_LINKS.map(([name, code]) => `
+          <div class="stats-link">
+            <span>${esc(name)}</span>
+            <code>${APP_URL}?src=${code}</code>
+            <button class="secondary-btn" data-copy-link="${APP_URL}?src=${code}">복사</button>
+          </div>`).join('')}
+      </div>
+      <p class="blog-tip">카카오톡·문자로 보낸 링크는 출처 정보가 전달되지 않아 "직접 방문"으로 잡힙니다. 채널별로 위 링크를 쓰시면 정확히 구분됩니다. 전단지·명함 QR코드도 이 링크로 만드세요.</p>`;
+
+    box.querySelectorAll('[data-copy-link]').forEach(btn => {
+      btn.onclick = () => navigator.clipboard?.writeText(btn.dataset.copyLink)
+        .then(() => toast('링크를 복사했습니다.'))
+        .catch(() => toast('복사 기능을 사용할 수 없습니다.'));
+    });
+  }
+
+  function bindStatsTab(card) {
+    const sec = card.querySelector('#adminSecStats');
+    if (!sec || sec.dataset.ready) return;
+    sec.dataset.ready = '1';
+    const mark = () => sec.querySelectorAll('.stats-days').forEach(b =>
+      b.classList.toggle('notify-on', Number(b.dataset.days) === statsDays));
+    sec.querySelectorAll('.stats-days').forEach(b => b.addEventListener('click', () => {
+      statsDays = Number(b.dataset.days); mark(); loadStats();
+    }));
+    sec.querySelector('#statsRefresh').addEventListener('click', loadStats);
+    mark();
+  }
+
   /* ── 관리자 화면 UI ──────────────────────────────────────────── */
 
   function setProtected(visible) {
@@ -1733,6 +1972,7 @@
           <button class="admin-sec-tab" data-sec="members">월 회원</button>
           <button class="admin-sec-tab" data-sec="coupons">쿠폰</button>
           <button class="admin-sec-tab" data-sec="blog">블로그 초안</button>
+          <button class="admin-sec-tab" data-sec="stats">방문 분석</button>
         </div>
         <!-- 예약 관리 -->
         <div id="adminSecReservations">
@@ -1796,6 +2036,18 @@
             <button class="primary-btn" type="submit">초안 만들기</button>
           </form>
           <div id="blogResult" class="blog-result hidden"></div>
+        </div>
+        <!-- 방문 분석 -->
+        <div id="adminSecStats" class="hidden">
+          <div class="member-controls">
+            <div class="stats-range">
+              <button class="secondary-btn stats-days" data-days="7">7일</button>
+              <button class="secondary-btn stats-days" data-days="30">30일</button>
+              <button class="secondary-btn stats-days" data-days="90">90일</button>
+            </div>
+            <button id="statsRefresh" class="secondary-btn">새로고침</button>
+          </div>
+          <div id="statsBody"><div class="reservation-empty">방문 기록을 불러오는 중…</div></div>
         </div>
       </div>`;
 
@@ -2111,6 +2363,8 @@
       card.querySelector('#adminSecMembers').classList.toggle('hidden', sec !== 'members');
       card.querySelector('#adminSecCoupons').classList.toggle('hidden', sec !== 'coupons');
       card.querySelector('#adminSecBlog').classList.toggle('hidden', sec !== 'blog');
+      card.querySelector('#adminSecStats').classList.toggle('hidden', sec !== 'stats');
+      if (sec === 'stats') { bindStatsTab(card); loadStats(); }
       if (sec === 'blog') { bindBlogTab(card); fillBlogSelects(); }
       if (sec === 'members' && memberRows.length === 0) await loadMembers(false);
       if (sec === 'coupons') await loadCoupons();
@@ -2152,6 +2406,7 @@
 
   /* ── 초기화 ──────────────────────────────────────────────────── */
   injectStyles();
+  logVisit();
   enhanceBookingForm();
   bindBenefitWatcher();
   setupAdminUI();
