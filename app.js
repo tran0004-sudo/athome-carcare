@@ -61,10 +61,21 @@ function loadLocal() {
 function mergePublishedGallery() {
   try {
     const published = (publishedState && publishedState.gallery) || [];
-    const have = new Set((state.gallery || []).map((g) => g.id));
+    const byId = new Map(published.filter((g) => g.id).map((g) => [g.id, g]));
+    const local = state.gallery || [];
+    let changed = false;
+    // 이미 있는 게시 사진은 최신 내용으로 갱신 (사진 교체 반영)
+    const updated = local.map((g) => {
+      const pub = byId.get(g.id);
+      if (pub && JSON.stringify(pub) !== JSON.stringify(g)) { changed = true; return deepClone(pub); }
+      return g;
+    });
+    // 새로 게시된 사진은 앞에 추가
+    const have = new Set(local.map((g) => g.id));
     const fresh = published.filter((g) => g.id && !have.has(g.id));
-    if (!fresh.length) return;
-    state.gallery = [...fresh, ...(state.gallery || [])];
+    if (fresh.length) changed = true;
+    if (!changed) return;
+    state.gallery = [...deepClone(fresh), ...updated];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (error) {
     console.warn('전후 사진 병합 중 오류가 발생했습니다.', error);
