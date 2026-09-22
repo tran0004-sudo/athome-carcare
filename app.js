@@ -284,7 +284,6 @@ function bindEvents() {
       box.classList.remove('hidden');
       box.innerHTML = `<pre>${esc(message)}</pre><div class="actions">
         <button class="secondary-btn" id="copyPartner">문의내용 복사</button>
-        <a class="secondary-btn button-link" href="tel:${digits(state.settings.phone)}">전화하기</a>
         <a class="primary-btn button-link" href="sms:${digits(state.settings.phone)}">문자 보내기</a>
         <a class="primary-btn button-link" href="${state.settings.kakaoUrl || 'https://pf.kakao.com/_gpDrX'}" target="_blank" rel="noopener">카카오채널 열기</a>
       </div>`;
@@ -624,7 +623,7 @@ function bindBookingExtras() {
     msg.textContent = '확인 중…';
     msg.className = 'coupon-msg';
     const result = await (window.checkCoupon ? window.checkCoupon(code) : Promise.resolve(null));
-    if (!result) { msg.textContent = '쿠폰 확인 기능을 사용할 수 없습니다. 전화로 문의해주세요.'; return; }
+    if (!result) { msg.textContent = '쿠폰 확인 기능을 사용할 수 없습니다. 문자나 카카오채널로 문의해주세요.'; return; }
     if (!result.valid) { msg.textContent = result.reason || '사용할 수 없는 쿠폰입니다.'; msg.className = 'coupon-msg bad'; return; }
     if (!myCoupons.some((coupon) => coupon.code === result.code)) myCoupons.push(result);
     window.__myCoupons = myCoupons;
