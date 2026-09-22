@@ -66,6 +66,27 @@
   ],
   "gallery": [
     {
+      "id": "g-tucson-front",
+      "title": "투싼 정면 외부세차 전후",
+      "note": "지하주차장 방문 손세차 · 후드 광택 복원",
+      "before": "assets/before-after/tucson-front-before.jpg",
+      "after": "assets/before-after/tucson-front-after.jpg"
+    },
+    {
+      "id": "g-tucson-rear",
+      "title": "투싼 후면 외부세차 전후",
+      "note": "테일게이트 · 범퍼 오염 제거",
+      "before": "assets/before-after/tucson-rear-before.jpg",
+      "after": "assets/before-after/tucson-rear-after.jpg"
+    },
+    {
+      "id": "g-tucson-side",
+      "title": "투싼 측면 외부세차 전후",
+      "note": "도어 · 휠 세정",
+      "before": "assets/before-after/tucson-side-before.jpg",
+      "after": "assets/before-after/tucson-side-after.jpg"
+    },
+    {
       "id": "g1",
       "title": "휠 세척 전후",
       "note": "",

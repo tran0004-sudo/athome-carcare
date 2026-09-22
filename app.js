@@ -57,6 +57,20 @@ function loadLocal() {
   }
 }
 
+/* 새로 게시한 전후 사진이 기존 방문자 화면에도 나타나도록 병합 */
+function mergePublishedGallery() {
+  try {
+    const published = (publishedState && publishedState.gallery) || [];
+    const have = new Set((state.gallery || []).map((g) => g.id));
+    const fresh = published.filter((g) => g.id && !have.has(g.id));
+    if (!fresh.length) return;
+    state.gallery = [...fresh, ...(state.gallery || [])];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (error) {
+    console.warn('전후 사진 병합 중 오류가 발생했습니다.', error);
+  }
+}
+
 function restorePublishedSectionsOnce() {
   try {
     if (localStorage.getItem(SECTION_RESTORE_KEY) === '1') return;
@@ -675,6 +689,7 @@ async function init() {
   await loadPublished();
   state = loadLocal();
   restorePublishedSectionsOnce();
+  mergePublishedGallery();
   bindEvents();
   render();
   bindBookingExtras();
