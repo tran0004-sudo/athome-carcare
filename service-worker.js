@@ -1,6 +1,6 @@
-const CACHE = 'athome-carcare-v80';
+const CACHE = 'athome-carcare-v81';
 const ASSETS = [
-  './', './index.html', './styles.css?v=20260916-1line', './home-polish.css?v=20260916-nohero1', './restore-classic.js?v=20260916-2', './compat-fix.js?v=20260916-3', './app.js?v=20260924-blogsync1', './supabase-integration.js?v=20260921-stats1', './manifest.webmanifest?v=20260919-icon5', './data/content.json',
+  './', './index.html', './styles.css?v=20260916-1line', './home-polish.css?v=20260916-nohero1', './restore-classic.js?v=20260916-2', './compat-fix.js?v=20260916-3', './app.js?v=20260924-galdel1', './supabase-integration.js?v=20260924-galdel1', './manifest.webmanifest?v=20260919-icon5', './data/content.json',
 './icons/icon-192.png?v=20260919-icon5', './icons/icon-512.png?v=20260919-icon5', './icons/icon-maskable-512.png?v=20260919-icon5',
   './assets/partner-recruit.jpg?v=20260919', './assets/wheel-before.svg', './assets/wheel-after.svg', './assets/body-before.svg', './assets/body-after.svg',
   './assets/interior-before.svg', './assets/interior-after.svg'

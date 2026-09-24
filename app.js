@@ -696,11 +696,29 @@ function bindBookingExtras() {
   renderQuote(form);
 }
 
+/* 관리자가 지운 전후 사진은 모든 화면에서 숨김 */
+const HIDDEN_GALLERY_KEY = 'athomeHiddenGallery';
+function hiddenGalleryIds() {
+  try { return new Set(JSON.parse(localStorage.getItem(HIDDEN_GALLERY_KEY) || '[]')); }
+  catch { return new Set(); }
+}
+function applyHiddenGallery(ids) {
+  if (ids) localStorage.setItem(HIDDEN_GALLERY_KEY, JSON.stringify([...ids]));
+  if (!state || !Array.isArray(state.gallery)) return false;
+  const hidden = hiddenGalleryIds();
+  const before = state.gallery.length;
+  state.gallery = state.gallery.filter((g) => !hidden.has(g.id));
+  if (state.gallery.length !== before) { save(); return true; }
+  return false;
+}
+window.applyHiddenGallery = applyHiddenGallery;
+
 async function init() {
   await loadPublished();
   state = loadLocal();
   restorePublishedSectionsOnce();
   mergePublishedGallery();
+  applyHiddenGallery();
   renderBlogPosts();
   bindEvents();
   render();

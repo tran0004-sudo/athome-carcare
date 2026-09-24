@@ -1973,6 +1973,7 @@
           <button class="admin-sec-tab" data-sec="coupons">쿠폰</button>
           <button class="admin-sec-tab" data-sec="blog">블로그 초안</button>
           <button class="admin-sec-tab" data-sec="stats">방문 분석</button>
+          <button class="admin-sec-tab" data-sec="gallery">전후 사진</button>
         </div>
         <!-- 예약 관리 -->
         <div id="adminSecReservations">
@@ -2036,6 +2037,11 @@
             <button class="primary-btn" type="submit">초안 만들기</button>
           </form>
           <div id="blogResult" class="blog-result hidden"></div>
+        </div>
+        <!-- 전후 사진 관리 -->
+        <div id="adminSecGallery" class="hidden">
+          <p class="field-hint" style="margin:4px 0 12px">지운 사진은 모든 방문자 화면에서 사라집니다. 실수로 지웠다면 아래 '숨긴 사진'에서 복구할 수 있습니다.</p>
+          <div id="galleryAdminList"></div>
         </div>
         <!-- 방문 분석 -->
         <div id="adminSecStats" class="hidden">
@@ -2352,6 +2358,103 @@
     }
   }
 
+  /* ── 전후 사진 삭제 · 복구 ───────────────────────────────────── */
+  const HIDDEN_KEY = 'athomeHiddenGallery';
+  const hiddenSet = () => { try { return new Set(JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]')); } catch { return new Set(); } };
+  const pubGallery = () => (typeof publishedState !== 'undefined' && publishedState && Array.isArray(publishedState.gallery)) ? publishedState.gallery : [];
+  const curGallery = () => (typeof state !== 'undefined' && state && Array.isArray(state.gallery)) ? state.gallery : [];
+  const imgSrc = v => String(v || '').startsWith('data:') ? v : esc(v);
+
+  function rerenderApp() { try { if (typeof render === 'function') render(); } catch (e) { console.warn(e); } }
+
+  async function syncHiddenGallery() {
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/gallery_hidden?select=id`, { headers: api(null) });
+      if (!r.ok) return;
+      const ids = new Set((await r.json()).map(x => x.id));
+      for (let i = 0; i < 50 && (typeof state === 'undefined' || !state); i++) await new Promise(res => setTimeout(res, 100));
+      if (typeof window.applyHiddenGallery !== 'function') return;
+      if (window.applyHiddenGallery(ids)) rerenderApp();
+      else localStorage.setItem(HIDDEN_KEY, JSON.stringify([...ids]));
+    } catch { /* 테이블이 없으면 무시 */ }
+  }
+
+  function renderGalleryAdmin() {
+    const box = document.querySelector('#galleryAdminList');
+    if (!box) return;
+    const hidden = hiddenSet();
+    const shown = curGallery();
+    const shownIds = new Set(shown.map(g => g.id));
+    const hiddenItems = pubGallery().filter(g => hidden.has(g.id) && !shownIds.has(g.id));
+    const row = (g, isHidden) => `
+      <div class="reservation-card" style="display:flex;gap:12px;align-items:center;padding:12px;margin-bottom:10px${isHidden ? ';opacity:.6' : ''}">
+        <img src="${imgSrc(g.before)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px;flex:none">
+        <img src="${imgSrc(g.after)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px;flex:none">
+        <div style="flex:1;min-width:0"><b style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(g.title || '전후 사진')}</b><small>${esc(g.note || '')}</small></div>
+        ${isHidden
+          ? `<button class="secondary-btn gallery-restore-btn" data-id="${esc(g.id)}">복구</button>`
+          : `<button class="danger-btn gallery-del-btn" data-id="${esc(g.id)}">삭제</button>`}
+      </div>`;
+    box.innerHTML = (shown.length ? shown.map(g => row(g, false)).join('') : '<div class="reservation-empty">등록된 전후 사진이 없습니다.</div>')
+      + (hiddenItems.length ? `<h3 style="margin:18px 0 10px">숨긴 사진</h3>${hiddenItems.map(g => row(g, true)).join('')}` : '');
+  }
+
+  async function deleteGalleryItem(id, btn) {
+    const item = curGallery().find(g => g.id === id);
+    if (!item) return;
+    if (!confirm(`'${item.title || '전후 사진'}' 사진을 삭제할까요?\n\n모든 방문자 화면에서 사라집니다.`)) return;
+    const isPublished = pubGallery().some(g => g.id === id);
+    if (btn) btn.disabled = true;
+    if (isPublished) {
+      const s = await getSession();
+      if (!s) { toast('로그인이 필요합니다.'); if (btn) btn.disabled = false; return; }
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/gallery_hidden`, {
+        method: 'POST',
+        headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }),
+        body: JSON.stringify({ id }),
+      }).catch(() => null);
+      if (!r || !r.ok) {
+        toast('삭제 저장에 실패했습니다. Supabase에 gallery-hidden.sql을 먼저 실행해 주세요.');
+        if (btn) btn.disabled = false;
+        return;
+      }
+    }
+    const h = hiddenSet(); h.add(id);
+    window.applyHiddenGallery(h);
+    rerenderApp(); renderGalleryAdmin();
+    toast('전후 사진을 삭제했습니다.');
+  }
+
+  async function restoreGalleryItem(id, btn) {
+    const s = await getSession();
+    if (!s) { toast('로그인이 필요합니다.'); return; }
+    if (btn) btn.disabled = true;
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/gallery_hidden?id=eq.${encodeURIComponent(id)}`, {
+      method: 'DELETE', headers: api(s.access_token),
+    }).catch(() => null);
+    if (!r || !r.ok) { toast('복구에 실패했습니다.'); if (btn) btn.disabled = false; return; }
+    const h = hiddenSet(); h.delete(id);
+    localStorage.setItem(HIDDEN_KEY, JSON.stringify([...h]));
+    const item = pubGallery().find(g => g.id === id);
+    if (item && typeof state !== 'undefined' && state) {
+      const order = pubGallery().map(g => g.id);
+      state.gallery = [...curGallery(), JSON.parse(JSON.stringify(item))]
+        .sort((x, y) => (order.indexOf(x.id) + 1 || -1) - (order.indexOf(y.id) + 1 || -1));
+      localStorage.setItem('athomeCarCareDataV2', JSON.stringify(state));
+    }
+    rerenderApp(); renderGalleryAdmin();
+    toast('전후 사진을 복구했습니다.');
+  }
+
+  document.addEventListener('click', e => {
+    const del = e.target.closest('.gallery-del-btn');
+    if (del) { deleteGalleryItem(del.dataset.id, del); return; }
+    const res = e.target.closest('.gallery-restore-btn');
+    if (res) restoreGalleryItem(res.dataset.id, res);
+  });
+
+  syncHiddenGallery();
+
   /* ── 섹션 탭 전환 ────────────────────────────────────────────── */
   function bindSectionTabs(card) {
     card.querySelector('.admin-section-tabs').addEventListener('click', async e => {
@@ -2364,6 +2467,8 @@
       card.querySelector('#adminSecCoupons').classList.toggle('hidden', sec !== 'coupons');
       card.querySelector('#adminSecBlog').classList.toggle('hidden', sec !== 'blog');
       card.querySelector('#adminSecStats').classList.toggle('hidden', sec !== 'stats');
+      card.querySelector('#adminSecGallery').classList.toggle('hidden', sec !== 'gallery');
+      if (sec === 'gallery') renderGalleryAdmin();
       if (sec === 'stats') { bindStatsTab(card); loadStats(); }
       if (sec === 'blog') { bindBlogTab(card); fillBlogSelects(); }
       if (sec === 'members' && memberRows.length === 0) await loadMembers(false);
