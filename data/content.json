@@ -69,8 +69,8 @@
       "id": "g-genesis-front",
       "title": "그랜저 IG 외부세차 전후",
       "note": "대구 신암동 야간 방문 손세차 · 펄 화이트 광택 복원",
-      "before": "assets/before-after/genesis-front-before.jpg",
-      "after": "assets/before-after/genesis-front-after.jpg"
+      "before": "assets/before-after/genesis-front-after.jpg?v=swap1",
+      "after": "assets/before-after/genesis-front-before.jpg?v=swap1"
     },
     {
       "id": "g-tucson-front",
