@@ -70,6 +70,11 @@
           <div id="homeComparisons" class="comparison-grid"></div>
         </section>
 
+        <section class="content-section" id="blogSection">
+          <div class="section-head"><div><span class="section-kicker">WORK LOG</span><h2>최신 작업 일지</h2></div><a class="text-link" id="blogMore" href="https://blog.naver.com/athomecarcare" target="_blank" rel="noopener">블로그 전체보기 →</a></div>
+          <div id="blogPosts" class="blog-posts"><div class="blog-empty">작업 일지를 불러오는 중…</div></div>
+        </section>
+
         <section class="content-section soft-bg">
           <div class="section-head"><div><span class="section-kicker">REVIEWS</span><h2>고객 사용후기</h2></div><button class="text-link" data-go="reviews">후기 전체보기 →</button></div>
           <div id="homeReviews" class="review-grid"></div>
@@ -167,6 +172,15 @@
         .pw-lines{margin:0;padding:0;list-style:none;background:var(--pw-paper);border-radius:12px;overflow:hidden}
         .option-list .opt-size{display:block;margin-top:3px;font-size:12px;font-weight:600;color:#6b7f7a}
         .opt-size-note{margin:-4px 0 10px;font-size:13px;font-weight:600;color:#6b7f7a;line-height:1.55}
+        .blog-posts{display:grid;gap:12px}
+        .blog-post{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;padding:12px;border:1px solid #dfe8e6;border-radius:16px;background:#fff;text-decoration:none;color:inherit}
+        .blog-post:hover{border-color:#0b7d68}
+        .blog-post.no-thumb{grid-template-columns:1fr}
+        .blog-thumb{width:96px;height:72px;border-radius:11px;object-fit:cover;background:#e7f6f1}
+        .blog-meta{font-size:12px;font-weight:700;color:#6b7f7a;margin:0 0 4px}
+        .blog-title{font-size:15px;font-weight:800;color:#10283a;margin:0 0 4px;line-height:1.4}
+        .blog-sum{font-size:13px;color:#5c6b68;margin:0;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        .blog-empty{font-size:14px;color:#6b7f7a;padding:14px;border:1px dashed #cfdcda;border-radius:14px;text-align:center}
         .pw-note{margin:10px 2px 0;font-size:13px;font-weight:600;color:#6b7f7a;line-height:1.55}
         .pw-lines li{
           display:flex;align-items:center;justify-content:space-between;gap:14px;
@@ -630,7 +644,7 @@
   </script>
   <script src="compat-fix.js?v=20260916-6"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
-  <script src="app.js?v=20260924-price2"></script>
+  <script src="app.js?v=20260924-blogsync1"></script>
   <script src="supabase-integration.js?v=20260921-stats1"></script>
 </body>
 </html>

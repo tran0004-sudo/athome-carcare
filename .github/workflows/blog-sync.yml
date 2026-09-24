@@ -1,0 +1,30 @@
+name: 네이버 블로그 글 동기화
+
+on:
+  schedule:
+    - cron: "0 */3 * * *"   # 3시간마다
+  workflow_dispatch:         # 수동 실행 버튼
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 블로그 RSS 읽기
+        run: python scripts/fetch_blog.py
+      - name: 변경 사항 커밋
+        run: |
+          if git diff --quiet -- data/blog.json && ! git ls-files --others --exclude-standard | grep -q data/blog.json; then
+            echo "변경 없음"; exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/blog.json
+          git commit -m "블로그 작업 일지 동기화"
+          git push

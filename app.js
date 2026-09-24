@@ -701,6 +701,7 @@ async function init() {
   state = loadLocal();
   restorePublishedSectionsOnce();
   mergePublishedGallery();
+  renderBlogPosts();
   bindEvents();
   render();
   bindBookingExtras();
@@ -713,3 +714,28 @@ async function init() {
 }
 
 init();
+
+/* 네이버 블로그 최신 작업 일지 (GitHub Actions가 data/blog.json 갱신) */
+async function renderBlogPosts() {
+  const box = document.querySelector('#blogPosts');
+  if (!box) return;
+  const esc2 = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  try {
+    const res = await fetch(`data/blog.json?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    const posts = (data.posts || []).slice(0, 3);
+    if (!posts.length) { box.innerHTML = '<div class="blog-empty">아직 올라온 작업 일지가 없습니다.</div>'; return; }
+    box.innerHTML = posts.map((p) => `
+      <a class="blog-post${p.thumb ? '' : ' no-thumb'}" href="${esc2(p.link)}" target="_blank" rel="noopener">
+        ${p.thumb ? `<img class="blog-thumb" src="${esc2(p.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('no-thumb');this.remove()">` : ''}
+        <div>
+          <p class="blog-meta">${esc2(p.date)}${p.category ? ' · ' + esc2(p.category) : ''}</p>
+          <p class="blog-title">${esc2(p.title)}</p>
+          ${p.summary ? `<p class="blog-sum">${esc2(p.summary)}</p>` : ''}
+        </div>
+      </a>`).join('');
+  } catch (err) {
+    document.querySelector('#blogSection')?.classList.add('hidden');
+  }
+}
