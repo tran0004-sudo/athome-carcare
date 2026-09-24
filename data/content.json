@@ -66,6 +66,13 @@
   ],
   "gallery": [
     {
+      "id": "g-genesis-front",
+      "title": "제네시스 외부세차 전후",
+      "note": "대구 신암동 야간 방문 손세차 · 펄 화이트 광택 복원",
+      "before": "assets/before-after/genesis-front-before.jpg",
+      "after": "assets/before-after/genesis-front-after.jpg"
+    },
+    {
       "id": "g-tucson-front",
       "title": "투싼 정면 외부세차 전후",
       "note": "지하주차장 방문 손세차 · 후드 광택 복원",
