@@ -180,6 +180,7 @@
         .blog-meta{font-size:12px;font-weight:700;color:#6b7f7a;margin:0 0 4px}
         .blog-title{font-size:15px;font-weight:800;color:#10283a;margin:0 0 4px;line-height:1.4}
         .blog-sum{font-size:13px;color:#5c6b68;margin:0;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        .worklog-more{display:block;text-align:center;margin:18px 0 8px}
         .blog-empty{font-size:14px;color:#6b7f7a;padding:14px;border:1px dashed #cfdcda;border-radius:14px;text-align:center}
         .pw-note{margin:10px 2px 0;font-size:13px;font-weight:600;color:#6b7f7a;line-height:1.55}
         .pw-lines li{
@@ -477,6 +478,11 @@
         <div id="galleryList" class="gallery-list"></div>
       </section>
 
+      <section id="worklog" class="page">
+        <div class="page-title"><span>WORK LOG</span><h1>출장세차 작업 일지</h1><p>실제로 다녀온 현장의 작업 과정과 전후 사진입니다. 누르면 블로그에서 자세히 볼 수 있습니다.</p></div>
+        <div id="worklogPosts" class="blog-posts"><div class="blog-empty">작업 일지를 불러오는 중…</div></div>
+        <a class="secondary-btn button-link worklog-more" href="https://blog.naver.com/athomecarcare" target="_blank" rel="noopener">네이버 블로그에서 전체 보기 →</a>
+      </section>
       <section id="reviews" class="page">
         <div class="page-title"><span>REVIEWS</span><h1>고객 사용후기</h1><p>실제 이용후기를 모아 서비스 품질을 보여주세요.</p></div>
         <div id="reviewList" class="review-grid big"></div>
@@ -621,7 +627,7 @@
     </main>
 
     <nav class="bottom-nav" aria-label="하단 메뉴">
-      <button data-go="home" class="active"><span>⌂</span><small>홈</small></button><button data-go="menu"><span>₩</span><small>요금</small></button><button data-go="gallery"><span>◫</span><small>전후</small></button><button data-go="reviews"><span>★</span><small>후기</small></button><button data-go="booking"><span>✉</span><small>예약</small></button>
+      <button data-go="home" class="active"><span>⌂</span><small>홈</small></button><button data-go="menu"><span>₩</span><small>요금</small></button><button data-go="gallery"><span>◫</span><small>전후</small></button><button data-go="worklog"><span>✎</span><small>일지</small></button><button data-go="booking"><span>✉</span><small>예약</small></button>
     </nav>
   </div>
   <div id="toast" class="toast"></div>
@@ -644,7 +650,7 @@
   </script>
   <script src="compat-fix.js?v=20260916-6"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
-  <script src="app.js?v=20260924-galdel1"></script>
+  <script src="app.js?v=20260925-worklog1"></script>
   <script src="supabase-integration.js?v=20260924-galdel1"></script>
 </body>
 </html>

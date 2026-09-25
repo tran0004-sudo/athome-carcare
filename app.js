@@ -733,18 +733,14 @@ async function init() {
 
 init();
 
-/* 네이버 블로그 최신 작업 일지 (GitHub Actions가 data/blog.json 갱신) */
+/* 네이버 블로그 작업 일지 (GitHub Actions가 data/blog.json 갱신)
+   - 홈: 최신 3개 / 일지 탭: 전체 */
 async function renderBlogPosts() {
-  const box = document.querySelector('#blogPosts');
-  if (!box) return;
+  const homeBox = document.querySelector('#blogPosts');
+  const pageBox = document.querySelector('#worklogPosts');
+  if (!homeBox && !pageBox) return;
   const esc2 = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  try {
-    const res = await fetch(`data/blog.json?t=${Date.now()}`, { cache: 'no-store' });
-    if (!res.ok) throw new Error(res.status);
-    const data = await res.json();
-    const posts = (data.posts || []).slice(0, 3);
-    if (!posts.length) { box.innerHTML = '<div class="blog-empty">아직 올라온 작업 일지가 없습니다.</div>'; return; }
-    box.innerHTML = posts.map((p) => `
+  const card = (p) => `
       <a class="blog-post${p.thumb ? '' : ' no-thumb'}" href="${esc2(p.link)}" target="_blank" rel="noopener">
         ${p.thumb ? `<img class="blog-thumb" src="${esc2(p.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('no-thumb');this.remove()">` : ''}
         <div>
@@ -752,8 +748,17 @@ async function renderBlogPosts() {
           <p class="blog-title">${esc2(p.title)}</p>
           ${p.summary ? `<p class="blog-sum">${esc2(p.summary)}</p>` : ''}
         </div>
-      </a>`).join('');
+      </a>`;
+  const empty = '<div class="blog-empty">아직 올라온 작업 일지가 없습니다.</div>';
+  try {
+    const res = await fetch(`data/blog.json?t=${Date.now()}`, { cache: 'no-store' });
+    if (!res.ok) throw new Error(res.status);
+    const data = await res.json();
+    const posts = data.posts || [];
+    if (homeBox) homeBox.innerHTML = posts.length ? posts.slice(0, 3).map(card).join('') : empty;
+    if (pageBox) pageBox.innerHTML = posts.length ? posts.map(card).join('') : empty;
   } catch (err) {
     document.querySelector('#blogSection')?.classList.add('hidden');
+    if (pageBox) pageBox.innerHTML = '<div class="blog-empty">작업 일지를 불러오지 못했습니다. 아래 버튼으로 블로그에서 확인해 주세요.</div>';
   }
 }
