@@ -418,8 +418,7 @@ const PRICE_TABLE = {
 const OPTION_PRICES = {
   '휠 철분·집중세정':   [10000, 12000, 15000],
   '고급 왁스·실런트':   [20000, 25000, 30000],
-  '실내 진공·먼지관리': [15000, 18000, 22000],
-  '실내 집중세차':      [30000, 35000, 45000],
+  '실내 집중세차':      [15000, 18000, 22000],
   '트렁크 청소':        [10000, 10000, 15000],
   '벌레·타르 제거':     [10000, 12000, 15000],
 };
@@ -430,7 +429,7 @@ const SIZE_OF_CLASS = {
 };
 const SIZE_LABEL = ['소형', '중형', '대형'];
 /* 화물·탑차는 캡 실내가 좁아 실내 옵션만 중형 요금 적용 */
-const INTERIOR_OPTIONS = new Set(['실내 진공·먼지관리', '실내 집중세차']);
+const INTERIOR_OPTIONS = new Set(['실내 집중세차']);
 function optionSize(name, cls) {
   if (cls === '화물·탑차' && INTERIOR_OPTIONS.has(name)) return 1;
   return SIZE_OF_CLASS[cls] ?? 0;
