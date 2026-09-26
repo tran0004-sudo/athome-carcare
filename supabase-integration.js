@@ -204,6 +204,10 @@
       .stats-link{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;font-size:13px;font-weight:700}
       .stats-link code{font-size:12px;background:#f2fbf8;border:1px solid #d5ece5;border-radius:8px;padding:7px 9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
       @media(max-width:600px){.stats-src,.stats-link{grid-template-columns:1fr}.stats-link code{white-space:normal;word-break:break-all}}
+      .owner-only{}
+      .is-partner .owner-only{display:none !important}
+      .res-assign{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#5c6b68;margin:8px 0 0}
+      .res-assign select{border:1px solid #cfdcda;border-radius:9px;padding:6px 8px;font:inherit;background:#fff}
       .mosaic-overlay{align-items:flex-start;overflow:auto;padding:24px 12px}
       .mosaic-box{background:#fff;border-radius:18px;padding:18px;max-width:880px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}
       .mosaic-tip{margin:10px 0 12px;font-size:13px;font-weight:700;color:#8a6200;background:#fff7e3;border:1px solid #f0dcae;border-radius:11px;padding:11px 13px;line-height:1.6}
@@ -382,6 +386,40 @@
     return r2.ok;
   }
 
+  /* ── 협력점 역할 ─────────────────────────────────────────────── */
+
+  let myRole = 'owner';        // 'owner' | 'partner' — staff_profiles 조회 결과
+  let myStaffId = null;
+  let partnerList = [];        // owner 화면에서만 채워짐 (협력점 배정 드롭다운용)
+
+  async function loadMyRole(s) {
+    myRole = 'owner'; myStaffId = s?.user_id || null;
+    if (!s?.access_token || !s?.user_id) return;
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/staff_profiles?select=role,name&id=eq.${encodeURIComponent(s.user_id)}`,
+        { headers: api(s.access_token) }
+      );
+      if (!r.ok) return;               // staff_profiles 테이블이 없으면(구버전) owner로 유지
+      const rows = await r.json();
+      if (Array.isArray(rows) && rows.length) {
+        myRole = rows[0].role === 'partner' ? 'partner' : 'owner';
+      }
+    } catch { /* 조회 실패 시 owner로 유지 (하위호환) */ }
+  }
+
+  async function loadPartnerList(s) {
+    if (!s?.access_token) return [];
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/staff_profiles?select=id,name,area,active&role=eq.partner&order=created_at.desc`,
+        { headers: api(s.access_token) }
+      );
+      if (!r.ok) return [];
+      return await r.json();
+    } catch { return []; }
+  }
+
   function handleExpired() {
     stopAutoRefresh();
     dropSession();
@@ -511,11 +549,27 @@
       `<button class="res-sub" data-act="접수" data-id="${esc(row.id)}">접수로</button>`;
   }
 
+  function partnerAssignMarkup(row) {
+    if (myRole !== 'owner') return '';   // 협력점 계정은 배정 UI 자체를 못 봄
+    const opts = partnerList.map(p =>
+      `<option value="${esc(p.id)}"${row.assigned_to === p.id ? ' selected' : ''}>${esc(p.name || '이름 없음')}${p.active ? '' : ' (비활성)'}</option>`
+    ).join('');
+    return `
+      <label class="res-assign">담당
+        <select data-assign="${esc(row.id)}">
+          <option value="">사장님 직접 처리</option>
+          ${opts}
+        </select>
+      </label>`;
+  }
+
   function rowMarkup(row) {
     const created   = row.created_at ? new Date(row.created_at).toLocaleString('ko-KR') : '';
     const preferred = [row.preferred_date, row.preferred_time ? String(row.preferred_time).slice(0,5) : ''].filter(Boolean).join(' ');
     const carClass  = row.car_class ? `<span>📋 ${esc(row.car_class)}</span>` : '';
     const amtLine   = row.amount    ? `<span>💰 ${Number(row.amount).toLocaleString('ko-KR')}원</span>` : '';
+    const assignedName = row.assigned_to ? partnerList.find(p => p.id === row.assigned_to)?.name : '';
+    const assignedBadge = assignedName ? `<span>🤝 ${esc(assignedName)}</span>` : '';
 
     return `<article class="reservation-item" data-status="${esc(row.status)}">
   <div class="reservation-top">
@@ -533,9 +587,11 @@
     ${row.scheduled_at ? `<span>🗓 확정 ${esc(fmt(row.scheduled_at))}</span>` : ''}
     ${row.done_at      ? `<span>✅ 완료 ${esc(fmt(row.done_at))}</span>` : ''}
     ${amtLine}
+    ${assignedBadge}
     <span>접수 ${esc(created)}</span>
   </div>
   ${row.memo ? `<p class="res-memo">${esc(row.memo).replace(/\n/g,'<br>')}</p>` : ''}
+  ${partnerAssignMarkup(row)}
   <div class="res-actions">${actionsMarkup(row)}</div>
 </article>`;
   }
@@ -1925,6 +1981,91 @@
     mark();
   }
 
+  /* ── 협력점 관리 ─────────────────────────────────────────────── */
+
+  function partnerRowMarkup(p) {
+    return `<div class="member-row" data-partner-row="${esc(p.id)}">
+      <div>
+        <b>${esc(p.name || '이름 없음')}</b>${p.active ? '' : ' <span class="res-badge" style="background:#eee;color:#999">비활성</span>'}
+        <div class="field-hint" style="margin:2px 0 0">${esc(p.area || '담당 지역 미지정')}</div>
+      </div>
+      <button class="secondary-btn" data-partner-toggle="${esc(p.id)}" data-active="${p.active ? '1' : '0'}">${p.active ? '비활성화' : '다시 활성화'}</button>
+    </div>`;
+  }
+
+  async function renderPartnerTab(card) {
+    const listEl = card.querySelector('#partnerList');
+    const s = await getSession();
+    if (!s) return;
+    partnerList = await loadPartnerList(s);
+    listEl.innerHTML = partnerList.length
+      ? partnerList.map(partnerRowMarkup).join('')
+      : '<div class="reservation-empty">등록된 협력점이 없습니다.</div>';
+  }
+
+  function bindPartnerTab(card) {
+    const form = card.querySelector('#partnerAddForm');
+    if (!form || form.dataset.ready) return;
+    form.dataset.ready = '1';
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const s = await getSession();
+      if (!s) return;
+      const fd = new FormData(form);
+      const uid = String(fd.get('uid') || '').trim();
+      const resultEl = card.querySelector('#partnerAddResult');
+      resultEl.classList.remove('hidden');
+      if (!/^[0-9a-f-]{20,}$/i.test(uid)) {
+        resultEl.textContent = 'User UID 형식이 올바르지 않습니다. Supabase Authentication → Users 목록에서 그대로 복사해주세요.';
+        return;
+      }
+      resultEl.textContent = '등록하는 중…';
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/staff_profiles`, {
+          method: 'POST',
+          headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+          body: JSON.stringify({
+            id: uid,
+            role: 'partner',
+            name: fd.get('name'),
+            area: fd.get('area') || null,
+            active: true,
+          }),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        resultEl.textContent = '협력점으로 등록했습니다.';
+        form.reset();
+        await renderPartnerTab(card);
+      } catch (err) {
+        console.error('협력점 등록 실패', err);
+        resultEl.textContent = '등록에 실패했습니다. UID가 이미 등록되어 있거나 형식이 올바르지 않을 수 있습니다.';
+      }
+    });
+
+    card.querySelector('#partnerList').addEventListener('click', async e => {
+      const btn = e.target.closest('[data-partner-toggle]');
+      if (!btn) return;
+      const s = await getSession();
+      if (!s) return;
+      const id = btn.dataset.partnerToggle;
+      const nextActive = btn.dataset.active !== '1';
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/staff_profiles?id=eq.${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+          body: JSON.stringify({ active: nextActive }),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        toast(nextActive ? '협력점을 다시 활성화했습니다.' : '협력점을 비활성화했습니다.');
+        await renderPartnerTab(card);
+      } catch (err) {
+        console.error('협력점 상태 변경 실패', err);
+        toast('상태 변경에 실패했습니다.');
+      }
+    });
+  }
+
   /* ── 관리자 화면 UI ──────────────────────────────────────────── */
 
   function setProtected(visible) {
@@ -1974,6 +2115,7 @@
           <button class="admin-sec-tab" data-sec="blog">블로그 초안</button>
           <button class="admin-sec-tab" data-sec="stats">방문 분석</button>
           <button class="admin-sec-tab" data-sec="gallery">전후 사진</button>
+          <button class="admin-sec-tab owner-only" data-sec="partners">협력점</button>
         </div>
         <!-- 예약 관리 -->
         <div id="adminSecReservations">
@@ -2055,6 +2197,19 @@
           </div>
           <div id="statsBody"><div class="reservation-empty">방문 기록을 불러오는 중…</div></div>
         </div>
+        <!-- 협력점 관리 (owner 전용) -->
+        <div id="adminSecPartners" class="hidden">
+          <p class="field-hint" style="margin:4px 0 12px">협력점 계정은 자신에게 배정된 예약만 보고, 상태 변경과 전후 사진 업로드를 할 수 있습니다. 계정 자체는 Supabase Authentication에서 먼저 만들어야 합니다.</p>
+          <form id="partnerAddForm" class="coupon-issue">
+            <label>User UID <small>Supabase Authentication → Users에서 복사</small><input name="uid" placeholder="예: 3f1a2b9c-..." required></label>
+            <label>상호·담당자 이름<input name="name" placeholder="예: 수성구 김사장" required></label>
+            <label>담당 지역<input name="area" placeholder="예: 대구 수성구"></label>
+            <button class="primary-btn" type="submit">협력점으로 등록</button>
+          </form>
+          <p class="blog-tip">계정 자체(이메일·비밀번호)는 Supabase 대시보드 → Authentication → Users → Add user 에서 먼저 만드셔야 합니다. 만든 뒤 그 계정의 User UID를 여기 붙여넣으면 협력점으로 등록되고, 예약 화면에 담당자로 배정할 수 있게 됩니다.</p>
+          <div id="partnerAddResult" class="blog-tip hidden"></div>
+          <div id="partnerList" class="member-list"><div class="reservation-empty">협력점 목록을 불러오는 중…</div></div>
+        </div>
       </div>`;
 
     const anchor = admin.querySelector('.page-title');
@@ -2131,6 +2286,30 @@
       const iso    = when?.value   ? new Date(when.value).toISOString() : null;
       const amt    = amount?.value ? amount.value : null;
       changeStatus(id, btn.dataset.act, iso, amt, btn);
+    });
+
+    // 협력점 배정 변경 (owner만 UI가 보이므로 여기서도 owner만 호출됨)
+    card.querySelector('#reservationList').addEventListener('change', async e => {
+      const sel = e.target.closest('[data-assign]');
+      if (!sel) return;
+      const id = sel.dataset.assign;
+      const s = await getSession();
+      if (!s) return;
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/reservations?id=eq.${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+          body: JSON.stringify({ assigned_to: sel.value || null }),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        const row = allRows.find(x => String(x.id) === String(id));
+        if (row) row.assigned_to = sel.value || null;
+        toast('담당자를 변경했습니다.');
+        renderReservations();
+      } catch (err) {
+        console.error('담당자 배정 실패', err);
+        toast('담당자 변경에 실패했습니다.');
+      }
     });
 
     /* 페이지 열릴 때 자동 로그인 복원 */
@@ -2468,11 +2647,13 @@
       card.querySelector('#adminSecBlog').classList.toggle('hidden', sec !== 'blog');
       card.querySelector('#adminSecStats').classList.toggle('hidden', sec !== 'stats');
       card.querySelector('#adminSecGallery').classList.toggle('hidden', sec !== 'gallery');
+      card.querySelector('#adminSecPartners')?.classList.toggle('hidden', sec !== 'partners');
       if (sec === 'gallery') renderGalleryAdmin();
       if (sec === 'stats') { bindStatsTab(card); loadStats(); }
       if (sec === 'blog') { bindBlogTab(card); fillBlogSelects(); }
       if (sec === 'members' && memberRows.length === 0) await loadMembers(false);
       if (sec === 'coupons') await loadCoupons();
+      if (sec === 'partners') { bindPartnerTab(card); await renderPartnerTab(card); }
     });
 
     card.querySelector('#memberRefresh').addEventListener('click', () => loadMembers(false));
@@ -2500,9 +2681,12 @@
   async function showAdminSession(s) {
     const card = document.querySelector('#supabaseAdminAuth');
     if (!card) return;
+    await loadMyRole(s);
+    if (myRole === 'owner') partnerList = await loadPartnerList(s);
     card.querySelector('#adminLoggedOut').classList.add('hidden');
     card.querySelector('#adminLoggedIn').classList.remove('hidden');
     card.querySelector('#adminEmail').textContent = s.email || '관리자';
+    card.classList.toggle('is-partner', myRole === 'partner');
     setProtected(true);
     bindSectionTabs(card);
     await loadReservations(false);
