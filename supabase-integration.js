@@ -262,6 +262,12 @@
       .booking-contact-btn.sms-btn{background:linear-gradient(135deg,#087c68,#0a9a80);border-color:#087c68;color:#fff;box-shadow:0 4px 14px rgba(8,124,104,.28)}
       @media(max-width:640px){.booking-contact-strip{grid-template-columns:1fr}}
       /* 예약 성공 결과 */
+      .payment-card{margin:14px 0;padding:14px;background:#fff;border:1px solid #dfe8e6;border-radius:14px}
+      .payment-card-title{margin:0 0 10px;font-size:14px;font-weight:900;color:#10283a}
+      .payment-card-title b{margin-left:6px;color:#087c68}
+      .pay-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 11px;background:#f2fbf8;border-radius:10px;font-weight:700;font-size:13px;color:#132c27;margin-bottom:8px}
+      .payment-links{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+      .payment-note{margin:6px 0 0;font-size:12px;font-weight:600;color:#6b7f7a;line-height:1.6}
       .booking-success{padding:18px;background:#f0fbf8;border-radius:16px;border:1px solid #b8e8da}
       .booking-success-title{font-size:17px;font-weight:900;color:#087c68;margin:0 0 8px}
       .booking-success p{margin:0 0 14px;line-height:1.6;word-break:keep-all}
@@ -689,14 +695,24 @@
       {
         key: '완료안내',
         label: '작업 완료',
-        text:
-`${name}님, 세차 작업이 완료되었습니다.
+        text: (() => {
+          const s = (typeof state !== 'undefined' && state.settings) || {};
+          const bankLine = (s.bankName && s.bankAccount)
+            ? `\n· 입금계좌: ${s.bankName} ${s.bankAccount}${s.bankHolder ? ` (${s.bankHolder})` : ''}`
+            : '';
+          const linkLines = [
+            s.kakaopayUrl ? `카카오페이 송금: ${s.kakaopayUrl}` : '',
+            s.tossUrl ? `토스 송금: ${s.tossUrl}` : '',
+          ].filter(Boolean).join('\n');
+          return `${name}님, 세차 작업이 완료되었습니다.
 
 · 차량: ${car}
-· 위치: ${apt}${row.amount ? `\n· 금액: ${Number(row.amount).toLocaleString('ko-KR')}원` : ''}
+· 위치: ${apt}${row.amount ? `\n· 금액: ${Number(row.amount).toLocaleString('ko-KR')}원` : ''}${bankLine}
+${linkLines ? '\n' + linkLines : ''}
 
 이용해 주셔서 감사합니다.
-불편하신 점이 있으면 편하게 말씀해 주세요.`
+불편하신 점이 있으면 편하게 말씀해 주세요.`;
+        })()
       },
       {
         key: '일정조율',
@@ -1269,6 +1285,7 @@
       }
       if (tel(referrer).length >= 9) await requestCoupon(referrer, 'refer', payload.phone);
 
+      const isMonthly = payload.service_type === '월2회' || payload.service_type === '월4회';
       const result = document.querySelector('#bookingResult');
       if (result) {
         result.classList.remove('hidden');
@@ -1276,12 +1293,18 @@
           <p class="booking-success-title">✅ 예약이 접수되었습니다!</p>
           <p>${esc(payload.customer_name)}님, ${esc(payload.apartment)} · ${esc(payload.car_model)} 예약을 확인 후 연락드리겠습니다.</p>
           ${couponUseWarning ? `<p class="coupon-msg bad">⚠️ ${esc(couponUseWarning)}</p>` : ''}
+          ${isMonthly && typeof paymentInfoCard === 'function' ? paymentInfoCard(quoteTotal) : ''}
           <div class="booking-success-btns">
             <a class="primary-btn button-link" href="tel:01083918999">☎ 전화 확인</a>
             <a class="secondary-btn button-link" href="sms:01083918999">💬 문자 문의</a>
             <a class="secondary-btn button-link" href="https://pf.kakao.com/_gpDrX" target="_blank" rel="noopener">💬 카카오채널</a>
           </div>
         </div>`;
+        result.querySelectorAll('.pay-copy-btn').forEach(btn => {
+          btn.onclick = () => navigator.clipboard?.writeText(btn.dataset.copy)
+            .then(() => toast('계좌번호를 복사했습니다.'))
+            .catch(() => toast('복사 기능을 사용할 수 없습니다.'));
+        });
       }
       form.reset();
       toast(couponUseWarning

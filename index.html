@@ -621,7 +621,13 @@
 
       <section id="admin" class="page">
         <div class="admin-grid">
-          <article class="panel"><h2>운영 정보</h2><form id="settingsForm" class="form-grid"><label>전화번호<input name="phone"></label><label>카카오채널 URL<input name="kakaoUrl" placeholder="https://pf.kakao.com/..."></label><label class="span-2">영업시간<input name="hours"></label><button class="primary-btn span-2" type="submit">저장</button></form></article>
+          <article class="panel"><h2>운영 정보</h2><form id="settingsForm" class="form-grid"><label>전화번호<input name="phone"></label><label>카카오채널 URL<input name="kakaoUrl" placeholder="https://pf.kakao.com/..."></label><label class="span-2">영업시간<input name="hours"></label>
+            <label>입금 은행<input name="bankName" placeholder="예: 국민은행"></label>
+            <label>계좌번호<input name="bankAccount" placeholder="예: 123456-78-901234"></label>
+            <label class="span-2">예금주<input name="bankHolder" placeholder="예: 홍길동"></label>
+            <label class="span-2">카카오페이 송금 링크 <small>카카오페이 앱 → 송금 → 계좌/코드 → 송금 링크 만들기에서 복사</small><input name="kakaopayUrl" placeholder="https://qr.kakaopay.com/..."></label>
+            <label class="span-2">토스 송금 링크 <small>토스 앱 → 송금 → 링크 보내기에서 복사</small><input name="tossUrl" placeholder="https://toss.me/..."></label>
+            <button class="primary-btn span-2" type="submit">저장</button></form></article>
           <article class="panel"><h2>세차 전·후 사진 추가</h2><form id="galleryForm" class="form-grid"><label>제목<input name="title" required></label><label>설명<input name="note"></label><label>Before 이미지<input type="file" accept="image/*" name="before" required></label><label>After 이미지<input type="file" accept="image/*" name="after" required></label><button class="primary-btn span-2" type="submit">사진 추가</button></form></article>
         </div>
       </section>
@@ -651,7 +657,7 @@
   </script>
   <script src="compat-fix.js?v=20260916-6"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
-  <script src="app.js?v=20260926-newopt1"></script>
-  <script src="supabase-integration.js?v=20260927-reviews1"></script>
+  <script src="app.js?v=20260927-pay2"></script>
+  <script src="supabase-integration.js?v=20260927-pay2"></script>
 </body>
 </html>

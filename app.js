@@ -23,7 +23,7 @@ const DEFAULT_PROMOS = [
 
 function normalize(data = {}) {
   const base = publishedState || {
-    settings: { phone: '010-8391-8999', kakaoUrl: 'https://pf.kakao.com/_gpDrX', area: '경산 중산지구 · 사월동 · 시지 · 신매동 · 대구 전지역' },
+    settings: { phone: '010-8391-8999', kakaoUrl: 'https://pf.kakao.com/_gpDrX', bankName: '', bankAccount: '', bankHolder: '', kakaopayUrl: '', tossUrl: '', area: '경산 중산지구 · 사월동 · 시지 · 신매동 · 대구 전지역' },
     promos: deepClone(DEFAULT_PROMOS),
     gallery: [], reviews: [], tips: [], inquiries: []
   };
@@ -126,6 +126,26 @@ function comparisonMarkup(item) {
   </article>`;
 }
 
+/* 월세차 선결제 안내 카드 — 계좌·간편송금 정보를 사장님이 입력한 것만 노출 */
+function paymentInfoCard(amountText) {
+  const s = state.settings || {};
+  const hasBank = s.bankName && s.bankAccount;
+  if (!hasBank && !s.kakaopayUrl && !s.tossUrl) return '';
+  const bankLine = hasBank
+    ? `<div class="pay-row"><span>${esc(s.bankName)} ${esc(s.bankAccount)}${s.bankHolder ? ' (' + esc(s.bankHolder) + ')' : ''}</span><button type="button" class="secondary-btn pay-copy-btn" data-copy="${esc(s.bankAccount)}">복사</button></div>`
+    : '';
+  const links = [
+    s.kakaopayUrl ? `<a class="secondary-btn button-link" href="${esc(s.kakaopayUrl)}" target="_blank" rel="noopener">💛 카카오페이로 송금</a>` : '',
+    s.tossUrl ? `<a class="secondary-btn button-link" href="${esc(s.tossUrl)}" target="_blank" rel="noopener">🔵 토스로 송금</a>` : '',
+  ].filter(Boolean).join('');
+  return `<div class="payment-card">
+    <p class="payment-card-title">💳 결제 안내 ${amountText ? `<b>${esc(amountText)}</b>` : ''}</p>
+    ${bankLine}
+    ${links ? `<div class="payment-links">${links}</div>` : ''}
+    <p class="payment-note">월세차는 첫 방문 전 선결제로 진행됩니다. 입금 확인 후 예약이 확정됩니다.</p>
+  </div>`;
+}
+
 function reviewMarkup(review) {
   const stars = '★'.repeat(Math.max(1, Math.min(5, Number(review.rating) || 5)));
   return `<article class="review-card">
@@ -176,6 +196,11 @@ function renderSettings() {
     form.phone.value = state.settings.phone || '010-8391-8999';
     if (form.kakaoUrl) form.kakaoUrl.value = state.settings.kakaoUrl || '';
     if (form.area) form.area.value = state.settings.area || '';
+    if (form.bankName) form.bankName.value = state.settings.bankName || '';
+    if (form.bankAccount) form.bankAccount.value = state.settings.bankAccount || '';
+    if (form.bankHolder) form.bankHolder.value = state.settings.bankHolder || '';
+    if (form.kakaopayUrl) form.kakaopayUrl.value = state.settings.kakaopayUrl || '';
+    if (form.tossUrl) form.tossUrl.value = state.settings.tossUrl || '';
   }
   const phone = state.settings.phone || '010-8391-8999';
   document.querySelectorAll('[data-phone-text]').forEach((el) => { el.textContent = phone; });
@@ -325,7 +350,11 @@ function bindEvents() {
   if (settingsForm) settingsForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const fd = new FormData(event.currentTarget);
-    state.settings = { phone: fd.get('phone'), kakaoUrl: fd.get('kakaoUrl'), area: fd.get('area') };
+    state.settings = {
+      phone: fd.get('phone'), kakaoUrl: fd.get('kakaoUrl'), area: fd.get('area'),
+      bankName: fd.get('bankName'), bankAccount: fd.get('bankAccount'), bankHolder: fd.get('bankHolder'),
+      kakaopayUrl: fd.get('kakaopayUrl'), tossUrl: fd.get('tossUrl'),
+    };
     save(); renderSettings();
     toast('업체 설정을 저장했습니다.');
   });

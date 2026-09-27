@@ -2,7 +2,12 @@
   "settings": {
     "phone": "010-8391-8999",
     "kakaoUrl": "https://pf.kakao.com/_gpDrX",
-    "area": "경산 중산지구 · 사월동 · 시지 · 신매동 · 집중관리"
+    "area": "경산 중산지구 · 사월동 · 시지 · 신매동 · 집중관리",
+    "bankName": "카카오뱅크",
+    "bankAccount": "3333257863161",
+    "bankHolder": "조미연",
+    "kakaopayUrl": "",
+    "tossUrl": ""
   },
   "promos": [
     {
