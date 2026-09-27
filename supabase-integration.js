@@ -1981,6 +1981,102 @@
     mark();
   }
 
+  /* ── 고객 후기 관리 ─────────────────────────────────────────── */
+
+  let reviewAdminRows = [];
+
+  function reviewRowMarkup(r) {
+    const stars = '★'.repeat(Math.max(1, Math.min(5, Number(r.rating) || 5)));
+    return `<div class="member-row" data-review-row="${esc(r.id)}">
+      <div>
+        <b>${esc(r.author)}</b>${r.car ? ' · ' + esc(r.car) : ''} <span style="color:#e0a500">${stars}</span>
+        <div class="field-hint" style="margin:2px 0 0">${esc(r.text)}</div>
+        ${r.source ? `<div class="field-hint" style="margin:2px 0 0;opacity:.7">출처: ${esc(r.source)}</div>` : ''}
+      </div>
+      <button class="danger-btn" data-review-del="${esc(r.id)}">삭제</button>
+    </div>`;
+  }
+
+  async function renderReviewsAdmin(card) {
+    const listEl = card.querySelector('#reviewAdminList');
+    const s = await getSession();
+    if (!s) return;
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/reviews?select=id,author,car,rating,text,source&order=created_at.desc&limit=100`,
+        { headers: api(s.access_token) }
+      );
+      if (!r.ok) throw new Error(await r.text());
+      reviewAdminRows = await r.json();
+      listEl.innerHTML = reviewAdminRows.length
+        ? reviewAdminRows.map(reviewRowMarkup).join('')
+        : '<div class="reservation-empty">등록된 후기가 없습니다. 위 폼으로 첫 후기를 추가해보세요.</div>';
+    } catch (err) {
+      console.error('후기 목록 조회 실패', err);
+      listEl.innerHTML = '<div class="reservation-empty">후기 목록을 불러오지 못했습니다. reviews.sql을 실행했는지 확인해주세요.</div>';
+    }
+  }
+
+  function bindReviewsTab(card) {
+    const form = card.querySelector('#reviewAddForm');
+    if (!form || form.dataset.ready) return;
+    form.dataset.ready = '1';
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const s = await getSession();
+      if (!s) return;
+      const fd = new FormData(form);
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/reviews`, {
+          method: 'POST',
+          headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+          body: JSON.stringify({
+            author: fd.get('author'),
+            car: fd.get('car') || null,
+            rating: Number(fd.get('rating')),
+            text: fd.get('text'),
+            source: fd.get('source') || null,
+          }),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        toast('후기를 등록했습니다.');
+        form.reset();
+        await renderReviewsAdmin(card);
+        await syncReviews();   // 홈 화면에도 바로 반영
+      } catch (err) {
+        console.error('후기 등록 실패', err);
+        toast('후기 등록에 실패했습니다.');
+      }
+    });
+
+    card.querySelector('#reviewAdminList').addEventListener('click', async e => {
+      const btn = e.target.closest('[data-review-del]');
+      if (!btn) return;
+      const id = btn.dataset.reviewDel;
+      const row = reviewAdminRows.find(x => x.id === id);
+      if (!confirm(`'${row?.author || '이 후기'}'를 삭제할까요?\\n\\n홈 화면에서도 사라집니다.`)) return;
+      const s = await getSession();
+      if (!s) return;
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/reviews?id=eq.${encodeURIComponent(id)}`, {
+          method: 'DELETE', headers: api(s.access_token),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        toast('후기를 삭제했습니다.');
+        await renderReviewsAdmin(card);
+        extraReviews = extraReviews.filter(x => x.id !== id);
+        if (typeof state !== 'undefined' && state) {
+          state.reviews = (state.reviews || []).filter(x => x.id !== id);
+          rerenderApp();
+        }
+      } catch (err) {
+        console.error('후기 삭제 실패', err);
+        toast('삭제에 실패했습니다.');
+      }
+    });
+  }
+
   /* ── 협력점 관리 ─────────────────────────────────────────────── */
 
   function partnerRowMarkup(p) {
@@ -2115,6 +2211,7 @@
           <button class="admin-sec-tab" data-sec="blog">블로그 초안</button>
           <button class="admin-sec-tab" data-sec="stats">방문 분석</button>
           <button class="admin-sec-tab" data-sec="gallery">전후 사진</button>
+          <button class="admin-sec-tab" data-sec="reviews">후기</button>
           <button class="admin-sec-tab owner-only" data-sec="partners">협력점</button>
         </div>
         <!-- 예약 관리 -->
@@ -2196,6 +2293,19 @@
             <button id="statsRefresh" class="secondary-btn">새로고침</button>
           </div>
           <div id="statsBody"><div class="reservation-empty">방문 기록을 불러오는 중…</div></div>
+        </div>
+        <!-- 고객 후기 -->
+        <div id="adminSecReviews" class="hidden">
+          <p class="field-hint" style="margin:4px 0 12px">숨고·당근 등 다른 채널에 남은 후기를 옮겨 적거나, 직접 받은 후기를 등록하세요. 등록하면 홈 화면 후기 영역에 최신순으로 나타납니다.</p>
+          <form id="reviewAddForm" class="coupon-issue">
+            <label>고객 표기 <small>실명 대신 지역명으로 (예: 사월동 고객)</small><input name="author" placeholder="예: 사월동 고객" required></label>
+            <label>차종<input name="car" placeholder="예: GV80"></label>
+            <label>별점<select name="rating"><option value="5">★★★★★ (5점)</option><option value="4">★★★★ (4점)</option><option value="3">★★★ (3점)</option></select></label>
+            <label>출처<select name="source"><option value="직접 작성">직접 작성</option><option value="숨고">숨고</option><option value="당근">당근</option><option value="카카오채널">카카오채널</option></select></label>
+            <label class="span-2">후기 내용<textarea name="text" rows="3" placeholder="후기 원문을 그대로 붙여넣으세요" required></textarea></label>
+            <button class="primary-btn span-2" type="submit">후기 등록</button>
+          </form>
+          <div id="reviewAdminList" class="member-list"><div class="reservation-empty">후기 목록을 불러오는 중…</div></div>
         </div>
         <!-- 협력점 관리 (owner 전용) -->
         <div id="adminSecPartners" class="hidden">
@@ -2634,6 +2744,27 @@
 
   syncHiddenGallery();
 
+  /* ── 고객 후기 (Supabase reviews 테이블) ─────────────────────── */
+
+  let extraReviews = [];   // Supabase에 쌓인 실제 후기 (관리자가 추가한 것)
+
+  async function syncReviews() {
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/reviews?select=id,author,car,rating,text&visible=eq.true&order=created_at.desc&limit=30`,
+        { headers: api(null) }
+      );
+      if (!r.ok) return;   // reviews.sql을 아직 안 돌렸으면 조용히 무시
+      extraReviews = await r.json();
+      if (extraReviews.length && typeof state !== 'undefined' && state) {
+        const staticIds = new Set((state.reviews || []).map(x => x.id));
+        const fresh = extraReviews.filter(x => !staticIds.has(x.id));
+        if (fresh.length) { state.reviews = [...fresh, ...(state.reviews || [])]; rerenderApp(); }
+      }
+    } catch { /* 네트워크 실패 시 기존 샘플 후기만 보여줌 */ }
+  }
+  syncReviews();
+
   /* ── 섹션 탭 전환 ────────────────────────────────────────────── */
   function bindSectionTabs(card) {
     card.querySelector('.admin-section-tabs').addEventListener('click', async e => {
@@ -2648,7 +2779,9 @@
       card.querySelector('#adminSecStats').classList.toggle('hidden', sec !== 'stats');
       card.querySelector('#adminSecGallery').classList.toggle('hidden', sec !== 'gallery');
       card.querySelector('#adminSecPartners')?.classList.toggle('hidden', sec !== 'partners');
+      card.querySelector('#adminSecReviews')?.classList.toggle('hidden', sec !== 'reviews');
       if (sec === 'gallery') renderGalleryAdmin();
+      if (sec === 'reviews') { bindReviewsTab(card); await renderReviewsAdmin(card); }
       if (sec === 'stats') { bindStatsTab(card); loadStats(); }
       if (sec === 'blog') { bindBlogTab(card); fillBlogSelects(); }
       if (sec === 'members' && memberRows.length === 0) await loadMembers(false);
