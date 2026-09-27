@@ -1,0 +1,2835 @@
+(() => {
+  /* ================================================================
+   * 집앞세차-앳홈 카케어 | Supabase 예약 연동 v3
+   * 버그수정 3 + 기능개선 5 통합본
+   * ================================================================ */
+
+  const SUPABASE_URL = 'https://xejdhnwqqaamujkebvne.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_ZMYuEmyPRMc0Q3c2q2Ok3A_vjCYppoE';
+  const SESSION_KEY  = 'athomeCarcareAdminSession';
+
+  // 차종 구분 8종 (개선점 2: 예약 폼 선택지)
+  const CAR_CLASSES = [
+    '경차·소형',
+    '준중형 세단',
+    '중형·준대형 세단',
+    '대형 세단',
+    '소형 SUV',
+    '중형 SUV',
+    '대형 SUV',
+    '대형 MPV·특대형',
+  ];
+
+  const STATUSES = ['접수', '확정', '완료', '취소'];
+
+  let allRows    = [];
+  let currentTab = '접수';
+  let autoTimer  = null;   // 개선점 1: 자동 갱신 타이머
+
+  /* ── 유틸 ────────────────────────────────────────────────────── */
+
+  const esc = (v = '') => String(v).replace(/[&<>'"]/g, c =>
+    ({ '&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;' }[c]));
+
+  const toast = msg => typeof window.toast === 'function'
+    ? window.toast(msg) : console.log('[예약]', msg);
+
+  const api = (token, extra = {}) => ({
+    apikey: SUPABASE_KEY,
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...extra,
+  });
+
+  const tel = v => String(v || '').replace(/\D/g, '');
+
+  const fmt = iso => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime()) ? '' : d.toLocaleString('ko-KR', {
+      month:'numeric', day:'numeric', weekday:'short',
+      hour:'2-digit', minute:'2-digit',
+    });
+  };
+
+  const toInput = iso => {
+    const d = iso ? new Date(iso) : new Date();
+    if (Number.isNaN(d.getTime())) return '';
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 16);
+  };
+
+  const prefInput = row => {
+    if (row.scheduled_at) return toInput(row.scheduled_at);
+    if (row.preferred_date) {
+      const t = row.preferred_time ? String(row.preferred_time).slice(0,5) : '20:00';
+      return `${row.preferred_date}T${t}`;
+    }
+    return toInput(null);
+  };
+
+  /* ── 스타일 ──────────────────────────────────────────────────── */
+
+  function injectStyles() {
+    if (document.querySelector('#supabaseIntegrationStyles')) return;
+    const s = document.createElement('style');
+    s.id = 'supabaseIntegrationStyles';
+    s.textContent = `
+      /* 공통 */
+      .db-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#e7f8f3;color:#087c68;font-weight:900;font-size:12px;margin-bottom:12px}
+      .admin-auth-card{margin:0 16px 22px;background:#fff;border:1px solid #dfe9e7;border-radius:22px;padding:22px;box-shadow:0 12px 36px rgba(18,64,58,.10)}
+      @media(min-width:540px){.admin-auth-card{margin-left:32px;margin-right:32px}}
+      .admin-auth-card h2{margin:0 0 8px}
+      .admin-auth-card p{color:#647789;margin:0 0 16px}
+      /* 로그인 폼 */
+      .admin-auth-row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+      .admin-auth-row label{display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:13px;flex:1;min-width:160px}
+      .admin-auth-row input{border:1px solid #cfdcda;border-radius:13px;padding:12px 13px}
+      /* 로그인 상태 바 */
+      .admin-session-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 14px;border-radius:14px;background:#effaf7;margin-bottom:14px}
+      .admin-session-bar b{color:#087c68}
+      .admin-session-bar .bar-btns{display:flex;gap:6px;flex-wrap:wrap}
+      /* 오늘 요약 */
+      #todaySummary{margin-bottom:10px;font-size:14px;line-height:1.55;word-break:keep-all}
+      .res-highlight{color:#087c68;font-weight:900}
+      /* 자동갱신 표시 */
+      #autoRefreshStatus{font-size:11px;color:#9bb8b1;margin-left:6px}
+      /* 탭 */
+      .res-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+      .res-tab{border:1px solid #cfdcda;background:#fff;color:#4a5f5b;border-radius:999px;padding:7px 13px;font-weight:800;font-size:13px;cursor:pointer;line-height:1}
+      .res-tab.active{background:#087c68;border-color:#087c68;color:#fff}
+      /* 카드 */
+      .reservation-list{display:grid;gap:10px}
+      .reservation-item{border:1px solid #dfe9e7;border-radius:16px;padding:14px;background:#fbfdfd}
+      .reservation-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+      .reservation-item h3{margin:0 0 4px;font-size:16px;line-height:1.3}
+      .reservation-meta{display:flex;gap:6px;flex-wrap:wrap;color:#647789;font-size:12px;margin:7px 0}
+      .reservation-item .res-memo{margin:6px 0;font-size:13px;line-height:1.55;word-break:keep-all}
+      .reservation-empty{padding:22px;text-align:center;color:#647789;border:1px dashed #cfdcda;border-radius:14px}
+      /* 상태 배지 */
+      .res-badge{flex:0 0 auto;font-size:12px;font-weight:900;padding:4px 10px;border-radius:999px;background:#e7f8f3;color:#05594b;white-space:nowrap}
+      .reservation-item[data-status="확정"] .res-badge{background:#fdf0dc;color:#8a5200}
+      .reservation-item[data-status="완료"] .res-badge{background:#ececec;color:#4a4a4a}
+      .reservation-item[data-status="취소"] .res-badge{background:#fbe3e3;color:#8d2b2b}
+      /* 액션 영역 */
+      .res-actions{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #e9f0ee}
+      .res-when{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:800;color:#647789}
+      .res-when input{border:1px solid #cfdcda;border-radius:11px;padding:8px 10px;font-size:13px;color:#132c27}
+      /* 완료 금액 입력 (개선점 3) */
+      .res-amount{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:800;color:#647789}
+      .res-amount input{border:1px solid #cfdcda;border-radius:11px;padding:8px 10px;font-size:13px;width:110px;color:#132c27}
+      /* 버튼 */
+      .res-actions button{border:0;border-radius:11px;padding:9px 13px;font-weight:800;font-size:13px;cursor:pointer;white-space:nowrap}
+      .res-go{background:#087c68;color:#fff}
+      .res-sub{background:#eef4f3;color:#4a5f5b}
+      .res-danger{background:#fbe3e3;color:#8d2b2b}
+      /* 예약 폼 */
+      .booking-db-note{display:block;margin-top:8px;color:#087c68;font-weight:800;font-size:12px}
+      /* 모바일 */
+      /* 관리 섹션 탭 */
+      .admin-section-tabs{display:flex;gap:6px;margin-bottom:14px;border-bottom:2px solid #e9f0ee;padding-bottom:0}
+      .admin-sec-tab{border:0;background:none;padding:10px 16px;font-weight:800;font-size:14px;color:#9bb8b1;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:0}
+      .admin-sec-tab.active{color:#087c68;border-bottom-color:#087c68}
+      /* 월 회원 */
+      .member-controls{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+      .member-controls input{flex:1 1 180px;border:1px solid #cfdcda;border-radius:13px;padding:10px 14px;font-size:14px}
+      .member-list{display:grid;gap:10px}
+      .member-card{border:1px solid #dfe9e7;border-radius:16px;padding:14px;background:#fbfdfd}
+      .member-card.highlight{border-color:#087c68;background:#f0fbf8}
+      .member-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+      .member-name{font-size:16px;font-weight:700;margin:0 0 3px}
+      .member-phone{font-size:13px;color:#647789}
+      .member-badge{font-size:12px;font-weight:900;padding:4px 10px;border-radius:999px;background:#e7f8f3;color:#05594b;white-space:nowrap;flex:0 0 auto}
+      .member-badge.bronze{background:#fdf0dc;color:#8a5200}
+      .member-badge.silver{background:#ececec;color:#4a4a4a}
+      .member-badge.gold{background:#fdf4cc;color:#7a6000}
+      .member-stats{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0;font-size:13px}
+      .member-stat{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 12px;border-radius:12px;background:#f3faf8;min-width:60px}
+      .member-stat b{font-size:18px;font-weight:900;color:#087c68;line-height:1}
+      .member-stat span{font-size:11px;color:#9bb8b1}
+      .member-stat.warn b{color:#c94141}
+      .member-history{margin-top:10px;font-size:12px;color:#647789;line-height:1.7}
+      .member-history summary{cursor:pointer;font-weight:700;color:#087c68;margin-bottom:4px}
+      .member-history .hist-row{display:flex;gap:8px;padding:4px 0;border-bottom:1px solid #e9f0ee;font-size:12px}
+      .member-history .hist-row:last-child{border-bottom:0}
+      .member-history .hist-date{color:#9bb8b1;flex:0 0 auto}
+      .member-history .hist-svc{flex:1}
+      .member-history .hist-amt{font-weight:700;color:#087c68;flex:0 0 auto}
+      /* 예약 페이지 하단 연락 버튼 */
+      .booking-contact-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:20px 0 0}
+      .form-grid .promo-chip:has(input:checked){border-color:#c99a2e;background:#fff8e6;box-shadow:0 0 0 2px rgba(201,154,46,.12)}
+      .form-grid .promo-chip input{accent-color:#c99a2e}
+      .quote-lines li.quote-discount b{color:#c0392b}
+      .coupon-row{display:flex;gap:8px;margin-top:4px}
+      .coupon-row input{flex:1 1 auto;border:1px solid #cfdcda;border-radius:13px;padding:11px 13px;background:#fff}
+      .coupon-row .secondary-btn{flex:0 0 auto;white-space:nowrap}
+      .coupon-msg{margin:6px 0 0;font-size:13px;font-weight:700;color:#6b7f7a}
+      .coupon-msg.good{color:#087c68}
+      .coupon-msg.bad{color:#c0392b}
+      .partner-poster{margin:0 32px 22px;border-radius:18px;overflow:hidden;border:1px solid #dfe8e6;box-shadow:0 8px 24px rgba(16,40,58,.08);background:#fff}
+      .partner-poster img{display:block;width:100%;height:auto}
+      .partner-poster figcaption{padding:14px 18px;font-size:14px;font-weight:700;color:#2f4d47;background:#f2fbf8;border-top:1px solid #dfe8e6;line-height:1.55}
+      @media(max-width:760px){.partner-poster{margin:0 16px 18px;border-radius:14px}}
+      .res-plate{display:inline-block;background:#10283a;color:#fff;border-radius:7px;padding:2px 8px;font-size:13px;font-weight:900;letter-spacing:.5px;margin-left:4px}
+      .blog-photos{grid-column:1 / -1;display:grid;gap:8px}
+      .blog-photos-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-weight:800;font-size:13px;color:#2f4d47}
+      .blog-photos-title small{font-weight:600;color:#6b7f7a}
+      .blog-all{display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:13px;color:#087c68;cursor:pointer}
+      .blog-photo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+      .blog-photo-chip{display:flex;flex-direction:row;align-items:center;gap:8px;border:1px solid #cfdcda;border-radius:12px;padding:10px 11px;background:#fff;cursor:pointer;font-weight:700;font-size:13px}
+      .blog-photo-chip input{width:17px;height:17px;accent-color:#087c68;flex:0 0 auto}
+      .blog-photo-chip:has(input:checked){border-color:#087c68;background:#effaf7}
+      .blog-photo-empty{font-size:13px;font-weight:600;color:#6b7f7a}
+      .blog-dl{display:flex;flex-wrap:wrap;gap:8px}
+      .secondary-btn.notify-on{background:#e7f6f1;border-color:#087c68;color:#087c68}
+      .stats-range{display:flex;gap:6px}
+      .stats-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:6px 0 18px}
+      .stats-card{border:1px solid #dfe8e6;border-radius:14px;padding:14px;background:#fbfdfd;display:grid;gap:4px}
+      .stats-card span{font-size:12px;font-weight:800;color:#5c6b68}
+      .stats-card b{font-size:28px;font-weight:900;color:#10283a;line-height:1.1}
+      .stats-card small{font-size:12px;font-weight:600;color:#6b7f7a}
+      .stats-h{margin:18px 0 10px;font-size:16px;font-weight:900;color:#10283a}
+      .stats-h small{font-size:12px;font-weight:600;color:#6b7f7a;margin-left:6px}
+      .stats-bars{display:flex;align-items:flex-end;gap:4px;height:170px;padding:10px;border:1px solid #dfe8e6;border-radius:14px;background:#fff;overflow-x:auto}
+      .stats-bar{flex:1 0 18px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+      .stats-bar i{display:block;width:100%;max-width:34px;min-height:2px;background:#9fd6c7;border-radius:6px 6px 2px 2px}
+      .stats-bar.today i{background:#087c68}
+      .stats-bar em{font-style:normal;font-size:11px;font-weight:800;color:#2f4d47}
+      .stats-bar span{font-size:10px;font-weight:700;color:#6b7f7a;white-space:nowrap;height:13px}
+      .stats-sources{display:grid;gap:8px}
+      .stats-src{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;font-size:14px;font-weight:700}
+      .stats-track{height:12px;background:#eef4f3;border-radius:999px;overflow:hidden}
+      .stats-track i{display:block;height:100%;background:#087c68;border-radius:999px}
+      .stats-src b{font-size:13px;color:#2f4d47;white-space:nowrap}
+      .stats-links{display:grid;gap:6px;margin-bottom:12px}
+      .stats-link{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;font-size:13px;font-weight:700}
+      .stats-link code{font-size:12px;background:#f2fbf8;border:1px solid #d5ece5;border-radius:8px;padding:7px 9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      @media(max-width:600px){.stats-src,.stats-link{grid-template-columns:1fr}.stats-link code{white-space:normal;word-break:break-all}}
+      .owner-only{}
+      .is-partner .owner-only{display:none !important}
+      .res-assign{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#5c6b68;margin:8px 0 0}
+      .res-assign select{border:1px solid #cfdcda;border-radius:9px;padding:6px 8px;font:inherit;background:#fff}
+      .mosaic-overlay{align-items:flex-start;overflow:auto;padding:24px 12px}
+      .mosaic-box{background:#fff;border-radius:18px;padding:18px;max-width:880px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+      .mosaic-tip{margin:10px 0 12px;font-size:13px;font-weight:700;color:#8a6200;background:#fff7e3;border:1px solid #f0dcae;border-radius:11px;padding:11px 13px;line-height:1.6}
+      .mosaic-stage{display:flex;justify-content:center;background:#eef4f3;border-radius:12px;padding:10px;overflow:auto}
+      .mosaic-stage canvas{cursor:crosshair;touch-action:none;border-radius:8px;box-shadow:0 2px 10px rgba(0,0,0,.12);max-width:100%}
+      .mosaic-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+      .mosaic-actions .primary-btn{margin-left:auto}
+      .blog-result{margin:0 0 16px;padding:16px;border:1px solid #dfe8e6;border-radius:14px;background:#fbfdfd;display:grid;gap:12px}
+      .blog-field{display:grid;grid-template-columns:78px 1fr auto;gap:10px;align-items:center}
+      .blog-field.col{grid-template-columns:1fr;gap:8px}
+      .blog-field label{font-weight:800;font-size:13px;color:#2f4d47}
+      .blog-field input,.blog-field textarea{width:100%;border:1px solid #cfdcda;border-radius:11px;padding:11px 12px;background:#fff;font:inherit;line-height:1.6}
+      .blog-field textarea{resize:vertical;min-height:260px;white-space:pre-wrap}
+      .blog-tip{margin:0;font-size:13px;font-weight:700;color:#8a6200;background:#fff7e3;border:1px solid #f0dcae;border-radius:11px;padding:11px 13px;line-height:1.6}
+      @media(max-width:600px){.blog-field{grid-template-columns:1fr;align-items:stretch}}
+      .coupon-issue{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end;margin:12px 0;padding:14px;border:1px solid var(--line,#dfe8e6);border-radius:14px;background:#fbfdfd}
+      .coupon-issue label{display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:13px}
+      .coupon-issue label small{font-weight:600;color:#6b7f7a}
+      .coupon-issue input,.coupon-issue select{border:1px solid #cfdcda;border-radius:11px;padding:10px 12px;background:#fff}
+      .coupon-issued{margin:0 0 14px;padding:14px;border-radius:14px;background:#effaf7;border:1px solid #bee1d8}
+      .coupon-codes{display:flex;flex-wrap:wrap;gap:8px;margin-top:9px}
+      .coupon-codes code{background:#fff;border:1px solid #bee1d8;border-radius:9px;padding:6px 10px;font-weight:800}
+      .coupon-badge{border-radius:999px;padding:3px 10px;font-size:12px;font-weight:800}
+      .coupon-badge.wait{background:#fff3d6;color:#8a6200}
+      .coupon-badge.ok{background:#e7f6f1;color:#087c68}
+      .coupon-badge.used{background:#eef1f0;color:#5c6b68}
+      .coupon-badge.off{background:#fdecea;color:#c0392b}
+      .auto-mark{font-style:normal;margin-left:6px;background:#e7f6f1;color:#087c68;border-radius:999px;padding:1px 7px;font-size:11px;font-weight:800}
+      .quote-box{border:1px solid #bee1d8;background:#f2fbf8;border-radius:16px;padding:16px 18px}
+      .quote-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-weight:900;margin-bottom:10px}
+      .quote-head em{font-style:normal;font-weight:700;font-size:13px;color:#4f6b65;text-align:right}
+      .quote-lines{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+      .quote-lines li{display:flex;justify-content:space-between;gap:12px;font-size:14px;font-weight:700}
+      .quote-lines li b{font-weight:800;white-space:nowrap}
+      .quote-empty{color:#6b7f7a;font-weight:600!important}
+      .quote-total{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:12px;padding-top:12px;border-top:1px solid #cfe6de;font-weight:900}
+      .quote-total b{font-size:20px;color:#087c68;white-space:nowrap}
+      .quote-note{margin:9px 0 0;font-size:12px;color:#6b7f7a;font-weight:600}
+      .form-grid select:disabled{background:#f1f6f5;color:#2f4d47;opacity:1;cursor:default}
+      .field-hint{display:block;font-weight:500;font-size:12px;color:#6b7f7a;margin-top:2px}
+      .opt-field{display:flex;flex-direction:column;gap:9px}
+      .opt-title{font-weight:800;font-size:13px}
+      .opt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:9px}
+      .form-grid .opt-chip{display:flex;flex-direction:row;align-items:center;gap:9px;border:1px solid #cfdcda;border-radius:13px;padding:11px 12px;background:#fff;cursor:pointer;font-weight:700;font-size:14px}
+      .form-grid .opt-chip input{width:18px;height:18px;accent-color:#087c68;flex:0 0 auto}
+      .form-grid .opt-chip small{display:block;font-weight:600;font-size:12px;color:#6b7f7a}
+      .form-grid .opt-chip:has(input:checked){border-color:#087c68;background:#effaf7;box-shadow:0 0 0 2px rgba(8,124,104,.10)}
+      .booking-contact-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:18px 12px;border-radius:18px;border:2px solid #cfdcda;background:#fff;font-weight:900;font-size:16px;text-align:center;cursor:pointer;text-decoration:none;color:#132c27;line-height:1.3;box-shadow:0 4px 14px rgba(0,0,0,.06)}
+      .booking-contact-btn:active{transform:scale(.97)}
+      .booking-contact-btn.kakao-btn{background:#fee500;border-color:#f0d900;color:#3c1e1e;box-shadow:0 4px 14px rgba(254,229,0,.35)}
+      .msg-kakao{background:#fee500;color:#3c1e1e}
+      .booking-contact-btn.sms-btn{background:linear-gradient(135deg,#087c68,#0a9a80);border-color:#087c68;color:#fff;box-shadow:0 4px 14px rgba(8,124,104,.28)}
+      @media(max-width:640px){.booking-contact-strip{grid-template-columns:1fr}}
+      /* 예약 성공 결과 */
+      .booking-success{padding:18px;background:#f0fbf8;border-radius:16px;border:1px solid #b8e8da}
+      .booking-success-title{font-size:17px;font-weight:900;color:#087c68;margin:0 0 8px}
+      .booking-success p{margin:0 0 14px;line-height:1.6;word-break:keep-all}
+      .booking-success-btns{display:flex;gap:8px;flex-wrap:wrap}
+      .booking-success-btns a,.booking-success-btns button{flex:1 1 120px;text-align:center;text-decoration:none}
+            /* 메시지 버튼 */
+      .res-msg{background:#e7f8f3;color:#05594b;border:1px solid #b8e8da}
+      /* 메시지 모달 */
+      .msg-overlay{position:fixed;inset:0;z-index:9999;background:rgba(10,34,30,.55);display:flex;align-items:flex-end;justify-content:center;padding:0}
+      @media(min-width:600px){.msg-overlay{align-items:center;padding:20px}}
+      .msg-box{width:100%;max-width:560px;max-height:92vh;overflow-y:auto;background:#fff;border-radius:22px 22px 0 0;padding:20px 18px 22px;box-shadow:0 -8px 40px rgba(0,0,0,.25)}
+      @media(min-width:600px){.msg-box{border-radius:22px}}
+      .msg-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:14px}
+      .msg-head b{font-size:17px;font-weight:900;display:block}
+      .msg-phone{font-size:13px;color:#647789}
+      .msg-close{border:0;background:#eef4f3;width:34px;height:34px;border-radius:50%;font-size:15px;cursor:pointer;color:#4a5f5b;flex:0 0 auto}
+      .msg-tpls{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+      .msg-tpl{border:1px solid #cfdcda;background:#fff;color:#4a5f5b;border-radius:999px;padding:7px 13px;font-size:13px;font-weight:700;cursor:pointer}
+      .msg-tpl.active{background:#087c68;border-color:#087c68;color:#fff}
+      #msgText{width:100%;border:1px solid #cfdcda;border-radius:14px;padding:14px;font-family:inherit;font-size:14px;line-height:1.7;color:#132c27;resize:vertical;background:#fbfdfd}
+      #msgText:focus{outline:0;border-color:#087c68;box-shadow:0 0 0 3px rgba(8,124,104,.15)}
+      .msg-count{margin:6px 2px 14px;text-align:right;font-size:12px;color:#9bb8b1}
+      .msg-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+      .msg-actions a,.msg-actions button{display:flex;align-items:center;justify-content:center;gap:6px;padding:14px 10px;border:0;border-radius:14px;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;text-decoration:none}
+      .msg-send{background:#087c68;color:#fff;grid-column:1/-1}
+      .msg-copy{background:#eef4f3;color:#4a5f5b}
+      .msg-call{background:#e7f8f3;color:#05594b;grid-column:1/-1}
+            .member-del-row{margin-top:10px;text-align:right}
+      .member-del-btn{border:1px solid #f5c6c6;background:#fff5f5;color:#c94141;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:800;cursor:pointer}
+      .member-del-btn:hover{background:#fbe3e3}
+            @media(max-width:540px){
+        .reservation-top{flex-direction:column}
+        .res-actions{flex-direction:column;align-items:stretch}
+        .res-actions button,.res-amount input,.res-when input{width:100%}
+      }
+    `;
+    document.head.appendChild(s);
+  }
+
+  /* ── 세션 ─────────────────────────────────────────────────────── */
+
+  function loadSession()  { try { return JSON.parse(localStorage.getItem(SESSION_KEY)||'null'); } catch { return null; } }
+  function saveSession(s) { localStorage.setItem(SESSION_KEY, JSON.stringify(s)); }
+  function dropSession()  { localStorage.removeItem(SESSION_KEY); }
+
+  function isExpired(s) {
+    if (!s?.expires_at) return true;
+    return Date.now() / 1000 > s.expires_at - 300; // 5분 여유
+  }
+
+  async function refreshSession(s) {
+    if (!s?.refresh_token) throw new Error('refresh_token 없음');
+    const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: s.refresh_token }),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.msg || d.error_description || '갱신 실패');
+    const next = {
+      access_token:  d.access_token,
+      refresh_token: d.refresh_token,
+      expires_at:    d.expires_at,
+      user_id:       d.user?.id   || s.user_id,
+      email:         d.user?.email|| s.email,
+    };
+    saveSession(next);
+    return next;
+  }
+
+  async function getSession() {
+    let s = loadSession();
+    if (!s) return null;
+    if (isExpired(s)) {
+      try { s = await refreshSession(s); }
+      catch { handleExpired(); return null; }
+    }
+    return s;
+  }
+
+  /* [버그1] 이메일 하드코딩 제거 — 로그인 폼에서 value 없이 브라우저 자동완성 사용
+     [버그2] admins 테이블 조회 실패 대비 — 조회 오류 시 Supabase 자체 role로 fallback */
+  async function signIn(email, password) {
+    const r = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.msg || d.error_description || '로그인 실패');
+    return {
+      access_token:  d.access_token,
+      refresh_token: d.refresh_token,
+      expires_at:    d.expires_at,
+      user_id:       d.user?.id,
+      email:         d.user?.email || email,
+      role:          d.user?.role,
+    };
+  }
+
+  // [버그2] admins 테이블이 없어도 authenticated role이면 관리자로 허용
+  async function isAdmin(s) {
+    if (!s?.access_token || !s?.user_id) return false;
+    // 1차: admins 테이블 확인
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/admins?select=user_id&user_id=eq.${encodeURIComponent(s.user_id)}`,
+        { headers: api(s.access_token) }
+      );
+      if (r.ok) {
+        const rows = await r.json();
+        if (Array.isArray(rows) && rows.length > 0) return true;
+        // 테이블은 있는데 이 계정이 없는 경우
+        if (r.status === 200) return false;
+      }
+    } catch { /* admins 테이블 없으면 아래로 */ }
+    // 2차: reservations 테이블에 접근 가능한지로 판단 (authenticated면 RLS 통과)
+    const r2 = await fetch(
+      `${SUPABASE_URL}/rest/v1/reservations?select=id&limit=1`,
+      { headers: api(s.access_token) }
+    );
+    return r2.ok;
+  }
+
+  /* ── 협력점 역할 ─────────────────────────────────────────────── */
+
+  let myRole = 'owner';        // 'owner' | 'partner' — staff_profiles 조회 결과
+  let myStaffId = null;
+  let partnerList = [];        // owner 화면에서만 채워짐 (협력점 배정 드롭다운용)
+
+  async function loadMyRole(s) {
+    myRole = 'owner'; myStaffId = s?.user_id || null;
+    if (!s?.access_token || !s?.user_id) return;
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/staff_profiles?select=role,name&id=eq.${encodeURIComponent(s.user_id)}`,
+        { headers: api(s.access_token) }
+      );
+      if (!r.ok) return;               // staff_profiles 테이블이 없으면(구버전) owner로 유지
+      const rows = await r.json();
+      if (Array.isArray(rows) && rows.length) {
+        myRole = rows[0].role === 'partner' ? 'partner' : 'owner';
+      }
+    } catch { /* 조회 실패 시 owner로 유지 (하위호환) */ }
+  }
+
+  async function loadPartnerList(s) {
+    if (!s?.access_token) return [];
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/staff_profiles?select=id,name,area,active&role=eq.partner&order=created_at.desc`,
+        { headers: api(s.access_token) }
+      );
+      if (!r.ok) return [];
+      return await r.json();
+    } catch { return []; }
+  }
+
+  function handleExpired() {
+    stopAutoRefresh();
+    dropSession();
+    allRows = [];
+    const card = document.querySelector('#supabaseAdminAuth');
+    if (!card) return;
+    card.querySelector('#adminLoggedIn').classList.add('hidden');
+    card.querySelector('#adminLoggedOut').classList.remove('hidden');
+    const msg = card.querySelector('#adminLoginMessage');
+    if (msg) { msg.textContent = '세션이 만료되었습니다. 다시 로그인해주세요.'; msg.style.color = '#c94141'; }
+    setProtected(false);
+  }
+
+  /* ── 자동갱신 (개선점 1) ─────────────────────────────────────── */
+
+  function startAutoRefresh() {
+    stopAutoRefresh();
+    autoTimer = setInterval(async () => {
+      const s = await getSession();
+      if (!s) return;
+      await loadReservations(true); // silent=true → 로딩 텍스트 없이
+    }, 60_000); // 60초
+    updateAutoStatus(true);
+  }
+
+  function stopAutoRefresh() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    updateAutoStatus(false);
+  }
+
+  function updateAutoStatus(on) {
+    const el = document.querySelector('#autoRefreshStatus');
+    if (el) el.textContent = on ? '· 60초 자동갱신' : '';
+  }
+
+  /* ── 예약 목록 불러오기 ──────────────────────────────────────── */
+
+  async function loadReservations(silent = false) {
+    const listEl = document.querySelector('#reservationList');
+    if (!listEl) return;
+    const s = await getSession();
+    if (!s) return;
+    if (!silent) listEl.innerHTML = '<div class="reservation-empty">불러오는 중…</div>';
+    try {
+      // [버그3] scheduled_at, done_at, amount 컬럼을 select에 명시
+      //         컬럼이 없으면 Supabase가 무시하므로 SQL 업그레이드 전후 모두 동작
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/reservations?select=id,created_at,updated_at,customer_name,phone,apartment,car_model,car_class,plate,address,service_type,preferred_date,preferred_time,memo,status,scheduled_at,done_at,amount,admin_memo&order=created_at.desc&limit=300`,
+        { headers: api(s.access_token) }
+      );
+      if (r.status === 401 || r.status === 403) return handleExpired();
+      if (!r.ok) throw new Error(await r.text());
+      const fresh = await r.json();
+      // 새 접수 건 감지 (개선점 1)
+      const prevAccepted = allRows.filter(x => x.status === '접수').length;
+      allRows = fresh;
+      const newAccepted = allRows.filter(x => x.status === '접수').length;
+      if (silent && newAccepted > prevAccepted) {
+        toast(`새 예약 ${newAccepted - prevAccepted}건이 접수되었습니다.`);
+      }
+      notifyNewRows(allRows);
+      renderReservations();
+    } catch (err) {
+      console.error(err);
+      if (!silent) listEl.innerHTML = '<div class="reservation-empty">목록을 불러오지 못했습니다. 새로고침해주세요.</div>';
+    }
+  }
+
+  /* ── 렌더 ─────────────────────────────────────────────────────── */
+
+  function counts() {
+    const c = { 접수:0, 확정:0, 완료:0, 취소:0 };
+    allRows.forEach(r => { if (c[r.status] != null) c[r.status]++; });
+    return c;
+  }
+
+  function todayLine() {
+    const now   = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const end   = new Date(start.getTime() + 86_400_000);
+    const today = allRows
+      .filter(r => r.status === '확정' && r.scheduled_at)
+      .filter(r => { const d = new Date(r.scheduled_at); return d >= start && d < end; })
+      .sort((a,b) => new Date(a.scheduled_at) - new Date(b.scheduled_at));
+    if (!today.length) return '오늘 확정된 방문 일정이 없습니다.';
+    const list = today.map(r => `${fmt(r.scheduled_at).replace(/^.*?\) /,'')} ${esc(r.apartment)}`).join(' · ');
+    return `오늘 방문 <span class="res-highlight">${today.length}건</span> — ${list}`;
+  }
+
+  // [개선점 4] 모바일 최적화 — 버튼 텍스트 압축, 날짜+버튼 한 줄
+  // [개선점 3] 완료 시 금액 입력
+  // [개선점 5] 취소 건 → 확정으로도 되돌리기
+  function actionsMarkup(row) {
+    const whenInput = `
+      <label class="res-when">방문 예정
+        <input type="datetime-local" data-when="${esc(row.id)}" value="${esc(prefInput(row))}">
+      </label>`;
+
+    // 고객에게 메시지 보내기 버튼 (모든 상태 공통)
+    const msgBtn = `<button class="res-msg" data-msg="${esc(row.id)}">💬 메시지</button>`;
+
+    if (row.status === '접수') {
+      return whenInput +
+        `<button class="res-go" data-act="확정" data-id="${esc(row.id)}">확정</button>` +
+        msgBtn +
+        `<button class="res-danger" data-act="취소" data-id="${esc(row.id)}">취소</button>`;
+    }
+    if (row.status === '확정') {
+      const amtInput = `
+        <label class="res-amount">청구 금액(원)
+          <input type="number" inputmode="numeric" placeholder="예: 35000"
+            data-amount="${esc(row.id)}" value="${esc(row.amount||'')}">
+        </label>`;
+      return whenInput + amtInput +
+        `<button class="res-go" data-act="완료" data-id="${esc(row.id)}">완료</button>` +
+        msgBtn +
+        `<button class="res-sub" data-act="접수" data-id="${esc(row.id)}">접수로</button>`;
+    }
+    if (row.status === '취소') {
+      return whenInput +
+        `<button class="res-sub" data-act="접수" data-id="${esc(row.id)}">접수로</button>` +
+        msgBtn +
+        `<button class="res-go"  data-act="확정" data-id="${esc(row.id)}">확정으로</button>`;
+    }
+    // 완료
+    return msgBtn +
+      `<button class="res-sub" data-act="접수" data-id="${esc(row.id)}">접수로</button>`;
+  }
+
+  function partnerAssignMarkup(row) {
+    if (myRole !== 'owner') return '';   // 협력점 계정은 배정 UI 자체를 못 봄
+    const opts = partnerList.map(p =>
+      `<option value="${esc(p.id)}"${row.assigned_to === p.id ? ' selected' : ''}>${esc(p.name || '이름 없음')}${p.active ? '' : ' (비활성)'}</option>`
+    ).join('');
+    return `
+      <label class="res-assign">담당
+        <select data-assign="${esc(row.id)}">
+          <option value="">사장님 직접 처리</option>
+          ${opts}
+        </select>
+      </label>`;
+  }
+
+  function rowMarkup(row) {
+    const created   = row.created_at ? new Date(row.created_at).toLocaleString('ko-KR') : '';
+    const preferred = [row.preferred_date, row.preferred_time ? String(row.preferred_time).slice(0,5) : ''].filter(Boolean).join(' ');
+    const carClass  = row.car_class ? `<span>📋 ${esc(row.car_class)}</span>` : '';
+    const amtLine   = row.amount    ? `<span>💰 ${Number(row.amount).toLocaleString('ko-KR')}원</span>` : '';
+    const assignedName = row.assigned_to ? partnerList.find(p => p.id === row.assigned_to)?.name : '';
+    const assignedBadge = assignedName ? `<span>🤝 ${esc(assignedName)}</span>` : '';
+
+    return `<article class="reservation-item" data-status="${esc(row.status)}">
+  <div class="reservation-top">
+    <div>
+      <h3>${esc(row.customer_name)} · ${esc(row.car_model)}${row.plate ? ` <span class="res-plate">${esc(row.plate)}</span>` : ''}</h3>
+      <a href="tel:${tel(row.phone)}">${esc(row.phone)}</a>
+    </div>
+    <span class="res-badge">${esc(row.status)}</span>
+  </div>
+  <div class="reservation-meta">
+    <span>📍 ${esc(row.apartment)}${row.address ? ` ${esc(row.address)}` : ''}</span>
+    <span>🚗 ${esc(row.service_type)}</span>
+    ${carClass}
+    ${preferred  ? `<span>희망 ${esc(preferred)}</span>` : ''}
+    ${row.scheduled_at ? `<span>🗓 확정 ${esc(fmt(row.scheduled_at))}</span>` : ''}
+    ${row.done_at      ? `<span>✅ 완료 ${esc(fmt(row.done_at))}</span>` : ''}
+    ${amtLine}
+    ${assignedBadge}
+    <span>접수 ${esc(created)}</span>
+  </div>
+  ${row.memo ? `<p class="res-memo">${esc(row.memo).replace(/\n/g,'<br>')}</p>` : ''}
+  ${partnerAssignMarkup(row)}
+  <div class="res-actions">${actionsMarkup(row)}</div>
+</article>`;
+  }
+
+  function renderReservations() {
+    const tabsEl    = document.querySelector('#reservationTabs');
+    const listEl    = document.querySelector('#reservationList');
+    const summaryEl = document.querySelector('#todaySummary');
+    if (!tabsEl || !listEl) return;
+
+    const c = counts();
+    tabsEl.innerHTML = [...STATUSES, '전체'].map(name => {
+      const n = name === '전체' ? allRows.length : c[name];
+      return `<button class="res-tab${name===currentTab?' active':''}" data-tab="${name}">${name} ${n}</button>`;
+    }).join('');
+
+    if (summaryEl) summaryEl.innerHTML = todayLine();
+
+    let rows = currentTab === '전체' ? allRows : allRows.filter(r => r.status === currentTab);
+    if (currentTab === '확정') {
+      rows = [...rows].sort((a,b) => {
+        if (!a.scheduled_at) return 1;
+        if (!b.scheduled_at) return -1;
+        return new Date(a.scheduled_at) - new Date(b.scheduled_at);
+      });
+    }
+
+    listEl.innerHTML = rows.length
+      ? rows.map(rowMarkup).join('')
+      : `<div class="reservation-empty">${esc(currentTab)} 상태인 예약이 없습니다.</div>`;
+  }
+
+  /* ── 상태 변경 ───────────────────────────────────────────────── */
+
+
+  /* ════════════════════════════════════════════════════════════════
+   * 고객 메시지 보내기
+   * ════════════════════════════════════════════════════════════════ */
+
+  // 상태별 문구 템플릿
+  function messageTemplates(row) {
+    const name  = row.customer_name || '고객';
+    const apt   = row.apartment || '';
+    const car   = row.car_model || '';
+    const pref  = [row.preferred_date, row.preferred_time ? String(row.preferred_time).slice(0,5) : '']
+                  .filter(Boolean).join(' ');
+    // 확정 일시 → 관리자가 방문 예정 칸에 입력해 둔 값 → 고객 희망 일시 순으로 사용
+    const typed = document.querySelector(`[data-when="${row.id}"]`)?.value || '';
+    const typedText = (() => {
+      if (!typed) return '';
+      const d = new Date(typed);
+      return Number.isNaN(d.getTime()) ? '' : fmt(d.toISOString());
+    })();
+    const when  = row.scheduled_at ? fmt(row.scheduled_at) : (typedText || pref);
+
+    return [
+      {
+        key: '접수확인',
+        label: '접수 확인',
+        text:
+`${name}님, 집앞세차-앳홈 카케어입니다.
+
+예약 접수가 확인되었습니다.
+· 위치: ${apt}
+· 차량: ${car}${pref ? `\n· 희망일시: ${pref}` : ''}
+
+가능한 일정 확인 후 다시 연락드리겠습니다.
+감사합니다.`
+      },
+      {
+        key: '확정안내',
+        label: '방문 확정',
+        text:
+`${name}님, 집앞세차-앳홈 카케어입니다.
+
+방문 일정이 확정되었습니다.
+· 일시: ${when || '(방문 예정 칸에 일시를 입력해주세요)'}
+· 위치: ${apt}
+· 차량: ${car}
+
+방문 전까지 차량을 주차해 두시면 됩니다.
+변경이 필요하시면 언제든 연락 주세요.`
+      },
+      {
+        key: '방문전',
+        label: '방문 전 알림',
+        text:
+`${name}님, 집앞세차-앳홈 카케어입니다.
+
+오늘 ${when || ''} 방문 예정입니다.
+차량이 주차되어 있는지 확인 부탁드립니다.
+
+곧 뵙겠습니다.`
+      },
+      {
+        key: '완료안내',
+        label: '작업 완료',
+        text:
+`${name}님, 세차 작업이 완료되었습니다.
+
+· 차량: ${car}
+· 위치: ${apt}${row.amount ? `\n· 금액: ${Number(row.amount).toLocaleString('ko-KR')}원` : ''}
+
+이용해 주셔서 감사합니다.
+불편하신 점이 있으면 편하게 말씀해 주세요.`
+      },
+      {
+        key: '일정조율',
+        label: '일정 조율',
+        text:
+`${name}님, 집앞세차-앳홈 카케어입니다.
+
+요청하신 일정에 방문이 어려워 연락드립니다.
+혹시 아래 시간 중 가능하신 때가 있으실까요?
+
+· (1안)
+· (2안)
+
+편하신 시간 알려주시면 맞춰 방문하겠습니다.`
+      },
+      {
+        key: '취소안내',
+        label: '취소 안내',
+        text:
+`${name}님, 집앞세차-앳홈 카케어입니다.
+
+요청하신 예약이 취소 처리되었습니다.
+다시 이용을 원하시면 언제든 연락 주세요.
+
+감사합니다.`
+      },
+    ];
+  }
+
+  // 문자 앱 열기 (iOS / Android URI 형식이 다름)
+  function smsHref(phone, body) {
+    const num = tel(phone);
+    const enc = encodeURIComponent(body);
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    return isIOS ? `sms:${num}&body=${enc}` : `sms:${num}?body=${enc}`;
+  }
+
+  function copyToClipboard(text) {
+    if (navigator.clipboard?.writeText) return navigator.clipboard.writeText(text);
+    return new Promise((resolve, reject) => {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); resolve(); } catch (e) { reject(e); }
+      document.body.removeChild(ta);
+    });
+  }
+
+  function openMessageModal(row) {
+    document.querySelector('#msgModal')?.remove();
+
+    const tpls = messageTemplates(row);
+    // 상태에 맞는 템플릿을 기본 선택
+    const defaultKey =
+      row.status === '접수' ? '접수확인' :
+      row.status === '확정' ? '확정안내' :
+      row.status === '완료' ? '완료안내' :
+      row.status === '취소' ? '취소안내' : '접수확인';
+
+    const wrap = document.createElement('div');
+    wrap.id = 'msgModal';
+    wrap.className = 'msg-overlay';
+    wrap.innerHTML = `
+      <div class="msg-box" role="dialog" aria-modal="true" aria-label="고객 메시지 보내기">
+        <div class="msg-head">
+          <div>
+            <b>${esc(row.customer_name || '고객')}</b>
+            <span class="msg-phone">${esc(row.phone)}</span>
+          </div>
+          <button class="msg-close" aria-label="닫기">✕</button>
+        </div>
+
+        <div class="msg-tpls">
+          ${tpls.map(t => `<button class="msg-tpl${t.key === defaultKey ? ' active' : ''}" data-tpl="${t.key}">${esc(t.label)}</button>`).join('')}
+        </div>
+
+        <textarea id="msgText" rows="11" spellcheck="false"></textarea>
+        <p class="msg-count"><span id="msgLen">0</span>자</p>
+
+        <div class="msg-actions">
+          <a class="msg-send" id="msgSms" href="#">📱 문자 보내기</a>
+          <button class="msg-copy" id="msgCopy">📋 복사</button>
+          <a class="msg-kakao" href="https://pf.kakao.com/_gpDrX" target="_blank" rel="noopener">💬 카카오</a>
+          <a class="msg-call" href="tel:${tel(row.phone)}">📞 전화</a>
+        </div>
+      </div>`;
+    document.body.appendChild(wrap);
+
+    const ta     = wrap.querySelector('#msgText');
+    const lenEl  = wrap.querySelector('#msgLen');
+    const smsEl  = wrap.querySelector('#msgSms');
+
+    function applyTemplate(key) {
+      const t = tpls.find(x => x.key === key);
+      if (!t) return;
+      ta.value = t.text;
+      syncText();
+    }
+    function syncText() {
+      lenEl.textContent = ta.value.length;
+      smsEl.href = smsHref(row.phone, ta.value);
+    }
+
+    applyTemplate(defaultKey);
+
+    ta.addEventListener('input', syncText);
+
+    wrap.querySelector('.msg-tpls').addEventListener('click', e => {
+      const btn = e.target.closest('[data-tpl]');
+      if (!btn) return;
+      wrap.querySelectorAll('.msg-tpl').forEach(b => b.classList.toggle('active', b === btn));
+      applyTemplate(btn.dataset.tpl);
+    });
+
+    wrap.querySelector('#msgCopy').addEventListener('click', function () {
+      const btn = this;
+      copyToClipboard(ta.value).then(
+        () => { const o = btn.textContent; btn.textContent = '✅ 복사됨'; setTimeout(() => btn.textContent = o, 1600); },
+        () => toast('복사하지 못했습니다.')
+      );
+    });
+
+    const close = () => wrap.remove();
+    wrap.querySelector('.msg-close').addEventListener('click', close);
+    wrap.addEventListener('click', e => { if (e.target === wrap) close(); });
+    document.addEventListener('keydown', function onEsc(e) {
+      if (e.key === 'Escape') { close(); document.removeEventListener('keydown', onEsc); }
+    });
+  }
+
+  async function changeStatus(id, status, scheduledIso, amountVal, button) {
+    const s = await getSession();
+    if (!s) return;
+
+    if ((status === '확정') && !scheduledIso) {
+      toast('방문 예정 일시를 먼저 선택해주세요.');
+      return;
+    }
+
+    const patch = { status, updated_at: new Date().toISOString() };
+    if (status === '확정') patch.scheduled_at = scheduledIso;
+    if (status === '완료') {
+      patch.done_at = new Date().toISOString();
+      if (amountVal) patch.amount = parseInt(amountVal, 10);
+    }
+    if (status === '접수') { patch.scheduled_at = null; patch.done_at = null; }
+
+    const orig = button.textContent;
+    button.disabled = true; button.textContent = '…';
+
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/reservations?id=eq.${encodeURIComponent(id)}`,
+        {
+          method: 'PATCH',
+          headers: api(s.access_token, { 'Content-Type':'application/json', Prefer:'return=minimal' }),
+          body: JSON.stringify(patch),
+        }
+      );
+      if (r.status === 401 || r.status === 403) return handleExpired();
+      if (!r.ok) throw new Error(await r.text());
+      const row = allRows.find(x => String(x.id) === String(id));
+      if (row) Object.assign(row, patch);
+      toast(`${status} 처리했습니다.`);
+      renderReservations();
+    } catch (err) {
+      console.error(err);
+      toast('상태 변경에 실패했습니다. SQL 업그레이드(reservations-upgrade.sql)가 완료됐는지 확인해주세요.');
+      button.disabled = false; button.textContent = orig;
+    }
+  }
+
+  /* ── 방문 기록 (유입경로 분석) ───────────────────────────────── */
+
+  const VISITOR_KEY = 'ahc.visitor';
+  const VISIT_SESSION_KEY = 'ahc.visit.logged';
+
+  // 추적 링크용 약어 → 표시 이름
+  const SRC_ALIAS = {
+    naver: '네이버', place: '네이버 플레이스', blog: '네이버 블로그', cafe: '네이버 카페',
+    daangn: '당근', karrot: '당근', kakao: '카카오톡', kakaoch: '카카오채널',
+    soomgo: '숨고', band: '밴드', insta: '인스타그램', instagram: '인스타그램',
+    google: '구글', flyer: '전단지 QR', qr: '전단지 QR', elevator: '엘리베이터 QR',
+    sms: '문자', card: '명함 QR', youtube: '유튜브',
+  };
+
+  function classifySource(refHost, utm) {
+    if (utm) {
+      const key = utm.toLowerCase();
+      return SRC_ALIAS[key] || utm;
+    }
+    if (!refHost) return '직접 방문';
+    const h = refHost.toLowerCase();
+    if (h.includes('blog.naver')) return '네이버 블로그';
+    if (h.includes('cafe.naver')) return '네이버 카페';
+    if (h.includes('place.naver') || h.includes('map.naver') || h.includes('m.place')) return '네이버 플레이스';
+    if (h.includes('naver')) return '네이버';
+    if (h.includes('daangn') || h.includes('karrot')) return '당근';
+    if (h.includes('pf.kakao')) return '카카오채널';
+    if (h.includes('kakao') || h.includes('daum')) return '카카오·다음';
+    if (h.includes('soomgo')) return '숨고';
+    if (h.includes('band.us')) return '밴드';
+    if (h.includes('instagram')) return '인스타그램';
+    if (h.includes('google')) return '구글';
+    if (h.includes('youtube') || h.includes('youtu.be')) return '유튜브';
+    if (h.includes('facebook')) return '페이스북';
+    return '기타 사이트';
+  }
+
+  async function logVisit() {
+    try {
+      if (loadSession()) return;                                   // 관리자 본인 방문은 제외
+      if (sessionStorage.getItem(VISIT_SESSION_KEY)) return;        // 한 번 연 창에서는 1회만
+      sessionStorage.setItem(VISIT_SESSION_KEY, '1');
+
+      let vid = localStorage.getItem(VISITOR_KEY);
+      const isNew = !vid;
+      if (!vid) {
+        vid = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2));
+        localStorage.setItem(VISITOR_KEY, vid);
+      }
+
+      const qs = new URLSearchParams(location.search);
+      const utm = qs.get('src') || qs.get('utm_source') || '';
+      let refHost = '';
+      try {
+        if (document.referrer) {
+          const r = new URL(document.referrer);
+          if (r.host !== location.host) refHost = r.host;
+        }
+      } catch {}
+
+      const installed = window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone === true;
+      let source = classifySource(refHost, utm);
+      if (!utm && !refHost && installed) source = '설치 앱';
+
+      await fetch(`${SUPABASE_URL}/rest/v1/rpc/log_visit`, {
+        method: 'POST',
+        keepalive: true,
+        headers: api(null, { 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          p_visitor_id: vid,
+          p_source: source,
+          p_referrer: refHost || null,
+          p_utm_source: utm || null,
+          p_utm_medium: qs.get('utm_medium'),
+          p_utm_campaign: qs.get('utm_campaign'),
+          p_landing: (location.hash || '#/home').slice(0, 60),
+          p_device: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? 'mobile' : 'desktop',
+          p_installed: Boolean(installed),
+          p_is_new: isNew,
+        }),
+      });
+    } catch (err) {
+      // 기록 실패는 조용히 무시 — 고객 화면에 영향 없음
+    }
+  }
+
+  /* ── 새 예약 알림 (브라우저 알림) ─────────────────────────────── */
+
+  const SEEN_KEY = 'ahc.notify.seen';
+  const NOTIFY_KEY = 'ahc.notify.on';
+
+  const notifyOn = () => localStorage.getItem(NOTIFY_KEY) === '1';
+  const seenIds = () => {
+    try { return new Set(JSON.parse(localStorage.getItem(SEEN_KEY) || '[]')); }
+    catch { return new Set(); }
+  };
+  const rememberSeen = (ids) => {
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify(ids.slice(0, 300))); } catch {}
+  };
+
+  const VAPID_PUBLIC_KEY = 'BM4LZJ-Jr98hfBk0LMrTF4sf2GGiCbrILKTaJLFFsdrGqpEjwtUGb987ihqhy6dsANynnnVBXIkYmrcYujALEdU';
+
+  function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const raw = atob(base64);
+    return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+  }
+
+  /* 이 기기를 서버 푸시 대상으로 등록 — 앱을 꺼둬도 알림이 옵니다 */
+  async function registerPush() {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return false;
+    const s = await getSession();
+    if (!s) return false;
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const wantedKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
+      let sub = await reg.pushManager.getSubscription();
+
+      // VAPID 키를 교체한 경우 기존 구독은 이전 키에 묶여 있으므로 자동 재구독합니다.
+      if (sub?.options?.applicationServerKey) {
+        const currentKey = new Uint8Array(sub.options.applicationServerKey);
+        const sameKey = currentKey.length === wantedKey.length
+          && currentKey.every((value, index) => value === wantedKey[index]);
+        if (!sameKey) {
+          await sub.unsubscribe().catch(() => false);
+          sub = null;
+        }
+      }
+
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: wantedKey,
+        });
+      }
+      const json = sub.toJSON();
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/push_subscriptions?on_conflict=endpoint`, {
+        method: 'POST',
+        headers: api(s.access_token, {
+          'Content-Type': 'application/json',
+          Prefer: 'resolution=merge-duplicates,return=minimal',
+        }),
+        body: JSON.stringify({
+          endpoint: json.endpoint,
+          p256dh: json.keys.p256dh,
+          auth: json.keys.auth,
+          label: navigator.userAgent.slice(0, 80),
+        }),
+      });
+      if (!r.ok) throw new Error(await r.text());
+      return true;
+    } catch (err) {
+      console.warn('서버 푸시 등록 실패 (앱이 열려 있을 때만 알림이 옵니다)', err);
+      return false;
+    }
+  }
+
+  async function enableNotify(btn) {
+    if (!('Notification' in window)) {
+      toast('이 브라우저는 알림을 지원하지 않습니다.');
+      return;
+    }
+    if (Notification.permission === 'denied') {
+      toast('브라우저 설정에서 이 사이트의 알림을 허용해주세요.');
+      return;
+    }
+    const perm = Notification.permission === 'granted'
+      ? 'granted'
+      : await Notification.requestPermission();
+    if (perm !== 'granted') { toast('알림이 허용되지 않았습니다.'); return; }
+
+    localStorage.setItem(NOTIFY_KEY, '1');
+    rememberSeen(allRows.map(r => r.id));          // 기존 예약은 알리지 않음
+    updateNotifyButton(btn);
+    const pushed = await registerPush();
+    showNotify('알림이 켜졌습니다', pushed
+      ? '앱을 꺼두셔도 새 예약 알림이 옵니다.'
+      : '앱이 실행 중일 때 새 예약을 알려드립니다.');
+  }
+
+  function disableNotify(btn) {
+    localStorage.removeItem(NOTIFY_KEY);
+    updateNotifyButton(btn);
+    toast('알림을 껐습니다.');
+  }
+
+  function updateNotifyButton(btn) {
+    const el = btn || document.querySelector('#notifyToggle');
+    if (!el) return;
+    const on = notifyOn() && ('Notification' in window) && Notification.permission === 'granted';
+    el.textContent = on ? '🔔 알림 켜짐' : '🔕 알림 켜기';
+    el.classList.toggle('notify-on', on);
+  }
+
+  async function showNotify(title, body) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const opts = {
+      body,
+      icon: './icons/icon-192.png',
+      badge: './icons/icon-192.png',
+      tag: 'ahc-reservation',
+      renotify: true,
+      vibrate: [200, 100, 200],
+    };
+    try {
+      const reg = await navigator.serviceWorker?.ready;
+      if (reg) { reg.showNotification(title, opts); return; }
+    } catch {}
+    try { new Notification(title, opts); } catch {}
+  }
+
+  /* 새로 들어온 접수 건을 알림으로 */
+  function notifyNewRows(rows) {
+    if (!notifyOn()) return;
+    const seen = seenIds();
+    const fresh = rows.filter(r => r.status === '접수' && !seen.has(r.id));
+    if (!fresh.length) { rememberSeen(rows.map(r => r.id)); return; }
+
+    if (fresh.length === 1) {
+      const r = fresh[0];
+      showNotify('새 예약이 접수되었습니다',
+        `${r.customer_name || '고객'} · ${r.car_model || ''}\n${r.apartment || ''} · ${r.service_type || ''}`);
+    } else {
+      showNotify(`새 예약 ${fresh.length}건`, '관리자 화면에서 확인해주세요.');
+    }
+    rememberSeen(rows.map(r => r.id));
+  }
+
+  /* ── 쿠폰(혜택) RPC ─────────────────────────────────────────── */
+
+  async function rpc(name, body) {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${name}`, {
+      method: 'POST',
+      headers: api(null, { 'Content-Type': 'application/json' }),
+      body: JSON.stringify(body || {}),
+    });
+    if (!r.ok) throw new Error(`${name} ${r.status}`);
+    return r.json();
+  }
+
+  const bookingPhone = () =>
+    String(document.querySelector('#bookingForm [name="phone"]')?.value || '').trim();
+
+  window.checkCoupon = async (code) => {
+    try { return await rpc('check_coupon', { p_code: code, p_phone: bookingPhone() }); }
+    catch (err) { console.warn('쿠폰 확인 실패', err); return null; }
+  };
+
+  async function loadMyCoupons(phone) {
+    try {
+      const list = await rpc('list_my_coupons', { p_phone: phone });
+      window.dispatchEvent(new CustomEvent('coupons:update', { detail: Array.isArray(list) ? list : [] }));
+    } catch (err) {
+      console.warn('쿠폰 목록을 불러오지 못했습니다.', err);
+    }
+  }
+
+  async function requestCoupon(phone, kind, refPhone, choice) {
+    try { return await rpc('request_coupon', { p_phone: phone, p_kind: kind, p_ref_phone: refPhone || null, p_choice: choice || null }); }
+    catch (err) { console.warn('쿠폰 신청 실패', err); return null; }
+  }
+
+  window.requestReviewCoupon = (phone, choice) => requestCoupon(phone, 'review', null, choice);
+
+  async function useCoupon(code) {
+    try { return await rpc('use_coupon', { p_code: code, p_phone: bookingPhone() }); }
+    catch (err) { console.warn('쿠폰 사용 처리 실패', err); return null; }
+  }
+
+  /* ── 혜택 자동 판별 (RPC) ───────────────────────────────────── */
+
+  let benefitTimer = null;
+  let lastBenefitKey = '';
+
+  async function checkBenefits(phone, apartment) {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/check_customer_benefits`, {
+      method: 'POST',
+      headers: api(null, { 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ p_phone: phone, p_apartment: apartment }),
+    });
+    if (!r.ok) throw new Error(`RPC ${r.status}`);
+    return r.json();
+  }
+
+  function scheduleBenefitCheck() {
+    const form = document.querySelector('#bookingForm');
+    if (!form) return;
+    const phone = String(form.querySelector('[name="phone"]')?.value || '').trim();
+    const apartment = String(form.querySelector('[name="apartment"]')?.value || '').trim();
+    const key = `${tel(phone)}|${apartment}`;
+    if (key === lastBenefitKey) return;
+    if (tel(phone).length < 9 && apartment.length < 2) return;
+
+    clearTimeout(benefitTimer);
+    benefitTimer = setTimeout(async () => {
+      try {
+        const data = await checkBenefits(phone, apartment);
+        lastBenefitKey = key;
+        if (tel(phone).length >= 9) loadMyCoupons(phone);
+        window.dispatchEvent(new CustomEvent('benefits:update', {
+          detail: {
+            first: Boolean(data?.is_first) && tel(phone).length >= 9,
+            apt5: Number(data?.apt_count || 0) >= 5,
+            loyal: Number(data?.months_used || 0) >= 3,
+            raw: data,
+          },
+        }));
+      } catch (err) {
+        console.warn('혜택 자동 확인을 사용할 수 없습니다.', err);
+      }
+    }, 700);
+  }
+
+  function bindBenefitWatcher() {
+    const form = document.querySelector('#bookingForm');
+    if (!form || form.dataset.benefitWatch) return;
+    form.dataset.benefitWatch = '1';
+    ['[name="phone"]', '[name="apartment"]'].forEach((sel) => {
+      const el = form.querySelector(sel);
+      if (!el) return;
+      el.addEventListener('input', scheduleBenefitCheck);
+      el.addEventListener('blur', scheduleBenefitCheck);
+    });
+  }
+
+  /* ── 고객 예약 폼 (개선점 2: 차종 구분 선택) ─────────────────── */
+
+  function enhanceBookingForm() {
+    const form = document.querySelector('#bookingForm');
+    if (!form || form.dataset.supabaseReady) return;
+    form.dataset.supabaseReady = '1';
+    // 필드는 index.html에 이미 포함 — 이벤트만 연결
+    form.addEventListener('submit', submitBooking, true);
+  }
+
+  function normalizeService(svc) {
+    if (svc === '월 2회') return '월2회';
+    if (svc === '월 4회') return '월4회';
+    if (svc === '일일 외부세차' || svc === '외부+내부세차') return '일일세차';
+    return '기타';
+  }
+
+  async function submitBooking(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    const form = event.currentTarget;
+    if (!form.reportValidity()) return;
+
+    const fd     = new FormData(form);
+    const submit = form.querySelector('button[type="submit"]');
+    const orig   = submit?.textContent;
+    if (submit) { submit.disabled = true; submit.textContent = '접수 중…'; }
+
+    const exactSvc = String(fd.get('service') || '기타 상담');
+    const memo     = String(fd.get('memo') || '').trim();
+    const options  = fd.getAll('options').map(v => String(v).trim()).filter(Boolean);
+    const quoteTotal = (document.querySelector('#quoteTotal')?.textContent || '').trim();
+    const pickedPromo = document.querySelector('[name="promo"]:checked');
+    const promoKey = pickedPromo ? pickedPromo.value : '';
+    const promoLabels = promoKey
+      ? [(pickedPromo.closest('label')?.querySelector('span')?.firstChild?.textContent || '').trim()].filter(Boolean)
+      : [];
+    const referrer = String(fd.get('referrer') || '').trim();
+    const payload  = {
+      customer_name:  String(fd.get('customerName') || '').trim(),
+      phone:          String(fd.get('phone')        || '').trim(),
+      apartment:      String(fd.get('apartment')    || '').trim(),
+      car_model:      String(fd.get('car')          || '').trim(),
+      car_class:      String(fd.get('carClass')     || '').trim() || null,
+      plate:          String(fd.get('plate')        || '').trim().toUpperCase() || null,
+      address:        String(fd.get('address')      || '').trim() || null,
+      service_type:   normalizeService(exactSvc),
+      preferred_date: fd.get('preferredDate') || null,
+      preferred_time: fd.get('preferredTime') || null,
+      memo: `[희망 서비스: ${exactSvc}]${options.length ? `\n[추가 옵션: ${options.join(', ')}]` : ''}${promoLabels.length ? `\n[적용 혜택: ${promoLabels.join(', ')}]` : ''}${referrer ? `\n[추천인: ${referrer}]` : ''}${quoteTotal && quoteTotal !== '-' ? `\n[예상 금액: ${quoteTotal}]` : ''}${memo ? `\n${memo}` : ''}`,
+      status: '접수',
+    };
+
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/reservations`, {
+        method: 'POST',
+        headers: api(null, { 'Content-Type':'application/json', Prefer:'return=minimal' }),
+        body: JSON.stringify(payload),
+      });
+      if (!r.ok) throw new Error(await r.text());
+
+      let couponUseWarning = '';
+      if (promoKey.startsWith('coupon:')) {
+        const used = await useCoupon(promoKey.slice(7));
+        if (!used?.ok) {
+          couponUseWarning = used?.reason || '쿠폰 사용 처리에 실패했습니다. 방문 시 확인해드리겠습니다.';
+          console.warn('쿠폰 사용 처리 실패', promoKey, used);
+        }
+      }
+      if (tel(referrer).length >= 9) await requestCoupon(referrer, 'refer', payload.phone);
+
+      const result = document.querySelector('#bookingResult');
+      if (result) {
+        result.classList.remove('hidden');
+        result.innerHTML = `<div class="booking-success">
+          <p class="booking-success-title">✅ 예약이 접수되었습니다!</p>
+          <p>${esc(payload.customer_name)}님, ${esc(payload.apartment)} · ${esc(payload.car_model)} 예약을 확인 후 연락드리겠습니다.</p>
+          ${couponUseWarning ? `<p class="coupon-msg bad">⚠️ ${esc(couponUseWarning)}</p>` : ''}
+          <div class="booking-success-btns">
+            <a class="primary-btn button-link" href="tel:01083918999">☎ 전화 확인</a>
+            <a class="secondary-btn button-link" href="sms:01083918999">💬 문자 문의</a>
+            <a class="secondary-btn button-link" href="https://pf.kakao.com/_gpDrX" target="_blank" rel="noopener">💬 카카오채널</a>
+          </div>
+        </div>`;
+      }
+      form.reset();
+      toast(couponUseWarning
+        ? '예약은 접수되었습니다. 쿠폰 적용은 방문 시 확인해드리겠습니다.'
+        : '예약이 접수되었습니다. 곧 연락드리겠습니다.');
+    } catch (err) {
+      console.error('예약 저장 실패', err);
+      toast('예약 접수에 실패했습니다. 잠시 후 다시 시도하거나 전화로 문의해주세요.');
+    } finally {
+      if (submit) { submit.disabled = false; submit.textContent = orig || '예약 접수하기'; }
+    }
+  }
+
+  /* ── 쿠폰 관리 ──────────────────────────────────────────────── */
+
+  const COUPON_BADGE = { '승인대기': 'wait', '발급': 'ok', '사용': 'used', '취소': 'off' };
+
+  const SCOPE_SERVICES = {
+    m2: ['월 2회'],
+    m4: ['월 4회'],
+    monthly: ['월 2회', '월 4회'],
+    any: null,
+  };
+
+  const newCouponCode = () =>
+    'AHC-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+
+  function bindCouponIssue(card) {
+    const form = card.querySelector('#couponIssueForm');
+    if (!form || form.dataset.ready) return;
+    form.dataset.ready = '1';
+
+    form.preset.addEventListener('change', () => {
+      if (form.preset.value === 'newmonthly') {
+        form.label.value = '신규 월세차 할인';
+        form.amount.value = 10000;
+        form.scope.value = 'm2';
+      }
+    });
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const s = await getSession();
+      if (!s) { toast('로그인이 필요합니다.'); return; }
+
+      const count = Math.min(50, Math.max(1, Number(form.count.value) || 1));
+      const phone = tel(form.phone.value);
+      const rows = Array.from({ length: count }, () => ({
+        code: newCouponCode(),
+        kind: form.preset.value === 'newmonthly' ? 'newmonthly' : 'manual',
+        label: (() => {
+          const base = String(form.label.value || '').trim() || '할인 쿠폰';
+          const scope = SCOPE_SERVICES[form.scope.value];
+          if (!scope || scope.length !== 1) return base;
+          return base.includes(scope[0]) ? base : `${base} (${scope[0]})`;
+        })(),
+        amount: Number(form.amount.value) || 0,
+        phone: phone || null,
+        services: SCOPE_SERVICES[form.scope.value] || null,
+        status: '발급',
+        approved_at: new Date().toISOString(),
+      }));
+
+      const btn = form.querySelector('button[type="submit"]');
+      btn.disabled = true;
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/coupons`, {
+          method: 'POST',
+          headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+          body: JSON.stringify(rows),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        const box = card.querySelector('#couponIssueResult');
+        box.classList.remove('hidden');
+        box.innerHTML = `<b>${rows.length}장 발급 완료 — 고객에게 아래 번호를 전달하세요.</b>
+          <div class="coupon-codes">${rows.map(row => `<code>${esc(row.code)}</code>`).join('')}</div>`;
+        toast('쿠폰을 발급했습니다.');
+        loadCoupons();
+      } catch (err) {
+        console.error('쿠폰 발급 실패', err);
+        toast('쿠폰 발급에 실패했습니다. coupons-newmonthly.sql 실행 여부를 확인해주세요.');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
+
+  async function loadCoupons() {
+    const box = document.querySelector('#couponList');
+    if (!box) return;
+    const s = await getSession();
+    if (!s) { box.innerHTML = '<div class="reservation-empty">로그인이 필요합니다.</div>'; return; }
+    box.innerHTML = '<div class="reservation-empty">쿠폰 목록을 불러오는 중…</div>';
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/coupons?select=id,code,kind,label,amount,gift,phone,ref_phone,services,status,created_at&order=created_at.desc&limit=200`,
+        { headers: api(s.access_token) });
+      if (!r.ok) throw new Error(await r.text());
+      renderCoupons(await r.json());
+    } catch (err) {
+      console.error('쿠폰 조회 실패', err);
+      box.innerHTML = '<div class="reservation-empty">쿠폰 테이블이 아직 없거나 조회에 실패했습니다. coupons.sql을 실행했는지 확인해주세요.</div>';
+    }
+  }
+
+  function renderCoupons(rows) {
+    const box = document.querySelector('#couponList');
+    if (!box) return;
+    if (!rows.length) { box.innerHTML = '<div class="reservation-empty">발급된 쿠폰이 없습니다.</div>'; return; }
+    box.innerHTML = rows.map(row => `
+      <div class="member-card">
+        <div class="member-top">
+          <b>${esc(row.label)}</b>
+          <span class="coupon-badge ${COUPON_BADGE[row.status] || 'off'}">${esc(row.status)}</span>
+        </div>
+        <div class="member-meta">
+          <span>🎟 ${esc(row.code)}</span>
+          ${row.phone ? `<span>📞 ${esc(row.phone)}</span>` : ''}
+          ${row.ref_phone ? `<span>↩ 소개한 고객 ${esc(row.ref_phone)}</span>` : ''}
+          ${Array.isArray(row.services) && row.services.length ? `<span>🧾 ${esc(row.services.join(' · '))} 전용</span>` : ''}
+          ${row.phone ? '' : '<span>🎫 공용 쿠폰</span>'}
+          <span>${row.amount ? `${Number(row.amount).toLocaleString('ko-KR')}원 할인` : esc(row.gift || '혜택 제공')}</span>
+          <span>${fmt(row.created_at)}</span>
+        </div>
+        <div class="admin-buttons">
+          ${row.status === '승인대기' ? `<button class="primary-btn coupon-act" data-id="${row.id}" data-to="발급">승인</button>` : ''}
+          ${row.status !== '취소' && row.status !== '사용' ? `<button class="danger-btn coupon-act" data-id="${row.id}" data-to="취소">취소</button>` : ''}
+        </div>
+      </div>`).join('');
+  }
+
+  document.addEventListener('click', async e => {
+    const btn = e.target.closest('.coupon-act');
+    if (!btn) return;
+    const s = await getSession();
+    if (!s) return;
+    const patch = { status: btn.dataset.to };
+    if (btn.dataset.to === '발급') patch.approved_at = new Date().toISOString();
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/coupons?id=eq.${btn.dataset.id}`, {
+        method: 'PATCH',
+        headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+        body: JSON.stringify(patch),
+      });
+      if (!r.ok) throw new Error(await r.text());
+      toast(btn.dataset.to === '발급' ? '쿠폰을 승인했습니다.' : '쿠폰을 취소했습니다.');
+      loadCoupons();
+    } catch (err) {
+      console.error('쿠폰 상태 변경 실패', err);
+      toast('쿠폰 상태를 변경하지 못했습니다.');
+    }
+  });
+
+  /* ── 블로그 초안 생성 ───────────────────────────────────────── */
+
+  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+  const nf = (n) => Number(n || 0).toLocaleString('ko-KR');
+
+  const OPENERS = [
+    '안녕하세요, 집앞세차 앳홈 카케어입니다.',
+    '집앞세차 앳홈 카케어입니다. 오늘 작업 기록 남겨봅니다.',
+    '안녕하세요. 오늘도 집 앞으로 찾아간 앳홈 카케어입니다.',
+  ];
+  const CLOSERS = [
+    '주차만 해두시면 저희가 찾아갑니다. 편하게 연락 주세요.',
+    '세차장 갈 시간 내기 어려우시면 언제든 문의 주세요.',
+    '집 앞에 세워두신 그대로, 퇴근하고 오시면 새 차입니다.',
+  ];
+  const SERVICE_TEXT = {
+    '월 2회': '월 2회 정기 방문세차로 진행했습니다.',
+    '월 4회': '월 4회 정기 방문세차로 진행했습니다.',
+    '일일 외부세차': '일일 외부세차로 진행했습니다.',
+    '외부+내부세차': '외부세차와 실내세차를 함께 진행했습니다.',
+  };
+
+  function blogJobs() {
+    return allRows
+      .filter(r => r.status === '완료' || r.status === '확정')
+      .slice(0, 60);
+  }
+
+  function fillBlogSelects() {
+    const jobSel = document.querySelector('#blogJob');
+    if (!jobSel) return;
+
+    const jobs = blogJobs();
+    jobSel.innerHTML = jobs.length
+      ? jobs.map(r => `<option value="${r.id}">${esc(r.apartment || '')} · ${esc(r.car_model || '')} · ${esc(r.service_type || '')}</option>`).join('')
+      : '<option value="">완료된 작업이 없습니다</option>';
+
+    const gallery = (typeof state !== 'undefined' && Array.isArray(state.gallery)) ? state.gallery : [];
+    const grid = document.querySelector('#blogPhotoGrid');
+    if (grid) {
+      const checked = new Set(Array.from(grid.querySelectorAll('input:checked')).map(el => el.value));
+      grid.innerHTML = gallery.length
+        ? gallery.map(g => `<label class="blog-photo-chip"><input type="checkbox" name="photos" value="${esc(g.id)}"${checked.has(g.id) ? ' checked' : ''}><span>${esc(g.title || '전후 사진')}</span></label>`).join('')
+        : '<span class="blog-photo-empty">등록된 전후 사진이 없습니다.</span>';
+    }
+  }
+
+  function draftForWork(row) {
+    const apt = row.apartment || '방문지';
+    const car = row.car_model || '고객 차량';
+    const cls = row.car_class ? ` (${row.car_class})` : '';
+    const svc = row.service_type || '방문세차';
+    const opts = String(row.memo || '').match(/\[추가 옵션: (.+?)\]/);
+
+    const title = `${apt} 방문세차 | ${car} ${svc} 전후 사진`;
+    const body = [
+      pick(OPENERS),
+      '',
+      `오늘은 ${apt}에 다녀왔습니다.`,
+      `차량은 ${car}${cls}이고, ${SERVICE_TEXT[svc] || `${svc}로 진행했습니다.`}`,
+      opts ? `추가로 ${opts[1]} 작업도 함께 했습니다.` : null,
+      '',
+      '@@PHOTOS@@',
+      '',
+      '※ 여기에 오늘 현장에서 느낀 점을 두세 줄 직접 적어주세요.',
+      '   (예: 비 온 다음 날이라 하부 오염이 심했습니다 / 지하주차장이라 작업이 수월했습니다)',
+      '',
+      pick(CLOSERS),
+      '',
+      '── 집앞세차 앳홈 카케어 ──',
+      '경산 중산지구 · 사월동 · 시지 · 신매동',
+      '문의 010-8391-8999',
+    ].filter(v => v !== null).join('\n');
+
+    const tags = ['경산방문세차', '사월동세차', '중산지구세차', '시지세차', '출장세차', '집앞세차',
+                  `${String(car).split(' ')[0]}세차`, '방문세차추천'];
+    return { title, body, tags };
+  }
+
+  function draftForMonthly(row) {
+    const apt = row?.apartment || '중산지구';
+    const title = `경산 사월동·중산지구 월세차 | 한 달 두 번, 주차만 해두세요`;
+    const body = [
+      pick(OPENERS),
+      '',
+      '요즘 월세차 문의를 많이 주셔서 정리해 봅니다.',
+      '',
+      '■ 월세차가 뭔가요',
+      '정해진 날짜에 저희가 집 앞으로 찾아가 세차해드리는 정기 서비스입니다.',
+      '차는 늘 주차하시던 자리에 그대로 두시면 됩니다. 열쇠도 필요 없습니다.',
+      '',
+      '■ 이런 분께 맞습니다',
+      '· 세차장 갈 시간 내기 어려운 맞벌이 부부',
+      '· 아이 태우는 차라 실내 관리가 필요한 가정',
+      '· 지하주차장에 고정 주차하시는 분',
+      '',
+      '■ 요금',
+      '차종에 따라 다르고, 월 2회와 월 4회 중 고르실 수 있습니다.',
+      '앱에서 차종만 선택하면 예상 금액이 바로 계산됩니다.',
+      '',
+      `■ 작업 지역`,
+      `${apt}를 비롯해 경산 중산지구 · 사월동 · 시지 · 신매동에서 운영하고 있습니다.`,
+      '',
+      '@@PHOTOS@@',
+      '',
+      '※ 여기에 최근 작업하면서 느낀 점이나 단골 고객 이야기를 두세 줄 적어주세요.',
+      '',
+      pick(CLOSERS),
+      '',
+      '── 집앞세차 앳홈 카케어 ──',
+      '문의 010-8391-8999',
+    ].join('\n');
+    const tags = ['경산월세차', '사월동월세차', '중산지구방문세차', '경산출장세차', '시지세차',
+                  '정기세차', '아파트방문세차', '집앞세차'];
+    return { title, body, tags };
+  }
+
+  function draftForReview() {
+    const reviews = (typeof state !== 'undefined' && Array.isArray(state.reviews)) ? state.reviews.slice(0, 5) : [];
+    const lines = reviews.length
+      ? reviews.map(r => [
+          `"${String(r.text || '').trim()}"`,
+          `— ${String(r.author || '고객').replace(/\s*고객$/, '')} 고객님${r.car ? ` · ${r.car}` : ''}`,
+          '',
+        ].join('\n')).join('\n')
+      : '※ 앱에 등록된 후기가 없습니다. 후기를 먼저 받아주세요.';
+
+    const title = '경산 방문세차 고객 후기 모음 | 집앞세차 앳홈 카케어';
+    const body = [
+      pick(OPENERS),
+      '',
+      '그동안 받은 후기를 모아봤습니다. 실제 이용하신 분들 이야기입니다.',
+      '',
+      lines,
+      '@@PHOTOS@@',
+      '',
+      '※ 후기 중 기억에 남는 작업 한 건을 골라 두세 줄 덧붙여주세요.',
+      '',
+      pick(CLOSERS),
+      '',
+      '── 집앞세차 앳홈 카케어 ──',
+      '경산 중산지구 · 사월동 · 시지 · 신매동 | 010-8391-8999',
+    ].join('\n');
+    const tags = ['경산방문세차후기', '사월동세차후기', '중산지구세차', '출장세차후기', '집앞세차', '경산세차추천'];
+    return { title, body, tags };
+  }
+
+  /* 전후 사진을 한 장으로 합쳐 내려받기 */
+  const loadImg = src => new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => res(img);
+    img.onerror = rej;
+    img.src = src;
+  });
+
+  /* 전후 두 장을 한 장으로 합친 캔버스 */
+  async function buildCompareCanvas(item) {
+    const [a, b] = await Promise.all([loadImg(item.before), loadImg(item.after)]);
+    const H = 900, gap = 16, label = 56;
+    const w1 = Math.round(a.width * (H / a.height));
+    const w2 = Math.round(b.width * (H / b.height));
+    const cv = document.createElement('canvas');
+    cv.width = w1 + w2 + gap;
+    cv.height = H + label;
+    const g = cv.getContext('2d');
+    g.fillStyle = '#ffffff'; g.fillRect(0, 0, cv.width, cv.height);
+    g.drawImage(a, 0, label, w1, H);
+    g.drawImage(b, w1 + gap, label, w2, H);
+    g.fillStyle = '#0b7d68';
+    g.font = 'bold 30px "Malgun Gothic", sans-serif';
+    g.fillText('BEFORE', 12, 38);
+    g.fillText('AFTER', w1 + gap + 12, 38);
+    return cv;
+  }
+
+  function saveCanvas(cv, filename) {
+    const link = document.createElement('a');
+    link.href = cv.toDataURL('image/jpeg', 0.9);
+    link.download = filename;
+    link.click();
+  }
+
+  /* 지정한 영역을 모자이크 처리 */
+  function pixelate(cv, x, y, w, h, size = 14) {
+    if (w < 4 || h < 4) return;
+    const g = cv.getContext('2d');
+    const sw = Math.max(1, Math.round(w / size));
+    const sh = Math.max(1, Math.round(h / size));
+    const tmp = document.createElement('canvas');
+    tmp.width = sw; tmp.height = sh;
+    const tg = tmp.getContext('2d');
+    tg.imageSmoothingEnabled = true;
+    tg.drawImage(cv, x, y, w, h, 0, 0, sw, sh);
+    g.imageSmoothingEnabled = false;
+    g.drawImage(tmp, 0, 0, sw, sh, x, y, w, h);
+    g.imageSmoothingEnabled = true;
+  }
+
+  /* 모자이크 편집창 — 드래그로 가릴 영역 지정 */
+  function openMosaicEditor(cv, filename, { index, total }) {
+    return new Promise((resolve) => {
+      const original = document.createElement('canvas');
+      original.width = cv.width; original.height = cv.height;
+      original.getContext('2d').drawImage(cv, 0, 0);
+      const boxes = [];
+
+      const wrap = document.createElement('div');
+      wrap.className = 'msg-overlay mosaic-overlay';
+      wrap.innerHTML = `
+        <div class="mosaic-box" role="dialog" aria-modal="true" aria-label="번호판 모자이크">
+          <div class="msg-head">
+            <div>
+              <b>번호판 모자이크</b>
+              <span class="msg-phone">${index} / ${total} · ${esc(filename)}</span>
+            </div>
+            <button class="msg-close" aria-label="닫기">✕</button>
+          </div>
+          <p class="mosaic-tip">가릴 부분을 드래그하세요. 번호판, 창문에 비친 사람, 동호수 표지 등을 가리시면 됩니다. 여러 번 드래그할 수 있습니다.</p>
+          <div class="mosaic-stage"><canvas id="mosaicCanvas"></canvas></div>
+          <div class="mosaic-actions">
+            <button class="secondary-btn" id="mosaicUndo">마지막 취소</button>
+            <button class="secondary-btn" id="mosaicReset">전체 되돌리기</button>
+            <button class="primary-btn" id="mosaicSave">저장하고 ${index < total ? '다음' : '닫기'}</button>
+          </div>
+        </div>`;
+      document.body.appendChild(wrap);
+
+      const view = wrap.querySelector('#mosaicCanvas');
+      const vg = view.getContext('2d');
+      const maxW = Math.min(820, window.innerWidth - 60);
+      const scale = maxW / cv.width;
+      view.width = cv.width; view.height = cv.height;
+      view.style.width = Math.round(cv.width * scale) + 'px';
+      view.style.height = 'auto';
+
+      const paint = (live) => {
+        vg.drawImage(cv, 0, 0);
+        if (live) {
+          vg.strokeStyle = '#087c68';
+          vg.lineWidth = 4;
+          vg.setLineDash([10, 8]);
+          vg.strokeRect(live.x, live.y, live.w, live.h);
+          vg.setLineDash([]);
+        }
+      };
+      paint();
+
+      let startPt = null;
+      const toCanvas = (e) => {
+        const r = view.getBoundingClientRect();
+        const p = e.touches ? e.touches[0] : e;
+        return {
+          x: (p.clientX - r.left) / r.width * cv.width,
+          y: (p.clientY - r.top) / r.height * cv.height,
+        };
+      };
+      const down = (e) => { e.preventDefault(); startPt = toCanvas(e); };
+      const move = (e) => {
+        if (!startPt) return;
+        e.preventDefault();
+        const p = toCanvas(e);
+        paint({ x: Math.min(startPt.x, p.x), y: Math.min(startPt.y, p.y),
+                w: Math.abs(p.x - startPt.x), h: Math.abs(p.y - startPt.y) });
+      };
+      const up = (e) => {
+        if (!startPt) return;
+        const p = toCanvas(e.changedTouches ? { clientX: e.changedTouches[0].clientX, clientY: e.changedTouches[0].clientY } : e);
+        const box = { x: Math.min(startPt.x, p.x), y: Math.min(startPt.y, p.y),
+                      w: Math.abs(p.x - startPt.x), h: Math.abs(p.y - startPt.y) };
+        startPt = null;
+        if (box.w < 6 || box.h < 6) { paint(); return; }
+        boxes.push(box);
+        pixelate(cv, box.x, box.y, box.w, box.h);
+        paint();
+      };
+      view.addEventListener('mousedown', down);
+      window.addEventListener('mousemove', move);
+      window.addEventListener('mouseup', up);
+      view.addEventListener('touchstart', down, { passive: false });
+      view.addEventListener('touchmove', move, { passive: false });
+      view.addEventListener('touchend', up);
+
+      const redrawAll = () => {
+        cv.getContext('2d').drawImage(original, 0, 0);
+        boxes.forEach(b => pixelate(cv, b.x, b.y, b.w, b.h));
+        paint();
+      };
+
+      const finish = (saved) => {
+        window.removeEventListener('mousemove', move);
+        window.removeEventListener('mouseup', up);
+        wrap.remove();
+        resolve(saved);
+      };
+
+      wrap.querySelector('#mosaicUndo').onclick = () => { boxes.pop(); redrawAll(); };
+      wrap.querySelector('#mosaicReset').onclick = () => { boxes.length = 0; redrawAll(); };
+      wrap.querySelector('#mosaicSave').onclick = () => { saveCanvas(cv, filename); finish(true); };
+      wrap.querySelector('.msg-close').onclick = () => finish(false);
+      wrap.addEventListener('click', (e) => { if (e.target === wrap) finish(false); });
+    });
+  }
+
+  async function downloadCompare(galleryId, filename, quiet, mosaic, pos) {
+    const gallery = (typeof state !== 'undefined' && Array.isArray(state.gallery)) ? state.gallery : [];
+    const item = gallery.find(g => g.id === galleryId);
+    if (!item || !item.before || !item.after) { toast('전후 사진을 찾을 수 없습니다.'); return false; }
+    try {
+      const cv = await buildCompareCanvas(item);
+      if (mosaic) {
+        return await openMosaicEditor(cv, filename, pos || { index: 1, total: 1 });
+      }
+      saveCanvas(cv, filename);
+      if (!quiet) toast('전후 비교 이미지를 저장했습니다.');
+      return true;
+    } catch (err) {
+      console.error('전후 이미지 합성 실패', err);
+      toast('이미지를 합치지 못했습니다.');
+      return false;
+    }
+  }
+
+  function bindBlogTab(card) {
+    const form = card.querySelector('#blogForm');
+    if (!form || form.dataset.ready) return;
+    form.dataset.ready = '1';
+
+    card.querySelector('#blogRefresh').addEventListener('click', () => { fillBlogSelects(); toast('목록을 갱신했습니다.'); });
+
+    const allBox = card.querySelector('#blogPhotoAll');
+    if (allBox) allBox.addEventListener('change', () => {
+      card.querySelectorAll('[name="photos"]').forEach(el => { el.checked = allBox.checked; });
+    });
+    card.querySelector('#blogPhotoGrid')?.addEventListener('change', () => {
+      const all = Array.from(card.querySelectorAll('[name="photos"]'));
+      if (allBox) allBox.checked = all.length > 0 && all.every(el => el.checked);
+    });
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const row = allRows.find(r => r.id === form.job.value) || blogJobs()[0] || {};
+      const kind = form.kind.value;
+      const draft = kind === 'monthly' ? draftForMonthly(row)
+                  : kind === 'review'  ? draftForReview()
+                  : draftForWork(row);
+
+      const gallery = (typeof state !== 'undefined' && Array.isArray(state.gallery)) ? state.gallery : [];
+      const photoIds = Array.from(card.querySelectorAll('[name="photos"]:checked')).map(el => el.value);
+      const photos = photoIds.map(id => gallery.find(g => g.id === id)).filter(Boolean);
+      const fname = [
+        (row.apartment || '방문세차').replace(/\s+/g, ''),
+        (row.car_model || '').replace(/\s+/g, ''),
+        (row.service_type || '').replace(/\s+/g, ''),
+        '전후',
+      ].filter(Boolean).join('_') + '.jpg';
+
+      const placeholder = photos.length
+        ? photos.map((g, i) => `[사진 ${i + 1} — ${g.title || '전후 비교'}]`).join('\n')
+        : '[사진 1 — 작업 전]\n[사진 2 — 작업 후]';
+      draft.body = draft.body.replace('@@PHOTOS@@', placeholder);
+
+      const box = card.querySelector('#blogResult');
+      box.classList.remove('hidden');
+      box.innerHTML = `
+        <div class="blog-field">
+          <label>제목</label>
+          <input id="blogTitle" value="${esc(draft.title)}">
+          <button class="secondary-btn" data-copy="#blogTitle">복사</button>
+        </div>
+        <div class="blog-field col">
+          <label>본문</label>
+          <textarea id="blogBody" rows="18">${esc(draft.body)}</textarea>
+          <button class="primary-btn" data-copy="#blogBody">본문 복사</button>
+        </div>
+        <div class="blog-field">
+          <label>해시태그</label>
+          <input id="blogTags" value="${esc(draft.tags.map(v => '#' + v).join(' '))}">
+          <button class="secondary-btn" data-copy="#blogTags">복사</button>
+        </div>
+        ${photos.length ? `<div class="blog-dl">
+          <button class="primary-btn" id="blogPhotoAllDl">선택한 사진 ${photos.length}장 모두 내려받기</button>
+          ${photos.map((g, i) => `<button class="secondary-btn blog-dl-one" data-id="${esc(g.id)}" data-idx="${i + 1}">${i + 1}. ${esc(g.title || '전후 비교')}</button>`).join('')}
+        </div>` : ''}
+        <p class="blog-tip">붙여넣은 뒤 ※ 표시된 줄은 지우고, 그 자리에 직접 쓴 문장을 두세 줄 넣어주세요. 같은 틀의 글이 반복되면 검색에서 밀립니다.</p>`;
+
+      box.querySelectorAll('[data-copy]').forEach(btn => {
+        btn.onclick = () => {
+          const el = box.querySelector(btn.dataset.copy);
+          navigator.clipboard?.writeText(el.value)
+            .then(() => toast('복사했습니다.'))
+            .catch(() => toast('복사 기능을 사용할 수 없습니다.'));
+        };
+      });
+      const nameFor = (i) => fname.replace(/\.jpg$/, `_${i}.jpg`);
+      const wantMosaic = () => Boolean(card.querySelector('#blogMosaic')?.checked);
+      box.querySelectorAll('.blog-dl-one').forEach(btn => {
+        btn.onclick = () => downloadCompare(btn.dataset.id, nameFor(btn.dataset.idx), false, wantMosaic(),
+          { index: Number(btn.dataset.idx), total: photos.length });
+      });
+      const allBtn = box.querySelector('#blogPhotoAllDl');
+      if (allBtn) allBtn.onclick = async () => {
+        const mosaic = wantMosaic();
+        let saved = 0;
+        for (let i = 0; i < photos.length; i++) {
+          const ok = await downloadCompare(photos[i].id, nameFor(i + 1), true, mosaic,
+            { index: i + 1, total: photos.length });
+          if (ok) saved += 1;
+          await new Promise(r => setTimeout(r, mosaic ? 200 : 600));  // 브라우저가 연속 저장을 막지 않도록 간격
+        }
+        toast(saved ? `${saved}장을 저장했습니다.` : '저장을 취소했습니다.');
+      };
+    });
+
+    fillBlogSelects();
+  }
+
+  /* ── 방문 분석 ─────────────────────────────────────────────── */
+
+  let statsDays = 7;
+  const APP_URL = 'https://tran0004-sudo.github.io/athome-carcare/';
+  const TRACK_LINKS = [
+    ['당근', 'daangn'], ['네이버 플레이스', 'place'], ['네이버 블로그', 'blog'],
+    ['숨고', 'soomgo'], ['카카오채널', 'kakaoch'], ['문자 발송', 'sms'],
+    ['전단지 QR', 'flyer'], ['엘리베이터 QR', 'elevator'], ['명함 QR', 'card'],
+  ];
+
+  const dayKey = (d) => {
+    const x = new Date(d);
+    return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
+  };
+
+  async function loadStats() {
+    const box = document.querySelector('#statsBody');
+    if (!box) return;
+    const s = await getSession();
+    if (!s) { box.innerHTML = '<div class="reservation-empty">로그인이 필요합니다.</div>'; return; }
+    box.innerHTML = '<div class="reservation-empty">방문 기록을 불러오는 중…</div>';
+
+    const since = new Date();
+    since.setHours(0, 0, 0, 0);
+    since.setDate(since.getDate() - (statsDays - 1));
+
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/visits?select=created_at,visitor_id,source,device,installed,is_new,landing&created_at=gte.${since.toISOString()}&order=created_at.desc&limit=10000`,
+        { headers: api(s.access_token) });
+      if (r.status === 401 || r.status === 403) return handleExpired();
+      if (!r.ok) throw new Error(await r.text());
+      renderStats(await r.json(), since);
+    } catch (err) {
+      console.error('방문 기록 조회 실패', err);
+      box.innerHTML = '<div class="reservation-empty">방문 기록 테이블이 아직 없거나 조회에 실패했습니다. visits.sql을 실행했는지 확인해주세요.</div>';
+    }
+  }
+
+  function renderStats(rows, since) {
+    const box = document.querySelector('#statsBody');
+    const today = dayKey(new Date());
+
+    // 일별
+    const days = [];
+    for (let i = 0; i < statsDays; i++) {
+      const d = new Date(since); d.setDate(d.getDate() + i);
+      days.push({ key: dayKey(d), label: `${d.getMonth() + 1}/${d.getDate()}`, visits: 0, people: new Set() });
+    }
+    const byDay = Object.fromEntries(days.map(d => [d.key, d]));
+    const bySource = {};
+    const people = new Set();
+    let newcomers = 0, mobile = 0, installed = 0;
+
+    rows.forEach(v => {
+      const k = dayKey(v.created_at);
+      if (byDay[k]) { byDay[k].visits += 1; byDay[k].people.add(v.visitor_id); }
+      people.add(v.visitor_id);
+      bySource[v.source] = (bySource[v.source] || 0) + 1;
+      if (v.is_new) newcomers += 1;
+      if (v.device === 'mobile') mobile += 1;
+      if (v.installed) installed += 1;
+    });
+
+    const todayRow = byDay[today] || { visits: 0, people: new Set() };
+    const booked = allRows.filter(r => new Date(r.created_at) >= since).length;
+    const conv = people.size ? (booked / people.size * 100) : 0;
+    const maxDay = Math.max(1, ...days.map(d => d.people.size));
+    const sources = Object.entries(bySource).sort((a, b) => b[1] - a[1]);
+    const total = rows.length || 1;
+
+    box.innerHTML = `
+      <div class="stats-cards">
+        <div class="stats-card"><span>오늘 방문자</span><b>${todayRow.people.size}</b><small>방문 ${todayRow.visits}회</small></div>
+        <div class="stats-card"><span>${statsDays}일 방문자</span><b>${people.size}</b><small>방문 ${rows.length}회 · 신규 ${newcomers}</small></div>
+        <div class="stats-card"><span>예약 접수</span><b>${booked}</b><small>방문자 대비 ${conv.toFixed(1)}%</small></div>
+        <div class="stats-card"><span>휴대폰 비율</span><b>${rows.length ? Math.round(mobile / rows.length * 100) : 0}%</b><small>설치 앱 ${installed}회</small></div>
+      </div>
+
+      <h3 class="stats-h">일별 방문자</h3>
+      <div class="stats-bars">
+        ${days.map(d => `
+          <div class="stats-bar${d.key === today ? ' today' : ''}" title="${d.label} 방문자 ${d.people.size}명 · 방문 ${d.visits}회">
+            <em>${d.people.size || ''}</em>
+            <i style="height:${Math.round(d.people.size / maxDay * 100)}%"></i>
+            <span>${statsDays > 14 && d.label.split('/')[1] % 5 !== 0 && d.key !== today ? '' : d.label}</span>
+          </div>`).join('')}
+      </div>
+
+      <h3 class="stats-h">유입경로</h3>
+      ${sources.length ? `<div class="stats-sources">
+        ${sources.map(([name, n]) => `
+          <div class="stats-src">
+            <span>${esc(name)}</span>
+            <div class="stats-track"><i style="width:${Math.round(n / total * 100)}%"></i></div>
+            <b>${n}회 · ${Math.round(n / total * 100)}%</b>
+          </div>`).join('')}
+      </div>` : '<div class="reservation-empty">아직 기록된 방문이 없습니다.</div>'}
+
+      <h3 class="stats-h">추적 링크 <small>채널마다 다른 링크를 쓰면 어디서 왔는지 정확히 잡힙니다</small></h3>
+      <div class="stats-links">
+        ${TRACK_LINKS.map(([name, code]) => `
+          <div class="stats-link">
+            <span>${esc(name)}</span>
+            <code>${APP_URL}?src=${code}</code>
+            <button class="secondary-btn" data-copy-link="${APP_URL}?src=${code}">복사</button>
+          </div>`).join('')}
+      </div>
+      <p class="blog-tip">카카오톡·문자로 보낸 링크는 출처 정보가 전달되지 않아 "직접 방문"으로 잡힙니다. 채널별로 위 링크를 쓰시면 정확히 구분됩니다. 전단지·명함 QR코드도 이 링크로 만드세요.</p>`;
+
+    box.querySelectorAll('[data-copy-link]').forEach(btn => {
+      btn.onclick = () => navigator.clipboard?.writeText(btn.dataset.copyLink)
+        .then(() => toast('링크를 복사했습니다.'))
+        .catch(() => toast('복사 기능을 사용할 수 없습니다.'));
+    });
+  }
+
+  function bindStatsTab(card) {
+    const sec = card.querySelector('#adminSecStats');
+    if (!sec || sec.dataset.ready) return;
+    sec.dataset.ready = '1';
+    const mark = () => sec.querySelectorAll('.stats-days').forEach(b =>
+      b.classList.toggle('notify-on', Number(b.dataset.days) === statsDays));
+    sec.querySelectorAll('.stats-days').forEach(b => b.addEventListener('click', () => {
+      statsDays = Number(b.dataset.days); mark(); loadStats();
+    }));
+    sec.querySelector('#statsRefresh').addEventListener('click', loadStats);
+    mark();
+  }
+
+  /* ── 고객 후기 관리 ─────────────────────────────────────────── */
+
+  let reviewAdminRows = [];
+
+  function reviewRowMarkup(r) {
+    const stars = '★'.repeat(Math.max(1, Math.min(5, Number(r.rating) || 5)));
+    return `<div class="member-row" data-review-row="${esc(r.id)}">
+      <div>
+        <b>${esc(r.author)}</b>${r.car ? ' · ' + esc(r.car) : ''} <span style="color:#e0a500">${stars}</span>
+        <div class="field-hint" style="margin:2px 0 0">${esc(r.text)}</div>
+        ${r.source ? `<div class="field-hint" style="margin:2px 0 0;opacity:.7">출처: ${esc(r.source)}</div>` : ''}
+      </div>
+      <button class="danger-btn" data-review-del="${esc(r.id)}">삭제</button>
+    </div>`;
+  }
+
+  async function renderReviewsAdmin(card) {
+    const listEl = card.querySelector('#reviewAdminList');
+    const s = await getSession();
+    if (!s) return;
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/reviews?select=id,author,car,rating,text,source&order=created_at.desc&limit=100`,
+        { headers: api(s.access_token) }
+      );
+      if (!r.ok) throw new Error(await r.text());
+      reviewAdminRows = await r.json();
+      listEl.innerHTML = reviewAdminRows.length
+        ? reviewAdminRows.map(reviewRowMarkup).join('')
+        : '<div class="reservation-empty">등록된 후기가 없습니다. 위 폼으로 첫 후기를 추가해보세요.</div>';
+    } catch (err) {
+      console.error('후기 목록 조회 실패', err);
+      listEl.innerHTML = '<div class="reservation-empty">후기 목록을 불러오지 못했습니다. reviews.sql을 실행했는지 확인해주세요.</div>';
+    }
+  }
+
+  function bindReviewsTab(card) {
+    const form = card.querySelector('#reviewAddForm');
+    if (!form || form.dataset.ready) return;
+    form.dataset.ready = '1';
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const s = await getSession();
+      if (!s) return;
+      const fd = new FormData(form);
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/reviews`, {
+          method: 'POST',
+          headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+          body: JSON.stringify({
+            author: fd.get('author'),
+            car: fd.get('car') || null,
+            rating: Number(fd.get('rating')),
+            text: fd.get('text'),
+            source: fd.get('source') || null,
+          }),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        toast('후기를 등록했습니다.');
+        form.reset();
+        await renderReviewsAdmin(card);
+        await syncReviews();   // 홈 화면에도 바로 반영
+      } catch (err) {
+        console.error('후기 등록 실패', err);
+        toast('후기 등록에 실패했습니다.');
+      }
+    });
+
+    card.querySelector('#reviewAdminList').addEventListener('click', async e => {
+      const btn = e.target.closest('[data-review-del]');
+      if (!btn) return;
+      const id = btn.dataset.reviewDel;
+      const row = reviewAdminRows.find(x => x.id === id);
+      if (!confirm(`'${row?.author || '이 후기'}'를 삭제할까요?\\n\\n홈 화면에서도 사라집니다.`)) return;
+      const s = await getSession();
+      if (!s) return;
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/reviews?id=eq.${encodeURIComponent(id)}`, {
+          method: 'DELETE', headers: api(s.access_token),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        toast('후기를 삭제했습니다.');
+        await renderReviewsAdmin(card);
+        extraReviews = extraReviews.filter(x => x.id !== id);
+        if (typeof state !== 'undefined' && state) {
+          state.reviews = (state.reviews || []).filter(x => x.id !== id);
+          rerenderApp();
+        }
+      } catch (err) {
+        console.error('후기 삭제 실패', err);
+        toast('삭제에 실패했습니다.');
+      }
+    });
+  }
+
+  /* ── 협력점 관리 ─────────────────────────────────────────────── */
+
+  function partnerRowMarkup(p) {
+    return `<div class="member-row" data-partner-row="${esc(p.id)}">
+      <div>
+        <b>${esc(p.name || '이름 없음')}</b>${p.active ? '' : ' <span class="res-badge" style="background:#eee;color:#999">비활성</span>'}
+        <div class="field-hint" style="margin:2px 0 0">${esc(p.area || '담당 지역 미지정')}</div>
+      </div>
+      <button class="secondary-btn" data-partner-toggle="${esc(p.id)}" data-active="${p.active ? '1' : '0'}">${p.active ? '비활성화' : '다시 활성화'}</button>
+    </div>`;
+  }
+
+  async function renderPartnerTab(card) {
+    const listEl = card.querySelector('#partnerList');
+    const s = await getSession();
+    if (!s) return;
+    partnerList = await loadPartnerList(s);
+    listEl.innerHTML = partnerList.length
+      ? partnerList.map(partnerRowMarkup).join('')
+      : '<div class="reservation-empty">등록된 협력점이 없습니다.</div>';
+  }
+
+  function bindPartnerTab(card) {
+    const form = card.querySelector('#partnerAddForm');
+    if (!form || form.dataset.ready) return;
+    form.dataset.ready = '1';
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const s = await getSession();
+      if (!s) return;
+      const fd = new FormData(form);
+      const uid = String(fd.get('uid') || '').trim();
+      const resultEl = card.querySelector('#partnerAddResult');
+      resultEl.classList.remove('hidden');
+      if (!/^[0-9a-f-]{20,}$/i.test(uid)) {
+        resultEl.textContent = 'User UID 형식이 올바르지 않습니다. Supabase Authentication → Users 목록에서 그대로 복사해주세요.';
+        return;
+      }
+      resultEl.textContent = '등록하는 중…';
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/staff_profiles`, {
+          method: 'POST',
+          headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+          body: JSON.stringify({
+            id: uid,
+            role: 'partner',
+            name: fd.get('name'),
+            area: fd.get('area') || null,
+            active: true,
+          }),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        resultEl.textContent = '협력점으로 등록했습니다.';
+        form.reset();
+        await renderPartnerTab(card);
+      } catch (err) {
+        console.error('협력점 등록 실패', err);
+        resultEl.textContent = '등록에 실패했습니다. UID가 이미 등록되어 있거나 형식이 올바르지 않을 수 있습니다.';
+      }
+    });
+
+    card.querySelector('#partnerList').addEventListener('click', async e => {
+      const btn = e.target.closest('[data-partner-toggle]');
+      if (!btn) return;
+      const s = await getSession();
+      if (!s) return;
+      const id = btn.dataset.partnerToggle;
+      const nextActive = btn.dataset.active !== '1';
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/staff_profiles?id=eq.${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+          body: JSON.stringify({ active: nextActive }),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        toast(nextActive ? '협력점을 다시 활성화했습니다.' : '협력점을 비활성화했습니다.');
+        await renderPartnerTab(card);
+      } catch (err) {
+        console.error('협력점 상태 변경 실패', err);
+        toast('상태 변경에 실패했습니다.');
+      }
+    });
+  }
+
+  /* ── 관리자 화면 UI ──────────────────────────────────────────── */
+
+  function setProtected(visible) {
+    document.querySelectorAll('#admin > .admin-protected').forEach(el => el.classList.toggle('hidden', !visible));
+  }
+
+  function setupAdminUI() {
+    const admin = document.querySelector('#admin');
+    if (!admin || admin.querySelector('#supabaseAdminAuth')) return;
+
+    Array.from(admin.children).forEach(child => {
+      if (child.id === 'supabaseAdminAuth' || child.classList.contains('page-title')) return;
+      child.classList.add('admin-protected', 'hidden');
+    });
+
+    const card = document.createElement('article');
+    card.id = 'supabaseAdminAuth';
+    card.className = 'admin-auth-card';
+    // [버그1] 이메일 value 제거 — 브라우저 자동완성 사용
+    card.innerHTML = `
+      <span class="db-badge">● Supabase 연결됨</span>
+      <div id="adminLoggedOut">
+        <h2>관리자 로그인</h2>
+        <p>예약내역 조회와 상태 관리를 위해 로그인하세요.</p>
+        <form id="adminLoginForm" class="admin-auth-row" autocomplete="on">
+          <label>이메일<input type="email" name="email" autocomplete="username" required></label>
+          <label>비밀번호<input type="password" name="password" autocomplete="current-password" required></label>
+          <button class="primary-btn" type="submit">로그인</button>
+        </form>
+        <p id="adminLoginMessage" style="margin-top:10px"></p>
+      </div>
+      <div id="adminLoggedIn" class="hidden">
+        <div class="admin-session-bar">
+          <div>관리자 <b id="adminEmail"></b> 로그인됨 <span id="autoRefreshStatus"></span></div>
+          <div class="bar-btns">
+            <button id="notifyToggle" class="secondary-btn">🔕 알림 켜기</button>
+            <button id="reloadReservations" class="secondary-btn">새로고침</button>
+            <button id="adminLogout" class="danger-btn">로그아웃</button>
+          </div>
+        </div>
+        <p id="todaySummary"></p>
+        <!-- 관리 섹션 탭 -->
+        <div class="admin-section-tabs">
+          <button class="admin-sec-tab active" data-sec="reservations">예약 관리</button>
+          <button class="admin-sec-tab" data-sec="members">월 회원</button>
+          <button class="admin-sec-tab" data-sec="coupons">쿠폰</button>
+          <button class="admin-sec-tab" data-sec="blog">블로그 초안</button>
+          <button class="admin-sec-tab" data-sec="stats">방문 분석</button>
+          <button class="admin-sec-tab" data-sec="gallery">전후 사진</button>
+          <button class="admin-sec-tab" data-sec="reviews">후기</button>
+          <button class="admin-sec-tab owner-only" data-sec="partners">협력점</button>
+        </div>
+        <!-- 예약 관리 -->
+        <div id="adminSecReservations">
+          <div id="reservationTabs" class="res-tabs"></div>
+          <div id="reservationList" class="reservation-list"><div class="reservation-empty">예약내역을 불러오는 중…</div></div>
+        </div>
+        <!-- 월 회원 -->
+        <div id="adminSecMembers" class="hidden">
+          <div class="member-controls">
+            <input id="memberSearch" type="search" placeholder="이름·전화·아파트·차량번호 검색" autocomplete="off">
+            <button id="memberRefresh" class="secondary-btn">새로고침</button>
+          </div>
+          <div id="memberList" class="member-list"><div class="reservation-empty">회원 목록을 불러오는 중…</div></div>
+        </div>
+        <!-- 쿠폰 -->
+        <div id="adminSecCoupons" class="hidden">
+          <div class="member-controls">
+            <span style="font-weight:800">혜택 쿠폰 · 승인해야 고객이 사용할 수 있습니다</span>
+            <button id="couponRefresh" class="secondary-btn">새로고침</button>
+          </div>
+          <form id="couponIssueForm" class="coupon-issue">
+            <label>쿠폰 종류<select name="preset">
+              <option value="newmonthly">신규 월세차 할인</option>
+              <option value="manual">직접 입력</option>
+            </select></label>
+            <label>혜택 이름<input name="label" value="신규 월세차 할인"></label>
+            <label>할인 금액<input name="amount" type="number" min="0" step="1000" value="10000"></label>
+            <label>적용 서비스<select name="scope">
+              <option value="m2">월 2회 전용</option>
+              <option value="m4">월 4회 전용</option>
+              <option value="monthly">월세차 전체 (월 2회·월 4회)</option>
+              <option value="any">전체 서비스</option>
+            </select></label>
+            <label>대상 번호 <small>비우면 누구나 쓰는 공용 쿠폰</small><input name="phone" inputmode="tel" placeholder="010-0000-0000"></label>
+            <label>수량<input name="count" type="number" min="1" max="50" value="1"></label>
+            <button class="primary-btn" type="submit">쿠폰 발급</button>
+          </form>
+          <div id="couponIssueResult" class="coupon-issued hidden"></div>
+          <div id="couponList" class="member-list"><div class="reservation-empty">쿠폰 목록을 불러오는 중…</div></div>
+        </div>
+        <!-- 블로그 초안 -->
+        <div id="adminSecBlog" class="hidden">
+          <div class="member-controls">
+            <span style="font-weight:800">작업 기록으로 네이버 블로그 초안을 만듭니다</span>
+            <button id="blogRefresh" class="secondary-btn">목록 새로고침</button>
+          </div>
+          <form id="blogForm" class="coupon-issue">
+            <label>작업 선택<select name="job" id="blogJob"><option value="">완료된 작업을 불러오는 중…</option></select></label>
+            <label>글 유형<select name="kind">
+              <option value="work">작업 기록 (전후 사진 중심)</option>
+              <option value="monthly">월세차 홍보</option>
+              <option value="review">고객 후기 모음</option>
+            </select></label>
+            <div class="blog-photos" id="blogPhotoBox">
+              <span class="blog-photos-title">전후 사진 <small>여러 장 선택할 수 있습니다</small>
+                <label class="blog-all"><input type="checkbox" id="blogPhotoAll"> 전체 선택</label>
+                <label class="blog-all"><input type="checkbox" id="blogMosaic" checked> 번호판 모자이크</label>
+              </span>
+              <div class="blog-photo-grid" id="blogPhotoGrid"></div>
+            </div>
+            <button class="primary-btn" type="submit">초안 만들기</button>
+          </form>
+          <div id="blogResult" class="blog-result hidden"></div>
+        </div>
+        <!-- 전후 사진 관리 -->
+        <div id="adminSecGallery" class="hidden">
+          <p class="field-hint" style="margin:4px 0 12px">지운 사진은 모든 방문자 화면에서 사라집니다. 실수로 지웠다면 아래 '숨긴 사진'에서 복구할 수 있습니다.</p>
+          <div id="galleryAdminList"></div>
+        </div>
+        <!-- 방문 분석 -->
+        <div id="adminSecStats" class="hidden">
+          <div class="member-controls">
+            <div class="stats-range">
+              <button class="secondary-btn stats-days" data-days="7">7일</button>
+              <button class="secondary-btn stats-days" data-days="30">30일</button>
+              <button class="secondary-btn stats-days" data-days="90">90일</button>
+            </div>
+            <button id="statsRefresh" class="secondary-btn">새로고침</button>
+          </div>
+          <div id="statsBody"><div class="reservation-empty">방문 기록을 불러오는 중…</div></div>
+        </div>
+        <!-- 고객 후기 -->
+        <div id="adminSecReviews" class="hidden">
+          <p class="field-hint" style="margin:4px 0 12px">숨고·당근 등 다른 채널에 남은 후기를 옮겨 적거나, 직접 받은 후기를 등록하세요. 등록하면 홈 화면 후기 영역에 최신순으로 나타납니다.</p>
+          <form id="reviewAddForm" class="coupon-issue">
+            <label>고객 표기 <small>실명 대신 지역명으로 (예: 사월동 고객)</small><input name="author" placeholder="예: 사월동 고객" required></label>
+            <label>차종<input name="car" placeholder="예: GV80"></label>
+            <label>별점<select name="rating"><option value="5">★★★★★ (5점)</option><option value="4">★★★★ (4점)</option><option value="3">★★★ (3점)</option></select></label>
+            <label>출처<select name="source"><option value="직접 작성">직접 작성</option><option value="숨고">숨고</option><option value="당근">당근</option><option value="카카오채널">카카오채널</option></select></label>
+            <label class="span-2">후기 내용<textarea name="text" rows="3" placeholder="후기 원문을 그대로 붙여넣으세요" required></textarea></label>
+            <button class="primary-btn span-2" type="submit">후기 등록</button>
+          </form>
+          <div id="reviewAdminList" class="member-list"><div class="reservation-empty">후기 목록을 불러오는 중…</div></div>
+        </div>
+        <!-- 협력점 관리 (owner 전용) -->
+        <div id="adminSecPartners" class="hidden">
+          <p class="field-hint" style="margin:4px 0 12px">협력점 계정은 자신에게 배정된 예약만 보고, 상태 변경과 전후 사진 업로드를 할 수 있습니다. 계정 자체는 Supabase Authentication에서 먼저 만들어야 합니다.</p>
+          <form id="partnerAddForm" class="coupon-issue">
+            <label>User UID <small>Supabase Authentication → Users에서 복사</small><input name="uid" placeholder="예: 3f1a2b9c-..." required></label>
+            <label>상호·담당자 이름<input name="name" placeholder="예: 수성구 김사장" required></label>
+            <label>담당 지역<input name="area" placeholder="예: 대구 수성구"></label>
+            <button class="primary-btn" type="submit">협력점으로 등록</button>
+          </form>
+          <p class="blog-tip">계정 자체(이메일·비밀번호)는 Supabase 대시보드 → Authentication → Users → Add user 에서 먼저 만드셔야 합니다. 만든 뒤 그 계정의 User UID를 여기 붙여넣으면 협력점으로 등록되고, 예약 화면에 담당자로 배정할 수 있게 됩니다.</p>
+          <div id="partnerAddResult" class="blog-tip hidden"></div>
+          <div id="partnerList" class="member-list"><div class="reservation-empty">협력점 목록을 불러오는 중…</div></div>
+        </div>
+      </div>`;
+
+    const anchor = admin.querySelector('.page-title');
+    if (anchor) anchor.insertAdjacentElement('afterend', card);
+    else admin.prepend(card);
+
+    /* 로그인 */
+    card.querySelector('#adminLoginForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const btn  = form.querySelector('button');
+      const msg  = card.querySelector('#adminLoginMessage');
+      btn.disabled = true; btn.textContent = '로그인 중…'; msg.textContent = '';
+      try {
+        const s  = await signIn(form.email.value.trim(), form.password.value);
+        const ok = await isAdmin(s);
+        if (!ok) throw new Error('이 계정에는 관리자 권한이 없습니다.');
+        saveSession(s);
+        form.password.value = '';
+        await showAdminSession(s);
+      } catch (err) {
+        dropSession();
+        msg.textContent = err.message || '로그인에 실패했습니다.';
+        msg.style.color = '#c94141';
+      } finally {
+        btn.disabled = false; btn.textContent = '로그인';
+      }
+    });
+
+    /* 새로고침 */
+    card.querySelector('#reloadReservations').addEventListener('click', () => loadReservations(false));
+    const notifyBtn = card.querySelector('#notifyToggle');
+    notifyBtn.addEventListener('click', () => {
+      if (notifyOn() && Notification.permission === 'granted') disableNotify(notifyBtn);
+      else enableNotify(notifyBtn);
+    });
+    updateNotifyButton(notifyBtn);
+
+    /* 로그아웃 */
+    card.querySelector('#adminLogout').addEventListener('click', async () => {
+      stopAutoRefresh();
+      const s = await getSession();
+      if (s?.access_token) fetch(`${SUPABASE_URL}/auth/v1/logout`, { method:'POST', headers: api(s.access_token) }).catch(()=>{});
+      dropSession(); allRows = [];
+      card.querySelector('#adminLoggedIn').classList.add('hidden');
+      card.querySelector('#adminLoggedOut').classList.remove('hidden');
+      setProtected(false);
+      toast('로그아웃되었습니다.');
+    });
+
+    /* 탭 클릭 */
+    card.querySelector('#reservationTabs').addEventListener('click', e => {
+      const t = e.target.closest('[data-tab]');
+      if (!t) return;
+      currentTab = t.dataset.tab;
+      renderReservations();
+    });
+
+    /* 상태 변경 + 메시지 버튼 */
+    card.querySelector('#reservationList').addEventListener('click', e => {
+      // 고객 메시지 모달
+      const msgBtn = e.target.closest('[data-msg]');
+      if (msgBtn) {
+        const row = allRows.find(r => String(r.id) === String(msgBtn.dataset.msg));
+        if (row) openMessageModal(row);
+        return;
+      }
+      // 상태 변경
+      const btn = e.target.closest('[data-act]');
+      if (!btn) return;
+      const id     = btn.dataset.id;
+      const when   = document.querySelector(`#reservationList [data-when="${id}"]`);
+      const amount = document.querySelector(`#reservationList [data-amount="${id}"]`);
+      const iso    = when?.value   ? new Date(when.value).toISOString() : null;
+      const amt    = amount?.value ? amount.value : null;
+      changeStatus(id, btn.dataset.act, iso, amt, btn);
+    });
+
+    // 협력점 배정 변경 (owner만 UI가 보이므로 여기서도 owner만 호출됨)
+    card.querySelector('#reservationList').addEventListener('change', async e => {
+      const sel = e.target.closest('[data-assign]');
+      if (!sel) return;
+      const id = sel.dataset.assign;
+      const s = await getSession();
+      if (!s) return;
+      try {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/reservations?id=eq.${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+          body: JSON.stringify({ assigned_to: sel.value || null }),
+        });
+        if (!r.ok) throw new Error(await r.text());
+        const row = allRows.find(x => String(x.id) === String(id));
+        if (row) row.assigned_to = sel.value || null;
+        toast('담당자를 변경했습니다.');
+        renderReservations();
+      } catch (err) {
+        console.error('담당자 배정 실패', err);
+        toast('담당자 변경에 실패했습니다.');
+      }
+    });
+
+    /* 페이지 열릴 때 자동 로그인 복원 */
+    getSession().then(async s => {
+      if (!s) return;
+      const ok = await isAdmin(s).catch(() => false);
+      if (ok) showAdminSession(s);
+      else dropSession();
+    });
+  }
+
+
+  /* ════════════════════════════════════════════════════════════════
+   * 월 회원 관리
+   * ════════════════════════════════════════════════════════════════ */
+
+  let memberRows = [];   // customer_summary 뷰 전체
+  let memberQuery = '';  // 검색어
+
+  // 이번 달 완료 건수를 allRows 에서 직접 계산 (뷰보다 최신)
+  function thisMonthDone(phone) {
+    const now   = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    return allRows.filter(r =>
+      r.phone === phone &&
+      r.status === '완료' &&
+      r.done_at &&
+      new Date(r.done_at) >= start
+    ).length;
+  }
+
+  // 실내관리 포함 여부 — 이번 달 완료 건 memo 에서 "실내" 키워드 탐색
+  function hasInteriorThisMonth(phone) {
+    const now   = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    return allRows.some(r =>
+      r.phone === phone &&
+      r.status === '완료' &&
+      r.done_at &&
+      new Date(r.done_at) >= start &&
+      (r.memo || '').includes('실내')
+    );
+  }
+
+  // 최근 이용 이력 (완료 건 최대 10개)
+  function recentHistory(phone) {
+    return allRows
+      .filter(r => r.phone === phone && r.status === '완료' && r.done_at)
+      .sort((a,b) => new Date(b.done_at) - new Date(a.done_at))
+      .slice(0, 10);
+  }
+
+  // 등급 배지
+  function tierBadge(done_count) {
+    if (done_count >= 12) return ['gold',   '🥇 골드'];
+    if (done_count >= 6)  return ['silver', '🥈 실버'];
+    if (done_count >= 1)  return ['bronze', '🥉 브론즈'];
+    return ['', '신규'];
+  }
+
+  async function loadMembers(silent = false) {
+    const listEl = document.querySelector('#memberList');
+    if (!listEl) return;
+    const s = await getSession();
+    if (!s) return;
+    if (!silent) listEl.innerHTML = '<div class="reservation-empty">회원 목록 불러오는 중…</div>';
+    try {
+      // customer_summary 뷰 조회
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/customer_summary?select=*&order=done_count.desc&limit=200`,
+        { headers: api(s.access_token) }
+      );
+      if (r.status === 401 || r.status === 403) return handleExpired();
+      if (!r.ok) {
+        // 뷰가 아직 없으면 reservations 에서 직접 집계
+        memberRows = buildSummaryFromRows();
+      } else {
+        memberRows = await r.json();
+      }
+      renderMembers();
+    } catch (err) {
+      console.error(err);
+      // fallback: allRows 에서 직접 집계
+      memberRows = buildSummaryFromRows();
+      renderMembers();
+    }
+  }
+
+  // reservations-upgrade.sql 미실행 시 대비 — allRows 에서 직접 집계
+  function buildSummaryFromRows() {
+    const map = {};
+    allRows.forEach(r => {
+      if (!map[r.phone]) {
+        map[r.phone] = {
+          phone:         r.phone,
+          customer_name: r.customer_name,
+          apartment:     r.apartment,
+          car_model:     r.car_model,
+          plate:         r.plate,
+          address:       r.address,
+          done_count:    0,
+          last_done_at:  null,
+          total_amount:  0,
+        };
+      }
+      const m = map[r.phone];
+      if (r.customer_name) m.customer_name = r.customer_name;
+      if (r.apartment)     m.apartment     = r.apartment;
+      if (r.car_model)     m.car_model     = r.car_model;
+      if (r.status === '완료') {
+        m.done_count++;
+        m.total_amount += Number(r.amount || 0);
+        if (!m.last_done_at || r.done_at > m.last_done_at) m.last_done_at = r.done_at;
+      }
+    });
+    return Object.values(map).sort((a,b) => b.done_count - a.done_count);
+  }
+
+  function memberCardMarkup(m) {
+    const monthDone  = thisMonthDone(m.phone);
+    const hasInterior= hasInteriorThisMonth(m.phone);
+    const history    = recentHistory(m.phone);
+    const [tierCls, tierLabel] = tierBadge(m.done_count);
+    const lastText   = m.last_done_at
+      ? `마지막 ${new Date(m.last_done_at).toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'})}`
+      : '완료 이력 없음';
+    const totalText  = m.total_amount
+      ? `누계 ${Number(m.total_amount).toLocaleString('ko-KR')}원`
+      : '';
+
+    const histRows = history.map(r => `
+      <div class="hist-row">
+        <span class="hist-date">${r.done_at ? new Date(r.done_at).toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'}) : ''}</span>
+        <span class="hist-svc">${esc(r.service_type||'')} ${r.memo&&r.memo.includes('실내')? '🪑' : ''}</span>
+        <span class="hist-amt">${r.amount ? Number(r.amount).toLocaleString('ko-KR')+'원' : ''}</span>
+      </div>`).join('');
+
+    const interiorIcon = hasInterior
+      ? '<span title="이번 달 실내관리 완료">🪑 실내 ✅</span>'
+      : '<span title="이번 달 실내관리 미완료" style="opacity:.5">🪑 실내 ✗</span>';
+
+    return `<div class="member-card${monthDone > 0 ? ' highlight' : ''}">
+  <div class="member-top">
+    <div>
+      <p class="member-name">${esc(m.customer_name||'이름 없음')}</p>
+      <p class="member-phone">
+        <a href="tel:${tel(m.phone)}">${esc(m.phone)}</a>
+        · ${esc(m.apartment||'')}${m.address ? ` ${esc(m.address)}` : ''}
+      </p>
+      <p class="member-phone">🚘 ${esc(m.car_model||'')}${m.plate ? ` <span class="res-plate">${esc(m.plate)}</span>` : ''}</p>
+    </div>
+    <span class="member-badge ${tierCls}">${tierLabel}</span>
+  </div>
+  <div class="member-stats">
+    <div class="member-stat${monthDone === 0 ? ' warn' : ''}">
+      <b>${monthDone}</b><span>이번 달</span>
+    </div>
+    <div class="member-stat">
+      <b>${m.done_count}</b><span>누적 완료</span>
+    </div>
+    <div class="member-stat" style="min-width:80px">
+      ${interiorIcon}
+    </div>
+    <div class="member-stat" style="min-width:90px">
+      <b style="font-size:13px">${lastText}</b><span>최근 완료</span>
+    </div>
+    ${totalText ? `<div class="member-stat"><b style="font-size:13px">${esc(totalText)}</b><span>누계 금액</span></div>` : ''}
+  </div>
+  ${history.length ? `<details class="member-history">
+    <summary>최근 이용 이력 ${history.length}건</summary>
+    ${histRows}
+  </details>` : ''}
+  <div class="member-del-row">
+    <button class="member-del-btn" data-del-phone="${m.phone}" data-del-name="${esc(m.customer_name||'이름 없음')}">
+      이 고객 예약 이력 전체 삭제
+    </button>
+  </div>
+</div>`;
+  }
+
+  function renderMembers() {
+    const listEl = document.querySelector('#memberList');
+    if (!listEl) return;
+    const q = memberQuery.trim().toLowerCase();
+    let rows = memberRows;
+    if (q) {
+      rows = rows.filter(m =>
+        (m.customer_name||'').toLowerCase().includes(q) ||
+        (m.phone||'').includes(q) ||
+        (m.apartment||'').toLowerCase().includes(q) ||
+        (m.car_model||'').toLowerCase().includes(q) ||
+        (m.plate||'').toLowerCase().includes(q) ||
+        (m.address||'').toLowerCase().includes(q)
+      );
+    }
+    if (!rows.length) {
+      listEl.innerHTML = `<div class="reservation-empty">${q ? '검색 결과가 없습니다.' : '이용 이력이 있는 고객이 없습니다.'}</div>`;
+      return;
+    }
+    listEl.innerHTML = rows.map(memberCardMarkup).join('');
+  }
+
+  async function deleteCustomerReservations(phone, btn) {
+    const s = await getSession();
+    if (!s) return;
+    const orig = btn.textContent;
+    btn.disabled = true; btn.textContent = '삭제 중…';
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/reservations?phone=eq.${encodeURIComponent(phone)}`,
+        { method: 'DELETE', headers: api(s.access_token, { Prefer: 'return=minimal' }) }
+      );
+      if (r.status === 401 || r.status === 403) return handleExpired();
+      if (!r.ok) throw new Error(await r.text());
+      // 로컬 데이터에서도 제거
+      allRows   = allRows.filter(x => x.phone !== phone);
+      memberRows = memberRows.filter(x => x.phone !== phone);
+      toast('예약 이력이 삭제되었습니다.');
+      renderReservations();
+      renderMembers();
+    } catch (err) {
+      console.error(err);
+      toast('삭제에 실패했습니다: ' + (err.message || err));
+      btn.disabled = false; btn.textContent = orig;
+    }
+  }
+
+  /* ── 전후 사진 삭제 · 복구 ───────────────────────────────────── */
+  const HIDDEN_KEY = 'athomeHiddenGallery';
+  const hiddenSet = () => { try { return new Set(JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]')); } catch { return new Set(); } };
+  const pubGallery = () => (typeof publishedState !== 'undefined' && publishedState && Array.isArray(publishedState.gallery)) ? publishedState.gallery : [];
+  const curGallery = () => (typeof state !== 'undefined' && state && Array.isArray(state.gallery)) ? state.gallery : [];
+  const imgSrc = v => String(v || '').startsWith('data:') ? v : esc(v);
+
+  function rerenderApp() { try { if (typeof render === 'function') render(); } catch (e) { console.warn(e); } }
+
+  async function syncHiddenGallery() {
+    try {
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/gallery_hidden?select=id`, { headers: api(null) });
+      if (!r.ok) return;
+      const ids = new Set((await r.json()).map(x => x.id));
+      for (let i = 0; i < 50 && (typeof state === 'undefined' || !state); i++) await new Promise(res => setTimeout(res, 100));
+      if (typeof window.applyHiddenGallery !== 'function') return;
+      if (window.applyHiddenGallery(ids)) rerenderApp();
+      else localStorage.setItem(HIDDEN_KEY, JSON.stringify([...ids]));
+    } catch { /* 테이블이 없으면 무시 */ }
+  }
+
+  function renderGalleryAdmin() {
+    const box = document.querySelector('#galleryAdminList');
+    if (!box) return;
+    const hidden = hiddenSet();
+    const shown = curGallery();
+    const shownIds = new Set(shown.map(g => g.id));
+    const hiddenItems = pubGallery().filter(g => hidden.has(g.id) && !shownIds.has(g.id));
+    const row = (g, isHidden) => `
+      <div class="reservation-card" style="display:flex;gap:12px;align-items:center;padding:12px;margin-bottom:10px${isHidden ? ';opacity:.6' : ''}">
+        <img src="${imgSrc(g.before)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px;flex:none">
+        <img src="${imgSrc(g.after)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px;flex:none">
+        <div style="flex:1;min-width:0"><b style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(g.title || '전후 사진')}</b><small>${esc(g.note || '')}</small></div>
+        ${isHidden
+          ? `<button class="secondary-btn gallery-restore-btn" data-id="${esc(g.id)}">복구</button>`
+          : `<button class="danger-btn gallery-del-btn" data-id="${esc(g.id)}">삭제</button>`}
+      </div>`;
+    box.innerHTML = (shown.length ? shown.map(g => row(g, false)).join('') : '<div class="reservation-empty">등록된 전후 사진이 없습니다.</div>')
+      + (hiddenItems.length ? `<h3 style="margin:18px 0 10px">숨긴 사진</h3>${hiddenItems.map(g => row(g, true)).join('')}` : '');
+  }
+
+  async function deleteGalleryItem(id, btn) {
+    const item = curGallery().find(g => g.id === id);
+    if (!item) return;
+    if (!confirm(`'${item.title || '전후 사진'}' 사진을 삭제할까요?\n\n모든 방문자 화면에서 사라집니다.`)) return;
+    const isPublished = pubGallery().some(g => g.id === id);
+    if (btn) btn.disabled = true;
+    if (isPublished) {
+      const s = await getSession();
+      if (!s) { toast('로그인이 필요합니다.'); if (btn) btn.disabled = false; return; }
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/gallery_hidden`, {
+        method: 'POST',
+        headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }),
+        body: JSON.stringify({ id }),
+      }).catch(() => null);
+      if (!r || !r.ok) {
+        toast('삭제 저장에 실패했습니다. Supabase에 gallery-hidden.sql을 먼저 실행해 주세요.');
+        if (btn) btn.disabled = false;
+        return;
+      }
+    }
+    const h = hiddenSet(); h.add(id);
+    window.applyHiddenGallery(h);
+    rerenderApp(); renderGalleryAdmin();
+    toast('전후 사진을 삭제했습니다.');
+  }
+
+  async function restoreGalleryItem(id, btn) {
+    const s = await getSession();
+    if (!s) { toast('로그인이 필요합니다.'); return; }
+    if (btn) btn.disabled = true;
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/gallery_hidden?id=eq.${encodeURIComponent(id)}`, {
+      method: 'DELETE', headers: api(s.access_token),
+    }).catch(() => null);
+    if (!r || !r.ok) { toast('복구에 실패했습니다.'); if (btn) btn.disabled = false; return; }
+    const h = hiddenSet(); h.delete(id);
+    localStorage.setItem(HIDDEN_KEY, JSON.stringify([...h]));
+    const item = pubGallery().find(g => g.id === id);
+    if (item && typeof state !== 'undefined' && state) {
+      const order = pubGallery().map(g => g.id);
+      state.gallery = [...curGallery(), JSON.parse(JSON.stringify(item))]
+        .sort((x, y) => (order.indexOf(x.id) + 1 || -1) - (order.indexOf(y.id) + 1 || -1));
+      localStorage.setItem('athomeCarCareDataV2', JSON.stringify(state));
+    }
+    rerenderApp(); renderGalleryAdmin();
+    toast('전후 사진을 복구했습니다.');
+  }
+
+  document.addEventListener('click', e => {
+    const del = e.target.closest('.gallery-del-btn');
+    if (del) { deleteGalleryItem(del.dataset.id, del); return; }
+    const res = e.target.closest('.gallery-restore-btn');
+    if (res) restoreGalleryItem(res.dataset.id, res);
+  });
+
+  syncHiddenGallery();
+
+  /* ── 고객 후기 (Supabase reviews 테이블) ─────────────────────── */
+
+  let extraReviews = [];   // Supabase에 쌓인 실제 후기 (관리자가 추가한 것)
+
+  async function syncReviews() {
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/reviews?select=id,author,car,rating,text&visible=eq.true&order=created_at.desc&limit=30`,
+        { headers: api(null) }
+      );
+      if (!r.ok) return;   // reviews.sql을 아직 안 돌렸으면 조용히 무시
+      extraReviews = await r.json();
+      if (extraReviews.length && typeof state !== 'undefined' && state) {
+        const staticIds = new Set((state.reviews || []).map(x => x.id));
+        const fresh = extraReviews.filter(x => !staticIds.has(x.id));
+        if (fresh.length) { state.reviews = [...fresh, ...(state.reviews || [])]; rerenderApp(); }
+      }
+    } catch { /* 네트워크 실패 시 기존 샘플 후기만 보여줌 */ }
+  }
+  syncReviews();
+
+  /* ── 섹션 탭 전환 ────────────────────────────────────────────── */
+  function bindSectionTabs(card) {
+    card.querySelector('.admin-section-tabs').addEventListener('click', async e => {
+      const tab = e.target.closest('.admin-sec-tab');
+      if (!tab) return;
+      const sec = tab.dataset.sec;
+      card.querySelectorAll('.admin-sec-tab').forEach(t => t.classList.toggle('active', t === tab));
+      card.querySelector('#adminSecReservations').classList.toggle('hidden', sec !== 'reservations');
+      card.querySelector('#adminSecMembers').classList.toggle('hidden', sec !== 'members');
+      card.querySelector('#adminSecCoupons').classList.toggle('hidden', sec !== 'coupons');
+      card.querySelector('#adminSecBlog').classList.toggle('hidden', sec !== 'blog');
+      card.querySelector('#adminSecStats').classList.toggle('hidden', sec !== 'stats');
+      card.querySelector('#adminSecGallery').classList.toggle('hidden', sec !== 'gallery');
+      card.querySelector('#adminSecPartners')?.classList.toggle('hidden', sec !== 'partners');
+      card.querySelector('#adminSecReviews')?.classList.toggle('hidden', sec !== 'reviews');
+      if (sec === 'gallery') renderGalleryAdmin();
+      if (sec === 'reviews') { bindReviewsTab(card); await renderReviewsAdmin(card); }
+      if (sec === 'stats') { bindStatsTab(card); loadStats(); }
+      if (sec === 'blog') { bindBlogTab(card); fillBlogSelects(); }
+      if (sec === 'members' && memberRows.length === 0) await loadMembers(false);
+      if (sec === 'coupons') await loadCoupons();
+      if (sec === 'partners') { bindPartnerTab(card); await renderPartnerTab(card); }
+    });
+
+    card.querySelector('#memberRefresh').addEventListener('click', () => loadMembers(false));
+    card.querySelector('#couponRefresh').addEventListener('click', () => loadCoupons());
+    bindCouponIssue(card);
+
+    let searchTimer;
+    card.querySelector('#memberSearch').addEventListener('input', e => {
+      memberQuery = e.target.value;
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(renderMembers, 250);
+    });
+
+    // 고객 예약 이력 삭제 (이벤트 위임)
+    document.addEventListener('click', async e => {
+      const btn = e.target.closest('.member-del-btn');
+      if (!btn) return;
+      const phone = btn.dataset.delPhone;
+      const name  = btn.dataset.delName;
+      if (!confirm(`${name} (${phone}) 님의 예약 이력을 전체 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) return;
+      await deleteCustomerReservations(phone, btn);
+    });
+  }
+
+  async function showAdminSession(s) {
+    const card = document.querySelector('#supabaseAdminAuth');
+    if (!card) return;
+    await loadMyRole(s);
+    if (myRole === 'owner') partnerList = await loadPartnerList(s);
+    card.querySelector('#adminLoggedOut').classList.add('hidden');
+    card.querySelector('#adminLoggedIn').classList.remove('hidden');
+    card.querySelector('#adminEmail').textContent = s.email || '관리자';
+    card.classList.toggle('is-partner', myRole === 'partner');
+    setProtected(true);
+    bindSectionTabs(card);
+    await loadReservations(false);
+    startAutoRefresh();
+  }
+
+  /* ── 초기화 ──────────────────────────────────────────────────── */
+  injectStyles();
+  logVisit();
+  enhanceBookingForm();
+  bindBenefitWatcher();
+  setupAdminUI();
+})();

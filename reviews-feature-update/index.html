@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#087C68" />
+  <meta name="description" content="집앞세차-앳홈 카케어 | 경산 중산지구·사월동·시지·신매동 아파트 방문세차" />
+  <link rel="manifest" href="manifest.webmanifest?v=20260919-icon5" />
+  <link rel="icon" href="icons/icon-192.png?v=20260919-icon5" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png?v=20260919-icon5" />
+  <link rel="stylesheet" href="styles.css?v=20260917-partner" />
+  <link rel="stylesheet" href="home-polish.css?v=20260916-nohero1" />
+  <title>집앞세차-앳홈 카케어</title>
+<style id="hide-call">
+[data-call]{display:none!important}
+.booking-contact-strip{grid-template-columns:repeat(2,1fr)!important}
+@media(max-width:640px){.booking-contact-strip{grid-template-columns:1fr!important}}
+@media(max-width:430px){#home .hero-buttons [data-go="booking"]{grid-column:1/-1}}
+</style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="brand" data-go="home" aria-label="홈으로">
+        <img src="icons/icon-192.png?v=20260919-icon5" alt="앳홈 카케어 로고" />
+        <span><strong>집앞세차-앳홈 카케어</strong><small>At Home Car Care</small></span>
+      </button>
+      <div class="top-actions">
+        
+        <button id="installBtn" class="ghost-btn hidden">앱 설치</button>
+        <button class="icon-btn" data-go="admin" aria-label="콘텐츠 관리">⚙️</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="home" class="page active">
+        <div class="hero">
+<div class="hero-content">
+            <span class="eyebrow">오늘도, 더 깨끗한 하루</span>
+            <h1>주차만 해두면 끝.<br><em>집앞으로 찾아가는</em><br>프리미엄 방문세차</h1>
+            <p>아파트·주차장 방문세차 · 출장비 무료 · 경산·대구 전지역</p>
+            <div class="location-pill">📍 경산 중산지구 · 사월동 · 시지 · 신매동 집중관리</div>
+            <div class="hero-buttons">
+              <a class="primary-btn button-link" href="sms:01083918999" data-sms>💬 문자 문의</a>
+              <a class="secondary-btn button-link kakao-link" href="https://pf.kakao.com/_gpDrX" target="_blank" rel="noopener" data-kakao-link>💬 카카오채널</a>
+              <!-- 전화문의 숨김: a class="secondary-btn button-link" href="tel:01083918999" data-call>☎ 전화 문의</a --><button class="secondary-btn" data-go="booking">📅 예약하기</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="benefits-strip">
+          <div><span>🚚</span><b>출장비 무료</b><small>추가비용 없이</small></div>
+          <div><span>👑</span><b>월회원 가능</b><small>꾸준한 차량관리</small></div>
+          <div><span>🛡️</span><b>비대면 가능</b><small>주차만 해두세요</small></div>
+          <div><span>🕒</span><b>오후 2시~새벽 2시</b><small>바쁜 일상도 OK</small></div>
+        </div>
+
+        <section class="content-section">
+          <div class="section-head"><div><span class="section-kicker">SERVICE</span><h2>서비스 소개</h2></div><button class="text-link" data-go="menu">요금표 보기 →</button></div>
+          <div class="service-grid">
+            <article class="service-card mint"><span class="service-icon">🚗</span><h3>외부세차</h3><p>맑은 광택, 깨끗한 첫인상</p><ul><li>도장세정</li><li>유리·휠 표면세정</li><li>타이어·간편 왁스 코팅</li></ul></article>
+            <article class="service-card cream"><span class="service-icon">💺</span><h3>내부세차</h3><p>쾌적한 공간, 기분 좋은 드라이브</p><ul><li>매트 흙·먼지 제거</li><li>간단 진공청소</li><li>대시보드·내측 유리 정리</li></ul></article>
+            <article class="service-card mint"><span class="service-icon">📆</span><h3>월세차</h3><p>꾸준한 관리로 항상 깨끗하게</p><ul><li>월 2회 / 월 4회 선택</li><li>월 1회 기본 실내관리</li><li>지역 우선예약</li></ul></article>
+            <article class="service-card cream"><span class="service-icon">✨</span><h3>일일세차</h3><p>필요할 때 한 번만도 OK</p><ul><li>차종별 맞춤 세차</li><li>아파트·주차장 방문</li><li>빠르고 꼼꼼한 작업</li></ul></article>
+          </div>
+        </section>
+
+        <section class="content-section">
+          <div class="section-head"><div><span class="section-kicker">BEFORE & AFTER</span><h2>세차 전 · 후 비교</h2></div></div>
+          <div id="homeComparisons" class="comparison-grid"></div>
+        </section>
+
+        <section class="content-section" id="blogSection">
+          <div class="section-head"><div><span class="section-kicker">WORK LOG</span><h2>최신 작업 일지</h2></div><a class="text-link" id="blogMore" href="https://blog.naver.com/athomecarcare" target="_blank" rel="noopener">블로그 전체보기 →</a></div>
+          <div id="blogPosts" class="blog-posts"><div class="blog-empty">작업 일지를 불러오는 중…</div></div>
+        </section>
+
+        <section class="content-section soft-bg">
+          <div class="section-head"><div><span class="section-kicker">REVIEWS</span><h2>고객 사용후기</h2></div><button class="text-link" data-go="reviews">후기 전체보기 →</button></div>
+          <div id="homeReviews" class="review-grid"></div>
+        </section>
+
+        <section class="quick-book-card">
+          <div><span class="bubble">💬</span><h2>간편문의/예약</h2><p>아파트명 · 차종 · 월 2회 또는 월 4회를 보내주시면 빠르게 안내해드립니다.</p></div>
+          <button class="primary-btn" data-go="booking">상담 요청 →</button>
+        </section>
+
+        <section class="quick-book-card partner-card">
+          <div><span class="bubble">🤝</span><h2>믿음 파트너 입점문의</h2><p>광고 및 앱 관리로 세차에만 집중할 수 있는 파트너를 모집합니다. 지역 · 경력 · 연락처를 남겨주세요.</p></div>
+          <button class="primary-btn" data-go="partner">신청하기 →</button>
+        </section>
+      </section>
+
+      <section id="menu" class="page">
+        <div class="page-title"><span>PRICE</span><h1>차종별 요금</h1><p>차종을 누르면 월세차 · 일일세차 요금이 함께 나옵니다 · 월세차는 월 1회 기본 실내관리 포함 · 사월동/시지/신매동/중산지구 우선예약</p></div>
+
+        <!-- ▼▼▼ 차종별 요금 아코디언 (style + section + script 한 세트) ▼▼▼ -->
+        <style>
+        .pw{
+          --pw-green:#087C68;
+          --pw-deep:#05594B;
+          --pw-mist:#E8F3F0;
+          --pw-paper:#ffffff;
+          --pw-text:#132C27;
+          --pw-muted:#6B8983;
+          --pw-line:#DCE9E5;
+          margin:0 auto;
+          padding:0;
+          color:var(--pw-text);
+          -webkit-text-size-adjust:100%;
+        }
+        @media (prefers-color-scheme:dark){
+          .pw:not([data-theme="light"]){
+            --pw-mist:rgba(8,124,104,.14);
+            --pw-paper:#11221F;
+            --pw-text:#E9F4F1;
+            --pw-muted:#9BB8B1;
+            --pw-line:#203934;
+          }
+        }
+        .pw *{box-sizing:border-box}
+
+        .pw-list{
+          background:var(--pw-paper);
+          border:1px solid var(--pw-line);
+          border-radius:18px;
+          overflow:hidden;
+        }
+        .pw-item + .pw-item{border-top:1px solid var(--pw-line)}
+
+        .pw-row{
+          display:flex;
+          align-items:center;
+          gap:12px;
+          width:100%;
+          padding:17px 18px;
+          margin:0;
+          border:0;
+          border-radius:0;
+          box-shadow:none;
+          background:transparent;
+          color:inherit;
+          font-family:inherit;
+          font-size:1rem;
+          font-weight:400;
+          text-align:left;
+          cursor:pointer;
+        }
+        .pw-row:focus-visible{outline:3px solid var(--pw-green);outline-offset:-3px}
+        .pw-name{flex:1 1 auto;font-size:1.02rem;font-weight:700;letter-spacing:-.02em;line-height:1.35}
+        .pw-models{display:block;margin-top:3px;font-size:.78rem;font-weight:400;line-height:1.45;color:var(--pw-muted);word-break:keep-all}
+        .pw-from{font-size:.88rem;font-weight:700;color:var(--pw-green);white-space:nowrap}
+        .pw-chev{
+          flex:0 0 auto;width:10px;height:10px;margin-left:2px;
+          border-right:2px solid var(--pw-muted);border-bottom:2px solid var(--pw-muted);
+          transform:rotate(45deg) translate(-2px,-2px);
+          transition:transform .2s ease;
+        }
+        .pw-item.is-open .pw-chev{transform:rotate(-135deg) translate(-3px,-3px)}
+        .pw-item.is-open .pw-row{background:var(--pw-mist)}
+        .pw-item.is-open .pw-from{opacity:0}
+
+        .pw-panel{display:none;padding:2px 18px 20px;background:var(--pw-mist)}
+        .pw-item.is-open .pw-panel{display:block}
+
+        .pw-group + .pw-group{margin-top:16px}
+        .pw-gtitle{
+          display:flex;align-items:baseline;gap:8px;
+          margin:0 0 8px;font-size:.84rem;font-weight:700;color:var(--pw-deep);
+        }
+        .pw-gtitle span{font-weight:400;font-size:.76rem;color:var(--pw-muted)}
+        .pw-lines{margin:0;padding:0;list-style:none;background:var(--pw-paper);border-radius:12px;overflow:hidden}
+        .option-list .opt-size{display:block;margin-top:3px;font-size:12px;font-weight:600;color:#6b7f7a}
+        .opt-size-note{margin:-4px 0 10px;font-size:13px;font-weight:600;color:#6b7f7a;line-height:1.55}
+        .blog-posts{display:grid;gap:12px}
+        .blog-post{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;padding:12px;border:1px solid #dfe8e6;border-radius:16px;background:#fff;text-decoration:none;color:inherit}
+        .blog-post:hover{border-color:#0b7d68}
+        .blog-post.no-thumb{grid-template-columns:1fr}
+        .blog-thumb{width:96px;height:72px;border-radius:11px;object-fit:cover;background:#e7f6f1}
+        .blog-meta{font-size:12px;font-weight:700;color:#6b7f7a;margin:0 0 4px}
+        .blog-title{font-size:15px;font-weight:800;color:#10283a;margin:0 0 4px;line-height:1.4}
+        .blog-sum{font-size:13px;color:#5c6b68;margin:0;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        .worklog-more{display:block;text-align:center;margin:18px 0 8px}
+        .blog-empty{font-size:14px;color:#6b7f7a;padding:14px;border:1px dashed #cfdcda;border-radius:14px;text-align:center}
+        .pw-note{margin:10px 2px 0;font-size:13px;font-weight:600;color:#6b7f7a;line-height:1.55}
+        .pw-lines li{
+          display:flex;align-items:center;justify-content:space-between;gap:14px;
+          margin:0;padding:12px 14px;font-size:.92rem;
+        }
+        .pw-lines li + li{border-top:1px solid var(--pw-line)}
+        .pw-lines li::before{content:none}
+        .pw-lines dfn{font-style:normal;color:var(--pw-muted)}
+        .pw-lines b{font-size:1.02rem;font-weight:900;letter-spacing:-.02em;white-space:nowrap}
+
+        @media (prefers-reduced-motion:reduce){.pw *{transition:none!important}}
+        </style>
+
+        <section class="pw" id="priceAccordion" aria-label="차종별 요금">
+          <div class="pw-list">
+
+            <div class="pw-item">
+              <button class="pw-row" type="button" aria-expanded="false" aria-controls="pw-p1">
+                <span class="pw-name">경차 · 소형<span class="pw-models">모닝 · 레이 · 캐스퍼 · 스파크 등</span></span>
+                <span class="pw-from">2.5만원~</span>
+                <span class="pw-chev" aria-hidden="true"></span>
+              </button>
+              <div class="pw-panel" id="pw-p1">
+                <div class="pw-group">
+                  <p class="pw-gtitle">월세차 <span>실내관리 월 1회 포함</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>월 4회</dfn><b>7.5만원~</b></li>
+                    <li><dfn>월 2회</dfn><b>5만원~</b></li>
+                  </ul>
+                </div>
+                <div class="pw-group">
+                  <p class="pw-gtitle">일일세차 <span>필요할 때 한 번만</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>외부</dfn><b>2.5만원</b></li>
+                    <li><dfn>외부+내부</dfn><b>3.8만원</b></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="pw-item">
+              <button class="pw-row" type="button" aria-expanded="false" aria-controls="pw-p2">
+                <span class="pw-name">준중형 세단<span class="pw-models">아반떼 · K3 · BMW 3시리즈 · A3 등</span></span>
+                <span class="pw-from">3만원~</span>
+                <span class="pw-chev" aria-hidden="true"></span>
+              </button>
+              <div class="pw-panel" id="pw-p2">
+                <div class="pw-group">
+                  <p class="pw-gtitle">월세차 <span>실내관리 월 1회 포함</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>월 4회</dfn><b>8.5만원~</b></li>
+                    <li><dfn>월 2회</dfn><b>5.4만원~</b></li>
+                  </ul>
+                </div>
+                <div class="pw-group">
+                  <p class="pw-gtitle">일일세차 <span>필요할 때 한 번만</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>외부</dfn><b>3만원</b></li>
+                    <li><dfn>외부+내부</dfn><b>4.3만원</b></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="pw-item">
+              <button class="pw-row" type="button" aria-expanded="false" aria-controls="pw-p3">
+                <span class="pw-name">중형 · 준대형 세단<span class="pw-models">쏘나타 · K5 · 그랜저 · K7 · G80 · E클래스 · BMW 5시리즈 등</span></span>
+                <span class="pw-from">3.3만원~</span>
+                <span class="pw-chev" aria-hidden="true"></span>
+              </button>
+              <div class="pw-panel" id="pw-p3">
+                <div class="pw-group">
+                  <p class="pw-gtitle">월세차 <span>실내관리 월 1회 포함</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>월 4회</dfn><b>9만원~</b></li>
+                    <li><dfn>월 2회</dfn><b>6만원~</b></li>
+                  </ul>
+                </div>
+                <div class="pw-group">
+                  <p class="pw-gtitle">일일세차 <span>필요할 때 한 번만</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>외부</dfn><b>3.3만원</b></li>
+                    <li><dfn>외부+내부</dfn><b>4.6만원</b></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="pw-item">
+              <button class="pw-row" type="button" aria-expanded="false" aria-controls="pw-p8">
+                <span class="pw-name">대형 세단<span class="pw-models">G90 · K9 · S클래스 · 7시리즈 · A8 등</span></span>
+                <span class="pw-from">3.7만원~</span>
+                <span class="pw-chev" aria-hidden="true"></span>
+              </button>
+              <div class="pw-panel" id="pw-p8">
+                <div class="pw-group">
+                  <p class="pw-gtitle">월세차 <span>실내관리 월 1회 포함</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>월 4회</dfn><b>9.9만원~</b></li>
+                    <li><dfn>월 2회</dfn><b>6.4만원~</b></li>
+                  </ul>
+                </div>
+                <div class="pw-group">
+                  <p class="pw-gtitle">일일세차 <span>필요할 때 한 번만</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>외부</dfn><b>3.7만원</b></li>
+                    <li><dfn>외부+내부</dfn><b>5만원</b></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="pw-item">
+              <button class="pw-row" type="button" aria-expanded="false" aria-controls="pw-p4">
+                <span class="pw-name">소형 SUV<span class="pw-models">셀토스 · 코나 · 트랙스 · XM3 · 티볼리 등</span></span>
+                <span class="pw-from">3.3만원~</span>
+                <span class="pw-chev" aria-hidden="true"></span>
+              </button>
+              <div class="pw-panel" id="pw-p4">
+                <div class="pw-group">
+                  <p class="pw-gtitle">월세차 <span>실내관리 월 1회 포함</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>월 4회</dfn><b>9만원~</b></li>
+                    <li><dfn>월 2회</dfn><b>6만원~</b></li>
+                  </ul>
+                </div>
+                <div class="pw-group">
+                  <p class="pw-gtitle">일일세차 <span>필요할 때 한 번만</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>외부</dfn><b>3.3만원</b></li>
+                    <li><dfn>외부+내부</dfn><b>4.6만원</b></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="pw-item">
+              <button class="pw-row" type="button" aria-expanded="false" aria-controls="pw-p5">
+                <span class="pw-name">중형 SUV<span class="pw-models">투싼 · 스포티지 · 쏘렌토 · 싼타페 · X3 · GLC 등</span></span>
+                <span class="pw-from">3.7만원~</span>
+                <span class="pw-chev" aria-hidden="true"></span>
+              </button>
+              <div class="pw-panel" id="pw-p5">
+                <div class="pw-group">
+                  <p class="pw-gtitle">월세차 <span>실내관리 월 1회 포함</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>월 4회</dfn><b>9.9만원~</b></li>
+                    <li><dfn>월 2회</dfn><b>6.4만원~</b></li>
+                  </ul>
+                </div>
+                <div class="pw-group">
+                  <p class="pw-gtitle">일일세차 <span>필요할 때 한 번만</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>외부</dfn><b>3.7만원</b></li>
+                    <li><dfn>외부+내부</dfn><b>5만원</b></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="pw-item">
+              <button class="pw-row" type="button" aria-expanded="false" aria-controls="pw-p6">
+                <span class="pw-name">대형 SUV<span class="pw-models">팰리세이드 · GV80 · X5 · GLE 등</span></span>
+                <span class="pw-from">3.9만원~</span>
+                <span class="pw-chev" aria-hidden="true"></span>
+              </button>
+              <div class="pw-panel" id="pw-p6">
+                <div class="pw-group">
+                  <p class="pw-gtitle">월세차 <span>실내관리 월 1회 포함</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>월 4회</dfn><b>11만원~</b></li>
+                    <li><dfn>월 2회</dfn><b>7.4만원~</b></li>
+                  </ul>
+                </div>
+                <div class="pw-group">
+                  <p class="pw-gtitle">일일세차 <span>필요할 때 한 번만</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>외부</dfn><b>3.9만원</b></li>
+                    <li><dfn>외부+내부</dfn><b>5.3만원</b></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="pw-item">
+              <button class="pw-row" type="button" aria-expanded="false" aria-controls="pw-p7">
+                <span class="pw-name">대형 MPV · 특대형<span class="pw-models">카니발 · 스타리아 · 알파드 · 시에나 등</span></span>
+                <span class="pw-from">4만원~</span>
+                <span class="pw-chev" aria-hidden="true"></span>
+              </button>
+              <div class="pw-panel" id="pw-p7">
+                <div class="pw-group">
+                  <p class="pw-gtitle">월세차 <span>실내관리 월 1회 포함</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>월 4회</dfn><b>11.5만원~</b></li>
+                    <li><dfn>월 2회</dfn><b>8만원~</b></li>
+                  </ul>
+                </div>
+                <div class="pw-group">
+                  <p class="pw-gtitle">일일세차 <span>필요할 때 한 번만</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>외부</dfn><b>4만원</b></li>
+                    <li><dfn>외부+내부</dfn><b>5.5만원</b></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <div class="pw-item">
+              <button class="pw-row" type="button" aria-expanded="false" aria-controls="pw-p9">
+                <span class="pw-name">수입 대형 · 프리미엄<span class="pw-models">에스컬레이드 · GLS · X7 · 레인지로버 · 내비게이터 등</span></span>
+                <span class="pw-from">4.5만원~</span>
+                <span class="pw-chev" aria-hidden="true"></span>
+              </button>
+              <div class="pw-panel" id="pw-p9">
+                <div class="pw-group">
+                  <p class="pw-gtitle">월세차 <span>실내관리 월 1회 포함</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>월 4회</dfn><b>12.5만원~</b></li>
+                    <li><dfn>월 2회</dfn><b>8.8만원~</b></li>
+                  </ul>
+                </div>
+                <div class="pw-group">
+                  <p class="pw-gtitle">일일세차 <span>필요할 때 한 번만</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>외부</dfn><b>4.5만원</b></li>
+                    <li><dfn>외부+내부</dfn><b>6만원</b></li>
+                  </ul>
+                </div>
+                <p class="pw-note">대형 휠과 크롬 장식, 넓은 차체를 고려한 요금입니다.</p>
+              </div>
+            </div>
+
+            <div class="pw-item">
+              <button class="pw-row" type="button" aria-expanded="false" aria-controls="pw-p10">
+                <span class="pw-name">화물 · 탑차<span class="pw-models">포터 · 봉고 · 탑차 · 카고 등</span></span>
+                <span class="pw-from">5만원~</span>
+                <span class="pw-chev" aria-hidden="true"></span>
+              </button>
+              <div class="pw-panel" id="pw-p10">
+                <div class="pw-group">
+                  <p class="pw-gtitle">월세차 <span>업무용 차량 정기관리</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>월 4회</dfn><b>13.5만원~</b></li>
+                    <li><dfn>월 2회</dfn><b>9.5만원~</b></li>
+                  </ul>
+                </div>
+                <div class="pw-group">
+                  <p class="pw-gtitle">일일세차 <span>캡 + 탑 외부 포함</span></p>
+                  <ul class="pw-lines">
+                    <li><dfn>외부</dfn><b>5만원</b></li>
+                    <li><dfn>외부+캡 실내</dfn><b>6.5만원</b></li>
+                  </ul>
+                </div>
+                <p class="pw-note">실내 옵션은 캡이 좁아 중형 요금이 적용됩니다. 탑 내부(적재함) 청소는 오염도에 따라 3~5만원 별도 견적입니다.</p>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <script>
+        (function(){
+          var root = document.getElementById('priceAccordion');
+          if(!root) return;
+          root.addEventListener('click', function(e){
+            var btn = e.target && e.target.closest ? e.target.closest('.pw-row') : null;
+            if(!btn || !root.contains(btn)) return;
+            var item = btn.parentNode;
+            var open = item.classList.contains('is-open');
+            var items = root.querySelectorAll('.pw-item');
+            for(var i=0;i<items.length;i++){
+              items[i].classList.remove('is-open');
+              items[i].querySelector('.pw-row').setAttribute('aria-expanded','false');
+            }
+            if(!open){
+              item.classList.add('is-open');
+              btn.setAttribute('aria-expanded','true');
+            }
+          });
+        })();
+        </script>
+        <!-- ▲▲▲ 차종별 요금 아코디언 끝 ▲▲▲ -->
+
+        <div class="two-col">
+          <article class="panel"><h2>추가 옵션</h2><p class="opt-size-note">차량 크기에 따라 금액이 달라집니다. 소형: 경차·준중형 · 중형: 중형·준대형·대형 세단, 소형·중형 SUV · 대형: 대형 SUV, 대형 MPV, 수입 대형, 화물·탑차(실내 옵션은 중형). 실내 옵션은 외부세차에 추가할 때 기준이며, 실내까지 원하시면 외부+내부 세차가 더 저렴합니다.</p><div class="option-list"><div><span>휠 철분·집중세정<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>고급 왁스·실런트<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div><div><span>실내 집중세차<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>트렁크 청소<small class="opt-size">소형 1만 · 중형 1만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>벌레·타르 제거<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>유리 유막제거<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>발수코팅<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div></div></article>
+          <article class="panel promo"><h2>오픈 혜택</h2><ul class="check-list" id="promoList"></ul></article>
+        </div>
+        <button class="sticky-cta primary-btn" data-go="booking">이 가격으로 예약 문의하기</button>
+      </section>
+
+      <section id="gallery" class="page">
+        <div class="page-title"><span>BEFORE & AFTER</span><h1>세차 전 · 후 갤러리</h1><p>사진을 좌우로 밀어서 변화를 확인하세요.</p></div>
+        <div id="galleryList" class="gallery-list"></div>
+      </section>
+
+      <section id="worklog" class="page">
+        <div class="page-title"><span>WORK LOG</span><h1>출장세차 작업 일지</h1><p>실제로 다녀온 현장의 작업 과정과 전후 사진입니다. 누르면 블로그에서 자세히 볼 수 있습니다.</p></div>
+        <div id="worklogPosts" class="blog-posts"><div class="blog-empty">작업 일지를 불러오는 중…</div></div>
+        <a class="secondary-btn button-link worklog-more" href="https://blog.naver.com/athomecarcare" target="_blank" rel="noopener">네이버 블로그에서 전체 보기 →</a>
+      </section>
+      <section id="reviews" class="page">
+        <div class="page-title"><span>REVIEWS</span><h1>고객 사용후기</h1><p>실제 이용후기를 모아 서비스 품질을 보여주세요.</p></div>
+        <div id="reviewList" class="review-grid big"></div>
+        <article class="panel form-panel">
+          <h2>후기 남기기</h2>
+          <form id="reviewForm" class="form-grid">
+            <label>지역/이름<input name="author" placeholder="예: 사월동 고객" required></label>
+            <label>차종<input name="car" placeholder="예: GV80"></label>
+            <label>연락처 <small class="field-hint">리뷰 혜택 쿠폰을 받으실 번호 (선택)</small><input name="phone" inputmode="tel" placeholder="010-0000-0000" autocomplete="off"></label>
+            <label>리뷰 혜택 선택<select name="reviewGift">
+              <option value="cash">3,000원 할인</option>
+              <option value="wax">실외 전체 왁스 1회</option>
+              <option value="trunk">트렁크 청소 1회</option>
+            </select></label>
+            <label>별점<select name="rating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
+            <label class="span-2">후기<textarea name="text" rows="4" placeholder="이용후기를 적어주세요." required></textarea></label>
+            <button class="primary-btn span-2" type="submit">후기 등록</button>
+          </form>
+        </article>
+      </section>
+
+      <!-- 세차팁 기능 제거 (2026-09-20) — app.js 등 기존 스크립트 호환용 숨김 플레이스홀더 -->
+      <div id="tipsCompat" hidden style="display:none !important">
+        <div id="tipFilters"></div>
+        <div id="tipList"></div>
+        <div id="homeTips"></div>
+      </div>
+
+      <section id="booking" class="page">
+        <div class="page-title"><span>BOOKING</span><h1>문의 / 예약</h1><p>아래 내용을 입력하면 예약이 바로 접수됩니다. 접수 후 확인 연락을 드립니다.</p></div>
+        <article class="panel form-panel">
+          <form id="bookingForm" class="form-grid">
+            <label>예약자 이름<input name="customerName" placeholder="예: 홍길동" autocomplete="name" required></label>
+            <label>연락처<input name="phone" inputmode="tel" placeholder="010-0000-0000" autocomplete="tel" required></label>
+            <label>아파트명<input name="apartment" placeholder="예: 중산지구 ○○아파트" required></label>
+            <label>제조사<select name="carBrand" id="carBrandSelect" required>
+              <option value="">제조사를 선택하세요</option>
+            </select></label>
+            <label>모델<select name="carModelSel" id="carModelSelect" required>
+              <option value="">제조사를 먼저 선택하세요</option>
+            </select></label>
+            <label class="span-2 hidden" id="carCustomWrap">차종 직접 입력<input name="carCustom" id="carCustomInput" placeholder="예: 벤츠 CLE 쿠페"></label>
+            <label>차량 번호<input name="plate" placeholder="예: 12가 3456" autocomplete="off" required></label>
+            <label>상세 주소 <small class="field-hint">동·호수 또는 주차 위치</small><input name="address" placeholder="예: 103동 지하 2층 B구역" autocomplete="off"></label>
+            <input type="hidden" name="car" id="carHidden">
+            <input type="hidden" name="carClass" id="carClassHidden">
+            <label>차종 구분 <small class="field-hint" id="carClassHint">모델을 고르면 자동으로 선택됩니다</small><select id="carClassSelect">
+              <option value="">선택 (선택사항)</option>
+              <option>경차·소형</option>
+              <option>준중형 세단</option>
+              <option>중형·준대형 세단</option>
+              <option>대형 세단</option>
+              <option>소형 SUV</option>
+              <option>중형 SUV</option>
+              <option>대형 SUV</option>
+              <option>대형 MPV·특대형</option>
+              <option>수입 대형·프리미엄</option>
+              <option>화물·탑차</option>
+            </select></label>
+            <label>희망 서비스<select name="service">
+              <option>월 2회</option>
+              <option>월 4회</option>
+              <option>일일 외부세차</option>
+              <option>외부+내부세차</option>
+              <option>기타 상담</option>
+            </select></label>
+            <label>희망 날짜<input name="preferredDate" type="date"></label>
+            <label>희망 시간<input name="preferredTime" type="time"></label>
+            <div class="span-2 opt-field">
+              <span class="opt-title">추가 옵션 <small class="field-hint">필요한 항목을 선택하세요 (선택사항)</small></span>
+              <div class="opt-grid">
+                <label class="opt-chip"><input type="checkbox" name="options" value="휠 철분·집중세정"><span>휠 철분·집중세정<small>+10,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="고급 왁스·실런트"><span>고급 왁스·실런트<small>+20,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="실내 집중세차"><span>실내 집중세차<small>+15,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="트렁크 청소"><span>트렁크 청소<small>+10,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="벌레·타르 제거"><span>벌레·타르 제거<small>+10,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="유리 유막제거"><span>유리 유막제거<small>+15,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="발수코팅"><span>발수코팅<small>+20,000원~</small></span></label>
+              </div>
+            </div>
+            <div class="span-2 opt-field" id="promoField">
+              <span class="opt-title">혜택 적용 <small class="field-hint">예약 1건당 1개만 적용됩니다 (중복 불가)</small></span>
+              <div class="opt-grid" id="promoGrid"></div>
+              <div class="coupon-row">
+                <input id="couponCode" placeholder="쿠폰 번호 (예: AHC-3F7K2Q)" autocomplete="off">
+                <button type="button" class="secondary-btn" id="couponCheck">쿠폰 확인</button>
+              </div>
+              <p class="coupon-msg" id="couponMsg"></p>
+            </div>
+            <label class="span-2">추천인 연락처 <small class="field-hint">소개해주신 분의 번호를 적으면 그분께 외부세차 1회 쿠폰이 신청됩니다 (선택)</small><input name="referrer" inputmode="tel" placeholder="010-0000-0000" autocomplete="off"></label>
+            <label class="span-2">요청사항<textarea name="memo" rows="3" placeholder="주차 위치, 가능한 요일, 그 외 요청사항을 적어주세요."></textarea></label>
+            <div class="span-2 quote-box" id="quoteBox">
+              <div class="quote-head"><span>예상 금액</span><em id="quoteCar">차량을 선택해주세요</em></div>
+              <ul class="quote-lines" id="quoteLines"></ul>
+              <div class="quote-total"><span id="quoteTotalLabel">합계</span><b id="quoteTotal">-</b></div>
+              <p class="quote-note">차량 상태·오염도에 따라 금액이 달라질 수 있습니다. 최종 금액은 접수 후 안내드립니다.</p>
+            </div>
+            <button type="submit" class="primary-btn span-2">예약 접수하기</button>
+          </form>
+          <div id="bookingResult" class="booking-result hidden"></div>
+        </article>
+        <div class="booking-contact-strip">
+          <!-- 전화문의 숨김
+          [a class="booking-contact-btn" href="tel:01083918999" data-call>
+            <span style="font-size:22px">📞</span><span>전화로 문의</span>
+          [/a]
+          -->
+          <a class="booking-contact-btn sms-btn" href="sms:01083918999" data-sms>
+            <span style="font-size:22px">💬</span><span>문자 문의<br><small style="font-weight:500;font-size:13px">바로 문의하기</small></span>
+          </a>
+          <a class="booking-contact-btn kakao-btn" href="https://pf.kakao.com/_gpDrX" target="_blank" rel="noopener" data-kakao-link>
+            <span style="font-size:22px">💬</span><span>카카오채널<br><small style="font-weight:500;font-size:13px">바로 문의하기</small></span>
+          </a>
+        </div>
+      </section>
+
+      <section id="partner" class="page">
+        <div class="page-title"><span>PARTNER</span><h1>믿음 파트너 입점문의</h1></div>
+        <figure class="partner-poster">
+          <img src="./assets/partner-recruit.jpg?v=20260919" alt="집앞세차 파트너 모집 안내 — 파트너 혜택, 입점 절차, 모집 분야" loading="lazy" decoding="async">
+          <figcaption>광고 및 앱 관리로 세차에만 집중할 수 있는 파트너를 모집합니다. 대구 · 경산 지역 중심으로 운영합니다.</figcaption>
+        </figure>
+        <article class="panel form-panel">
+          <form id="partnerForm" class="form-grid">
+            <label>성함<input name="name" placeholder="예: 홍길동" required></label>
+            <label>연락처<input name="phone" inputmode="tel" placeholder="010-0000-0000" required></label>
+            <label>희망 지역<input name="area" placeholder="예: 대구 수성구 시지" required></label>
+            <label>세차 경력<select name="career"><option>경력 없음 (교육 희망)</option><option>1년 미만</option><option>1~3년</option><option>3년 이상</option></select></label>
+            <label class="span-2">보유 장비 · 차량<input name="equipment" placeholder="예: 스타렉스 + 고압세척기 보유 / 없음"></label>
+            <label class="span-2">문의사항<textarea name="memo" rows="4" placeholder="가능한 시작 시기, 주중/주말 운영 가능 여부 등을 적어주세요."></textarea></label>
+            <button type="submit" class="primary-btn span-2">입점문의 내용 만들기</button>
+          </form>
+          <div id="partnerResult" class="booking-result hidden"></div>
+        </article>
+      </section>
+
+      <section id="admin" class="page">
+        <div class="admin-grid">
+          <article class="panel"><h2>운영 정보</h2><form id="settingsForm" class="form-grid"><label>전화번호<input name="phone"></label><label>카카오채널 URL<input name="kakaoUrl" placeholder="https://pf.kakao.com/..."></label><label class="span-2">영업시간<input name="hours"></label><button class="primary-btn span-2" type="submit">저장</button></form></article>
+          <article class="panel"><h2>세차 전·후 사진 추가</h2><form id="galleryForm" class="form-grid"><label>제목<input name="title" required></label><label>설명<input name="note"></label><label>Before 이미지<input type="file" accept="image/*" name="before" required></label><label>After 이미지<input type="file" accept="image/*" name="after" required></label><button class="primary-btn span-2" type="submit">사진 추가</button></form></article>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="하단 메뉴">
+      <button data-go="home" class="active"><span>⌂</span><small>홈</small></button><button data-go="menu"><span>₩</span><small>요금</small></button><button data-go="gallery"><span>◫</span><small>전후</small></button><button data-go="worklog"><span>✎</span><small>일지</small></button><button data-go="booking"><span>✉</span><small>예약</small></button>
+    </nav>
+  </div>
+  <div id="toast" class="toast"></div>
+  <script>
+  /* 세차팁 기능 제거 (2026-09-20)
+     - 이미 저장된 #/tips 주소나 남아 있는 data-go="tips" 링크로 들어오면 홈으로 되돌립니다. */
+  (function(){
+    function killTips(){
+      if(location.hash && location.hash.replace('#/','').replace('#','') === 'tips'){
+        location.hash = '#/home';
+      }
+    }
+    killTips();
+    window.addEventListener('hashchange', killTips);
+    document.addEventListener('click', function(e){
+      var t = e.target && e.target.closest ? e.target.closest('[data-go="tips"]') : null;
+      if(t){ e.preventDefault(); e.stopPropagation(); }
+    }, true);
+  })();
+  </script>
+  <script src="compat-fix.js?v=20260916-6"></script>
+  <script src="restore-classic.js?v=20260916-2"></script>
+  <script src="app.js?v=20260926-newopt1"></script>
+  <script src="supabase-integration.js?v=20260927-reviews1"></script>
+</body>
+</html>
