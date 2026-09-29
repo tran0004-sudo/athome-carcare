@@ -33,7 +33,7 @@
       const area = document.createElement('input');
       area.type = 'hidden';
       area.name = 'area';
-      area.value = '경산 중산지구 · 사월동 · 시지 · 신매동 · 대구 전지역';
+      area.value = '대구·경산 전지역';
       settingsForm.appendChild(area);
     }
 

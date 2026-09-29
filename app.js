@@ -23,7 +23,7 @@ const DEFAULT_PROMOS = [
 
 function normalize(data = {}) {
   const base = publishedState || {
-    settings: { phone: '010-8391-8999', kakaoUrl: 'https://pf.kakao.com/_gpDrX', bankName: '', bankAccount: '', bankHolder: '', kakaopayUrl: '', tossUrl: '', area: '경산 중산지구 · 사월동 · 시지 · 신매동 · 대구 전지역' },
+    settings: { phone: '010-8391-8999', kakaoUrl: 'https://pf.kakao.com/_gpDrX', bankName: '', bankAccount: '', bankHolder: '', kakaopayUrl: '', tossUrl: '', area: '대구·경산 전지역' },
     promos: deepClone(DEFAULT_PROMOS),
     gallery: [], reviews: [], tips: [], inquiries: []
   };
