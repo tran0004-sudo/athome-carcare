@@ -1,0 +1,170 @@
+name: Add price page
+
+on:
+  push:
+    paths:
+      - '.github/workflows/price-page.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  price:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Write price.html
+        shell: bash
+        run: |
+          cat > price.html <<'HTML'
+          <!doctype html>
+          <html lang="ko">
+          <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <title>대구 출장세차 가격표 · 차종별 요금 | 집앞세차 앳홈카케어</title>
+          <meta name="description" content="대구·경산 출장세차(방문세차) 차종별 가격표. 외부세차 25,000원부터, 외부+내부세차, 월세차(월 2회·4회), 추가 옵션 요금까지 한눈에. 출장비 무료." />
+          <link rel="canonical" href="https://tran0004-sudo.github.io/athome-carcare/price.html" />
+          <meta property="og:type" content="website" />
+          <meta property="og:site_name" content="집앞세차 앳홈카케어" />
+          <meta property="og:title" content="대구 출장세차 가격표 | 집앞세차 앳홈카케어" />
+          <meta property="og:description" content="외부세차 25,000원부터 · 월세차 · 추가 옵션 · 출장비 무료" />
+          <meta property="og:url" content="https://tran0004-sudo.github.io/athome-carcare/price.html" />
+          <meta property="og:image" content="https://tran0004-sudo.github.io/athome-carcare/assets/og-image.jpg" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="theme-color" content="#087C68" />
+          <link rel="icon" href="icons/icon-192.png" />
+          <script type="application/ld+json">[{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "출장비가 따로 있나요?", "acceptedAnswer": {"@type": "Answer", "text": "없습니다. 대구 전지역과 경산 중산지구는 출장비 없이 표에 적힌 요금만 받습니다."}}, {"@type": "Question", "name": "세차할 때 차주가 있어야 하나요?", "acceptedAnswer": {"@type": "Answer", "text": "아니요. 아파트나 주차장에 주차만 해두시면 비대면으로 세차합니다. 실내 세차는 차 문을 열 수 있는 방법을 예약할 때 알려주세요."}}, {"@type": "Question", "name": "월세차는 어떻게 진행되나요?", "acceptedAnswer": {"@type": "Answer", "text": "월 2회 또는 월 4회 중 선택하며, 정해진 주기로 방문합니다. 월 1회 기본 실내관리가 포함되어 있습니다."}}, {"@type": "Question", "name": "우리 차는 어느 요금인가요?", "acceptedAnswer": {"@type": "Answer", "text": "차종 표에서 가장 가까운 구분을 보시면 됩니다. 예약할 때 모델을 선택하면 차종 구분이 자동으로 정해집니다."}}, {"@type": "Question", "name": "예약은 어떻게 하나요?", "acceptedAnswer": {"@type": "Answer", "text": "앱의 예약 화면, 카카오톡 채널, 문자로 아파트명·차종·희망 서비스를 보내주시면 확인 후 연락드립니다."}}]}, {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "집앞세차 앳홈카케어", "item": "https://tran0004-sudo.github.io/athome-carcare/"}, {"@type": "ListItem", "position": 2, "name": "출장세차 가격표", "item": "https://tran0004-sudo.github.io/athome-carcare/price.html"}]}]</script>
+          <style>
+          :root{--g:#087C68;--g2:#0aa084;--ink:#17201d;--mut:#5f6b67;--line:#e3ebe8;--bg:#f5faf8}
+          *{box-sizing:border-box}body{margin:0;font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;color:var(--ink);background:var(--bg);line-height:1.6}
+          a{color:var(--g)}.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+          header{background:#fff;border-bottom:1px solid var(--line)}header .wrap{display:flex;align-items:center;gap:10px;height:60px}header img{width:36px;height:36px;border-radius:9px}header a{text-decoration:none;color:var(--ink);font-weight:800}
+          .hero{background:linear-gradient(180deg,#e9f8f3,#f5faf8);padding:32px 0 20px}.kick{color:var(--g);font-weight:900;font-size:13px;letter-spacing:.08em}
+          h1{font-size:30px;line-height:1.25;margin:6px 0 10px;letter-spacing:-1px}.hero p{margin:0;color:var(--mut)}
+          .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.pills span{background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700}
+          section{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px;margin:16px 0}h2{font-size:21px;margin:0 0 4px}.sub{color:var(--mut);font-size:14px;margin:0 0 12px}
+          .tbl{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:15px;min-width:320px}th,td{padding:11px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+          thead th{background:var(--g);color:#fff;font-size:13px}thead th:first-child{border-radius:10px 0 0 0;text-align:left}thead th:last-child{border-radius:0 10px 0 0}
+          tbody th{text-align:left;font-weight:700;white-space:normal}th small,td small{display:block;color:var(--mut);font-weight:400;font-size:12px}td{font-weight:800;color:var(--g)}
+          .note{font-size:13px;color:var(--mut);margin:10px 0 0}
+          details{border-bottom:1px solid var(--line);padding:12px 0}summary{font-weight:800;cursor:pointer}details p{margin:8px 0 0;color:var(--mut)}
+          .cta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0 8px}.btn{display:block;text-align:center;border-radius:14px;padding:14px;font-weight:900;text-decoration:none}
+          .btn.p{background:linear-gradient(135deg,var(--g),var(--g2));color:#fff}.btn.s{background:#fff;border:1px solid #8bcbbd;color:var(--g)}.btn.w{grid-column:1/-1}
+          footer{text-align:center;color:var(--mut);font-size:13px;padding:24px 0 40px}
+          @media(max-width:480px){h1{font-size:25px}th,td{padding:10px 6px;font-size:14px}}
+          </style>
+          </head>
+          <body>
+          <header><div class="wrap"><a href="./"><img src="icons/icon-192.png" alt="앳홈카케어 로고"></a><a href="./">집앞세차 앳홈카케어</a></div></header>
+          <div class="hero"><div class="wrap">
+          <span class="kick">PRICE</span>
+          <h1>대구 출장세차 가격표<br>차종별 요금 한눈에 보기</h1>
+          <p>아파트·주차장으로 찾아가는 방문세차입니다. 주차만 해두시면 끝. 대구 전지역과 경산 중산지구 모두 출장비 없이 아래 요금 그대로 받습니다.</p>
+          <div class="pills"><span>🚚 출장비 무료</span><span>🔑 비대면 가능</span><span>🕑 오후 2시~새벽 2시</span><span>📍 대구 전지역·경산 중산지구</span></div>
+          </div></div>
+          <main class="wrap">
+          <section id="daily">
+          <h2>일일세차 요금</h2>
+          <p class="sub">필요할 때 한 번만. 외부세차는 도장 세정, 유리·휠, 타이어, 간편 왁스까지 포함됩니다.</p>
+          <div class="tbl"><table><thead><tr><th scope="col">차종</th><th scope="col">외부세차</th><th scope="col">외부+내부</th></tr></thead><tbody>
+          <tr><th scope="row">경차·소형<small>모닝·레이·캐스퍼·스파크</small></th><td>25,000원</td><td>38,000원</td></tr>
+          <tr><th scope="row">준중형 세단<small>아반떼·K3·BMW 3시리즈·A3</small></th><td>30,000원</td><td>43,000원</td></tr>
+          <tr><th scope="row">중형·준대형 세단<small>쏘나타·K5·그랜저·G80·E클래스</small></th><td>33,000원</td><td>46,000원</td></tr>
+          <tr><th scope="row">대형 세단<small>G90·K9·S클래스·7시리즈</small></th><td>37,000원</td><td>50,000원</td></tr>
+          <tr><th scope="row">소형 SUV<small>셀토스·코나·트랙스·티볼리</small></th><td>33,000원</td><td>46,000원</td></tr>
+          <tr><th scope="row">중형 SUV<small>투싼·스포티지·쏘렌토·싼타페</small></th><td>37,000원</td><td>50,000원</td></tr>
+          <tr><th scope="row">대형 SUV<small>팰리세이드·GV80·X5·GLE</small></th><td>39,000원</td><td>53,000원</td></tr>
+          <tr><th scope="row">대형 MPV·특대형<small>카니발·스타리아·시에나</small></th><td>40,000원</td><td>55,000원</td></tr>
+          <tr><th scope="row">수입 대형·프리미엄<small>에스컬레이드·GLS·X7·레인지로버</small></th><td>45,000원</td><td>60,000원</td></tr>
+          <tr><th scope="row">화물·탑차<small>포터·봉고·탑차</small></th><td>50,000원</td><td>65,000원<small>캡 실내</small></td></tr>
+          </tbody></table></div>
+          <p class="note">내부세차: 매트 흙·먼지 제거, 진공청소, 대시보드·내측 유리 정리. 화물·탑차 적재함 청소는 오염도에 따라 3~5만원 별도 견적입니다.</p>
+          </section>
+          <section id="monthly">
+          <h2>월세차 요금</h2>
+          <p class="sub">정기 방문으로 항상 깨끗하게. 월 1회 기본 실내관리가 포함되어 있습니다.</p>
+          <div class="tbl"><table><thead><tr><th scope="col">차종</th><th scope="col">월 2회</th><th scope="col">월 4회</th></tr></thead><tbody>
+          <tr><th scope="row">경차·소형</th><td>50,000원~</td><td>75,000원~</td></tr>
+          <tr><th scope="row">준중형 세단</th><td>54,000원~</td><td>85,000원~</td></tr>
+          <tr><th scope="row">중형·준대형 세단</th><td>60,000원~</td><td>90,000원~</td></tr>
+          <tr><th scope="row">대형 세단</th><td>64,000원~</td><td>99,000원~</td></tr>
+          <tr><th scope="row">소형 SUV</th><td>60,000원~</td><td>90,000원~</td></tr>
+          <tr><th scope="row">중형 SUV</th><td>64,000원~</td><td>99,000원~</td></tr>
+          <tr><th scope="row">대형 SUV</th><td>74,000원~</td><td>110,000원~</td></tr>
+          <tr><th scope="row">대형 MPV·특대형</th><td>80,000원~</td><td>115,000원~</td></tr>
+          <tr><th scope="row">수입 대형·프리미엄</th><td>88,000원~</td><td>125,000원~</td></tr>
+          <tr><th scope="row">화물·탑차</th><td>95,000원~</td><td>135,000원~</td></tr>
+          </tbody></table></div>
+          <p class="note">차량 상태와 주차 환경에 따라 금액이 조정될 수 있어 시작가로 표시했습니다.</p>
+          </section>
+          <section id="options">
+          <h2>추가 옵션 요금</h2>
+          <p class="sub">소형: 경차·준중형 · 중형: 중형·준대형·대형 세단, 소형·중형 SUV · 대형: 대형 SUV·MPV·수입 대형·화물</p>
+          <div class="tbl"><table><thead><tr><th scope="col">옵션</th><th scope="col">소형</th><th scope="col">중형</th><th scope="col">대형</th></tr></thead><tbody>
+          <tr><th scope="row">휠 철분·집중세정</th><td>1만</td><td>1.2만</td><td>1.5만</td></tr>
+          <tr><th scope="row">고급 왁스·실런트</th><td>2만</td><td>2.5만</td><td>3만</td></tr>
+          <tr><th scope="row">실내 집중세차</th><td>1.5만</td><td>1.8만</td><td>2.2만</td></tr>
+          <tr><th scope="row">트렁크 청소</th><td>1만</td><td>1만</td><td>1.5만</td></tr>
+          <tr><th scope="row">벌레·타르 제거</th><td>1만</td><td>1.2만</td><td>1.5만</td></tr>
+          <tr><th scope="row">유리 유막제거</th><td>1.5만</td><td>1.8만</td><td>2.2만</td></tr>
+          <tr><th scope="row">발수코팅</th><td>2만</td><td>2.5만</td><td>3만</td></tr>
+          </tbody></table></div>
+          <p class="note">실내 옵션은 외부세차에 추가할 때 기준입니다. 실내까지 원하시면 외부+내부 세차가 더 저렴합니다.</p>
+          </section>
+          <section id="faq">
+          <h2>자주 묻는 질문</h2>
+          <details><summary>출장비가 따로 있나요?</summary><p>없습니다. 대구 전지역과 경산 중산지구는 출장비 없이 표에 적힌 요금만 받습니다.</p></details>
+          <details><summary>세차할 때 차주가 있어야 하나요?</summary><p>아니요. 아파트나 주차장에 주차만 해두시면 비대면으로 세차합니다. 실내 세차는 차 문을 열 수 있는 방법을 예약할 때 알려주세요.</p></details>
+          <details><summary>월세차는 어떻게 진행되나요?</summary><p>월 2회 또는 월 4회 중 선택하며, 정해진 주기로 방문합니다. 월 1회 기본 실내관리가 포함되어 있습니다.</p></details>
+          <details><summary>우리 차는 어느 요금인가요?</summary><p>차종 표에서 가장 가까운 구분을 보시면 됩니다. 예약할 때 모델을 선택하면 차종 구분이 자동으로 정해집니다.</p></details>
+          <details><summary>예약은 어떻게 하나요?</summary><p>앱의 예약 화면, 카카오톡 채널, 문자로 아파트명·차종·희망 서비스를 보내주시면 확인 후 연락드립니다.</p></details>
+          </section>
+          <div class="cta">
+          <a class="btn p w" href="./#booking">📅 이 가격으로 예약하기</a>
+          <a class="btn s" href="https://pf.kakao.com/_gpDrX" target="_blank" rel="noopener">💬 카카오채널</a>
+          <a class="btn s" href="sms:01083918999">✉️ 문자 문의</a>
+          </div>
+          </main>
+          <footer>집앞세차 앳홈카케어 · 대구 출장세차 · <a href="./">홈으로</a></footer>
+          </body>
+          </html>
+          HTML
+
+      - name: Link from app and sitemap
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p = Path('index.html'); s = p.read_text(encoding='utf-8')
+          if 'price.html' not in s:
+              s = s.replace('사월동/시지/신매동/중산지구 우선예약</p></div>',
+                            '사월동/시지/신매동/중산지구 우선예약 · <a href="price.html" style="color:var(--green);font-weight:800">전체 가격표 한눈에 보기 →</a></p></div>', 1)
+          if 'id="hash-go"' not in s:
+              s = s.replace('</body>', '''<script id="hash-go">
+          window.addEventListener('load',function(){try{var h=(location.hash||'').replace(/^#\\/?/,'');if(h&&h!=='home'&&document.getElementById(h)&&typeof go==='function'){setTimeout(function(){go(h)},50)}}catch(e){}});
+          </script>
+          </body>''', 1)
+          p.write_text(s, encoding='utf-8')
+          m = Path('sitemap.xml'); t = m.read_text(encoding='utf-8')
+          if 'price.html' not in t:
+              t = t.replace('</urlset>', '  <url><loc>https://tran0004-sudo.github.io/athome-carcare/price.html</loc><lastmod>2026-09-29</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>\n</urlset>')
+              m.write_text(t, encoding='utf-8')
+          print('patched', s.count('price.html'), 'price.html' in t)
+          PY
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add price.html index.html sitemap.xml
+          if git diff --cached --quiet; then
+            echo "Nothing to update"
+          else
+            git commit -m "가격표 페이지(price.html) 추가 및 연결"
+            git pull --rebase
+            git push
+          fi
