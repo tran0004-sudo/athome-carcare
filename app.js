@@ -772,7 +772,7 @@ async function renderBlogPosts() {
   const esc2 = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const card = (p) => `
       <a class="blog-post${p.thumb ? '' : ' no-thumb'}" href="${esc2(p.link)}" target="_blank" rel="noopener">
-        ${p.thumb ? `<img class="blog-thumb" src="${esc2(p.thumb)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('no-thumb');this.remove()">` : ''}
+        ${p.thumb ? `<img class="blog-thumb" src="${esc2(p.thumb)}" alt="${esc2(p.title || '출장세차 작업 일지')} 사진" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.add('no-thumb');this.remove()">` : ''}
         <div>
           <p class="blog-meta">${esc2(p.date)}${p.category ? ' · ' + esc2(p.category) : ''}</p>
           <p class="blog-title">${esc2(p.title)}</p>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://tran0004-sudo.github.io/athome-carcare/sitemap.xml
