@@ -101,7 +101,7 @@ jobs:
               r = r.crop((0, (r.height - H) // 2, pw, (r.height - H) // 2 + H)) if r.height >= H else ph.resize((pw, H))
               bg.paste(r, (W - pw, 0)); d.polygon([(W-pw-1, 0), (W-pw+70, 0), (W-pw-1, H)], fill='#087C68')
               logo = Image.open('icons/icon-512.png').convert('RGBA').resize((120, 120)); bg.paste(logo, (64, 60), logo)
-              fb = glob.glob('/usr/share/fonts/**/NotoSansCJK-Black.ttc', recursive=True)[0]
+              fb = glob.glob('/usr/share/fonts/**/NotoSansCJK-Bold.ttc', recursive=True)[0]
               fd = glob.glob('/usr/share/fonts/**/NotoSansCJK-Bold.ttc', recursive=True)[0]
               F = lambda path, n: ImageFont.truetype(path, n, index=1)
               d.text((64, 215), "대구 출장세차", font=F(fb, 76), fill='white')
