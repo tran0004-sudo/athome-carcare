@@ -1,4 +1,4 @@
-const CACHE = 'athome-carcare-v90';
+const CACHE = 'athome-carcare-v91';
 const ASSETS = [
   './', './index.html', './styles.css?v=20260916-1line', './home-polish.css?v=20260916-nohero1', './restore-classic.js?v=20260916-2', './compat-fix.js?v=20260916-3', './app.js?v=20260929-area1', './supabase-integration.js?v=20260929-area1', './manifest.webmanifest?v=20260927-icon6', './data/content.json',
 './icons/icon-192.png?v=20260927-icon6', './icons/icon-512.png?v=20260927-icon6', './icons/icon-maskable-512.png?v=20260927-icon6',
