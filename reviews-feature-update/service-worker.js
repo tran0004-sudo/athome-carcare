@@ -1,7 +1,7 @@
 const CACHE = 'athome-carcare-v87';
 const ASSETS = [
-  './', './index.html', './styles.css?v=20260916-1line', './home-polish.css?v=20260916-nohero1', './restore-classic.js?v=20260916-2', './compat-fix.js?v=20260916-3', './app.js?v=20260926-newopt1', './supabase-integration.js?v=20260927-reviews1', './manifest.webmanifest?v=20260927-icon6', './data/content.json',
-'./icons/icon-192.png?v=20260927-icon6', './icons/icon-512.png?v=20260927-icon6', './icons/icon-maskable-512.png?v=20260927-icon6',
+  './', './index.html', './styles.css?v=20260916-1line', './home-polish.css?v=20260916-nohero1', './restore-classic.js?v=20260916-2', './compat-fix.js?v=20260916-3', './app.js?v=20260926-newopt1', './supabase-integration.js?v=20260927-reviews1', './manifest.webmanifest?v=20261001-icon7', './data/content.json',
+'./icons/icon-192.png?v=20261001-icon7', './icons/icon-512.png?v=20261001-icon7', './icons/icon-maskable-512.png?v=20261001-icon7',
   './assets/partner-recruit.jpg?v=20260919', './assets/wheel-before.svg', './assets/wheel-after.svg', './assets/body-before.svg', './assets/body-after.svg',
   './assets/interior-before.svg', './assets/interior-after.svg'
 ];
@@ -23,8 +23,8 @@ async function withSupabaseIntegration(response) {
   let html = await response.text();
 
   html = html
-    .replaceAll('manifest.webmanifest?v=20260915-7', 'manifest.webmanifest?v=20260927-icon6')
-    .replaceAll('icons/icon.svg?v=20260915-7', 'icons/icon-192.png?v=20260927-icon6');
+    .replaceAll('manifest.webmanifest?v=20260915-7', 'manifest.webmanifest?v=20261001-icon7')
+    .replaceAll('icons/icon.svg?v=20260915-7', 'icons/icon-192.png?v=20261001-icon7');
 
   if (!html.includes('compat-fix.js')) {
     if (html.includes('<script src="restore-classic.js')) {
