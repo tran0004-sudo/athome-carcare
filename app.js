@@ -23,7 +23,7 @@ const DEFAULT_PROMOS = [
 
 function normalize(data = {}) {
   const base = publishedState || {
-    settings: { phone: '010-8391-8999', kakaoUrl: 'https://pf.kakao.com/_gpDrX', bankName: '', bankAccount: '', bankHolder: '', kakaopayUrl: '', tossUrl: '', area: '대구·경산 전지역' },
+    settings: { phone: '010-8391-8999', kakaoUrl: 'https://pf.kakao.com/_gpDrX/chat', bankName: '', bankAccount: '', bankHolder: '', kakaopayUrl: '', tossUrl: '', area: '대구·경산 전지역' },
     promos: deepClone(DEFAULT_PROMOS),
     gallery: [], reviews: [], tips: [], inquiries: []
   };
@@ -206,7 +206,8 @@ function renderSettings() {
   document.querySelectorAll('[data-phone-text]').forEach((el) => { el.textContent = phone; });
   document.querySelectorAll('[data-call]').forEach((el) => { el.href = `tel:${digits(phone)}`; });
   document.querySelectorAll('[data-sms]').forEach((el) => { el.href = `sms:${digits(phone)}`; });
-  const kakaoUrl = state.settings.kakaoUrl || '';
+  // 채널 홈(pf.kakao.com/_xxx)은 PC에서 채팅으로 이어지지 않아 채팅 주소로 통일
+  const kakaoUrl = String(state.settings.kakaoUrl || '').replace(/^(https?:\/\/pf\.kakao\.com\/_[A-Za-z0-9]+)\/?$/, '$1/chat');
   document.querySelectorAll('[data-kakao-link]').forEach((el) => {
     el.classList.toggle('hidden', !kakaoUrl);
     if (kakaoUrl) el.href = kakaoUrl;
@@ -335,7 +336,7 @@ function bindEvents() {
       box.innerHTML = `<pre>${esc(message)}</pre><div class="actions">
         <button class="secondary-btn" id="copyPartner">문의내용 복사</button>
         <a class="primary-btn button-link" href="sms:${digits(state.settings.phone)}">문자 보내기</a>
-        <a class="primary-btn button-link" href="${state.settings.kakaoUrl || 'https://pf.kakao.com/_gpDrX'}" target="_blank" rel="noopener">카카오채널 열기</a>
+        <a class="primary-btn button-link" href="${state.settings.kakaoUrl || 'https://pf.kakao.com/_gpDrX/chat'}" target="_blank" rel="noopener">카카오채널 열기</a>
       </div>`;
       document.querySelector('#copyPartner').onclick = () =>
         navigator.clipboard?.writeText(message)
