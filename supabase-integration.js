@@ -798,7 +798,7 @@ ${linkLines ? '\n' + linkLines : ''}
         <div class="msg-actions">
           <a class="msg-send" id="msgSms" href="#">📱 문자 보내기</a>
           <button class="msg-copy" id="msgCopy">📋 복사</button>
-          <a class="msg-kakao" href="https://pf.kakao.com/_gpDrX/chat" target="_blank" rel="noopener">💬 카카오</a>
+          <a class="msg-kakao" href="https://pf.kakao.com/_xbwxaaX/chat" target="_blank" rel="noopener">💬 카카오</a>
           <a class="msg-call" href="tel:${tel(row.phone)}">📞 전화</a>
         </div>
       </div>`;
@@ -1297,7 +1297,7 @@ ${linkLines ? '\n' + linkLines : ''}
           <div class="booking-success-btns">
             <a class="primary-btn button-link" href="tel:01083918999">☎ 전화 확인</a>
             <a class="secondary-btn button-link" href="sms:01083918999">💬 문자 문의</a>
-            <a class="secondary-btn button-link" href="https://pf.kakao.com/_gpDrX/chat" target="_blank" rel="noopener">💬 카카오채널</a>
+            <a class="secondary-btn button-link" href="https://pf.kakao.com/_xbwxaaX/chat" target="_blank" rel="noopener">💬 카카오채널</a>
           </div>
         </div>`;
         result.querySelectorAll('.pay-copy-btn').forEach(btn => {
