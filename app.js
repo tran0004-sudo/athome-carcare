@@ -17,7 +17,7 @@ const DEFAULT_PROMOS = [
   { id: 'first2', auto: 'first', text: '첫 달 월 2회 ', highlight: '5,000원 할인', amount: 5000, services: ['월 2회'] },
   { id: 'refer', text: '가족·지인 소개 시 ', highlight: '외부세차 1회', amount: 0, gift: '외부세차 1회 제공', services: [] },
   { id: 'apt5', auto: 'apt5', text: '같은 아파트 5대 이상 ', highlight: '차량당 5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
-  { id: 'loyal', auto: 'loyal', text: '꾸준히 이용 시 ', highlight: '3개월마다 외부세차 1회', amount: 0, gift: '3개월마다 외부세차 1회', services: ['월 2회', '월 4회'] },
+  { id: 'loyal', auto: 'loyal', text: '꾸준히 이용 시 ', highlight: '3개월마다 휠 집중세정 또는 실내 집중세차 1회', amount: 0, gift: '3개월마다 휠 집중세정 또는 실내 집중세차 1회 (선택)', services: ['월 2회', '월 4회'] },
   { id: 'review', text: '리뷰 작성 시 ', highlight: '3,000원 할인 · 실외 전체 왁스 · 트렁크 청소 중 택 1 쿠폰', amount: 3000, services: [] },
 ];
 
@@ -793,3 +793,41 @@ async function renderBlogPosts() {
     if (pageBox) pageBox.innerHTML = '<div class="blog-empty">작업 일지를 불러오지 못했습니다. 아래 버튼으로 블로그에서 확인해 주세요.</div>';
   }
 }
+
+/* ── 월세차 VIP 라운지 ── */
+function renderVip() {
+  const sel = document.querySelector('#vipClass');
+  const out = document.querySelector('#vipCalcResult');
+  if (!sel || !out || typeof PRICE_TABLE === 'undefined') return;
+  if (!sel.options.length) {
+    sel.innerHTML = Object.keys(PRICE_TABLE).map((c) => `<option${c === '중형 SUV' ? ' selected' : ''}>${c}</option>`).join('');
+    sel.addEventListener('change', renderVip);
+  }
+  const p = PRICE_TABLE[sel.value];
+  const won = (n) => `${Number(n).toLocaleString('ko-KR')}원`;
+  const plans = [
+    ['월 2회', p['일일 외부세차'] + p['외부+내부세차'], p['월 2회']],
+    ['월 4회', p['일일 외부세차'] * 3 + p['외부+내부세차'], p['월 4회']],
+  ];
+  out.innerHTML = plans.map(([name, daily, monthly]) => {
+    const save = daily - monthly;
+    const pct = Math.round(save / daily * 100);
+    return `<div class="vip-plan"><h5>${name}</h5>
+      <div class="row"><span>일일세차로 받으면</span><s>${won(daily)}</s></div>
+      <div class="row"><span>월세차</span><b>${won(monthly)}</b></div>
+      <div class="save">${save > 0 ? `매달 ${won(save)} 절약 (${pct}%)` : '같은 금액으로 정기 관리'}</div></div>`;
+  }).join('');
+}
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-vip-start]');
+  if (!btn) return;
+  go('booking');
+  const svc = document.querySelector('#bookingForm [name="service"]');
+  if (svc) {
+    svc.value = btn.dataset.vipStart;
+    svc.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+});
+document.addEventListener('click', (e) => { if (e.target.closest('[data-go="vip"]')) setTimeout(renderVip, 0); });
+
