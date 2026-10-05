@@ -41,7 +41,7 @@ begin
     else
       v_label := '리뷰 혜택 · 3,000원 할인';  v_amount := 3000;
     end if;
-    v_status := '발급';                       -- 리뷰 혜택은 즉시 사용 가능
+    -- 리뷰 혜택도 사장님이 실제 리뷰를 확인한 뒤 승인하면 사용 가능 (기본값 '승인대기' 유지)
 
   elsif p_kind = 'loyal' then
     v_label := '꾸준히 이용 혜택'; v_gift := '휠 집중세정 또는 실내 집중세차 1회 (선택)';

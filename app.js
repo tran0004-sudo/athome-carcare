@@ -312,9 +312,12 @@ function bindEvents() {
     if (phone.replace(/\D/g, '').length >= 9 && typeof window.requestReviewCoupon === 'function') {
       window.requestReviewCoupon(phone, gift).then((result) => {
         if (!result?.ok) { toast('후기가 등록되었습니다.'); return; }
+        const ready = result.status === '발급';
         toast(result.duplicated
-          ? `이미 발급된 리뷰 쿠폰이 있습니다 — ${result.label} (${result.code})`
-          : `후기 감사합니다! ${result.label} 쿠폰(${result.code})이 발급되었습니다. 예약할 때 번호를 입력하세요.`);
+          ? `이미 신청된 리뷰 쿠폰이 있습니다 — ${result.label} (${result.code})${ready ? '' : ' · 확인 중'}`
+          : ready
+            ? `후기 감사합니다! ${result.label} 쿠폰(${result.code})이 발급되었습니다. 예약할 때 번호를 입력하세요.`
+            : `후기 감사합니다! ${result.label} 쿠폰(${result.code})이 신청되었습니다. 후기 확인 후 사용하실 수 있도록 승인해 드릴게요.`);
       });
       return;
     }
