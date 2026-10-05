@@ -71,12 +71,13 @@
               <a class="secondary-btn button-link kakao-link" href="https://pf.kakao.com/_xbwxaaX/chat" target="_blank" rel="noopener" data-kakao-link>💬 카카오채널</a>
               <!-- 전화문의 숨김: a class="secondary-btn button-link" href="tel:01083918999" data-call>☎ 전화 문의</a --><button class="secondary-btn" data-go="booking">📅 예약하기</button>
             </div>
+            <button type="button" class="vip-hero-chip" data-go="vip">👑 <b>월세차면 매달 최대 39% 절약</b> <span>VIP 혜택 보기 →</span></button>
           </div>
         </div>
 
         <div class="benefits-strip">
           <div><span>🚚</span><b>출장비 무료</b><small>추가비용 없이</small></div>
-          <div><span>👑</span><b>월회원 가능</b><small>꾸준한 차량관리</small></div>
+          <div data-go="vip" class="vip-link"><span>👑</span><b>월회원 VIP</b><small>혜택 보기 →</small></div>
           <div><span>🛡️</span><b>비대면 가능</b><small>주차만 해두세요</small></div>
           <div><span>🕒</span><b>오후 2시~새벽 2시</b><small>바쁜 일상도 OK</small></div>
         </div>
@@ -86,7 +87,7 @@
           <div class="service-grid">
             <article class="service-card mint"><span class="service-icon">🚗</span><h3>외부세차</h3><p>맑은 광택, 깨끗한 첫인상</p><ul><li>도장세정</li><li>유리·휠 표면세정</li><li>타이어·간편 왁스 코팅</li></ul></article>
             <article class="service-card cream"><span class="service-icon">💺</span><h3>내부세차</h3><p>쾌적한 공간, 기분 좋은 드라이브</p><ul><li>매트 흙·먼지 제거</li><li>간단 진공청소</li><li>대시보드·내측 유리 정리</li></ul></article>
-            <article class="service-card mint"><span class="service-icon">📆</span><h3>월세차</h3><p>꾸준한 관리로 항상 깨끗하게</p><ul><li>월 2회 / 월 4회 선택</li><li>월 1회 기본 실내관리</li><li>지역 우선예약</li></ul></article>
+            <article class="service-card mint vip-link" data-go="vip"><span class="service-icon">📆</span><h3>월세차</h3><p>꾸준한 관리로 항상 깨끗하게</p><ul><li>월 2회 / 월 4회 선택</li><li>월 1회 기본 실내관리</li><li>지역 우선예약</li></ul><span class="vip-card-more">VIP 혜택 보기 →</span></article>
             <article class="service-card cream"><span class="service-icon">✨</span><h3>일일세차</h3><p>필요할 때 한 번만도 OK</p><ul><li>차종별 맞춤 세차</li><li>아파트·주차장 방문</li><li>빠르고 꼼꼼한 작업</li></ul></article>
           </div>
         </section>
@@ -94,7 +95,7 @@
         <div class="vip-banner-wrap">
         <button type="button" class="vip-banner" data-go="vip">
           <span class="vip-banner-ic">👑</span>
-          <span class="vip-banner-txt"><b>월세차 VIP 라운지</b><small>일일세차보다 최대 39% 저렴 · 첫 달 할인 · 매달 관리 리포트</small></span>
+          <span class="vip-banner-txt"><b>월세차면 매달 62,000원 아껴요</b><small>중형 SUV 월 4회 기준 · 첫 달 최대 1만원 할인 · 매달 관리 리포트</small></span>
           <span class="vip-banner-go">보러가기 →</span>
         </button>
         </div>
@@ -136,7 +137,7 @@
         <div class="vip-banner-wrap">
         <button style="margin:0 0 18px" type="button" class="vip-banner" data-go="vip">
           <span class="vip-banner-ic">👑</span>
-          <span class="vip-banner-txt"><b>월세차 VIP 라운지</b><small>일일세차보다 최대 39% 저렴 · 첫 달 할인 · 매달 관리 리포트</small></span>
+          <span class="vip-banner-txt"><b>월세차면 매달 62,000원 아껴요</b><small>중형 SUV 월 4회 기준 · 첫 달 최대 1만원 할인 · 매달 관리 리포트</small></span>
           <span class="vip-banner-go">보러가기 →</span>
         </button>
         </div>
@@ -230,6 +231,18 @@
         .worklog-more{display:block;text-align:center;margin:18px 0 8px}
         .blog-empty{font-size:14px;color:#6b7f7a;padding:14px;border:1px dashed #cfdcda;border-radius:14px;text-align:center}
         .process-img{display:block;width:100%;max-width:560px;height:auto;margin:0 auto;border-radius:18px;box-shadow:0 6px 22px rgba(16,40,58,.10)}
+        .vip-hero-chip{display:flex;align-items:center;gap:8px;width:100%;margin-top:12px;padding:12px 14px;border:0;border-radius:14px;background:#ffd34d;color:#3a2a00;font:inherit;font-size:14px;cursor:pointer;text-align:left;box-shadow:0 6px 16px rgba(255,180,0,.35);animation:vipPulse 2.4s ease-in-out infinite}
+        .vip-hero-chip b{flex:1;font-weight:900}
+        .vip-hero-chip span{font-weight:800;font-size:13px;white-space:nowrap}
+        @keyframes vipPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+        @media (prefers-reduced-motion:reduce){.vip-hero-chip{animation:none}}
+        .vip-link{cursor:pointer}
+        .vip-card-more{display:inline-block;margin-top:10px;font-size:13px;font-weight:900;color:#085041;background:#fff;padding:6px 12px;border-radius:999px}
+        .vip-nudge{border:2px solid #ffd34d;background:#fffaf0;border-radius:16px;padding:14px;display:grid;gap:8px}
+        .vip-nudge p{margin:0;font-size:14px;line-height:1.6;color:#3a2a00;font-weight:700}
+        .vip-nudge b{color:#d64545}
+        .vip-nudge-btns{display:flex;gap:8px;flex-wrap:wrap}
+        .vip-nudge-btns button{font-size:13px;padding:9px 12px}
         .vip-banner-wrap{padding:0 16px}
         .vip-banner{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;cursor:pointer;margin:6px 0 22px;padding:18px 20px;border-radius:20px;background:linear-gradient(135deg,#0b2a3a,#085041);color:#fff;box-shadow:0 8px 24px rgba(8,80,65,.22);font:inherit}
         .vip-banner-ic{font-size:30px;flex:0 0 auto}
@@ -696,6 +709,7 @@
               <div class="quote-total"><span id="quoteTotalLabel">합계</span><b id="quoteTotal">-</b></div>
               <p class="quote-note">차량 상태·오염도에 따라 금액이 달라질 수 있습니다. 최종 금액은 접수 후 안내드립니다.</p>
             </div>
+            <div class="span-2 vip-nudge hidden" id="vipNudge"></div>
             <button type="submit" class="primary-btn span-2">예약 접수하기</button>
           </form>
           <div id="bookingResult" class="booking-result hidden"></div>
@@ -773,7 +787,7 @@
   </script>
   <script src="compat-fix.js?v=20260929-area1"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
-  <script src="app.js?v=20261005-vip1"></script>
+  <script src="app.js?v=20261005-vip2"></script>
   <script src="supabase-integration.js?v=20261005-kakao3"></script>
 <script id="hash-go">
 window.addEventListener('load',function(){try{var h=(location.hash||'').replace(/^#\/?/,'');if(h&&h!=='home'&&document.getElementById(h)&&typeof go==='function'){setTimeout(function(){go(h)},50)}}catch(e){}});

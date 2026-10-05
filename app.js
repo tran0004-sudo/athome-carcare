@@ -822,7 +822,7 @@ function renderVip() {
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('[data-vip-start]');
   if (!btn) return;
-  go('booking');
+  if (!document.querySelector('#booking.active')) go('booking');
   const svc = document.querySelector('#bookingForm [name="service"]');
   if (svc) {
     svc.value = btn.dataset.vipStart;
@@ -830,4 +830,23 @@ document.addEventListener('click', (e) => {
   }
 });
 document.addEventListener('click', (e) => { if (e.target.closest('[data-go="vip"]')) setTimeout(renderVip, 0); });
+
+/* 예약 화면 — 일일세차를 고르면 월세차 절약 금액 안내 */
+function renderVipNudge() {
+  const form = document.querySelector('#bookingForm');
+  const box = document.querySelector('#vipNudge');
+  if (!form || !box || typeof PRICE_TABLE === 'undefined') return;
+  const svc = form.querySelector('[name="service"]')?.value || '';
+  const cls = form.querySelector('#carClassHidden')?.value || form.querySelector('#carClassSelect')?.value || '';
+  const p = PRICE_TABLE[cls];
+  if (!p || !/일일|외부\+내부/.test(svc)) { box.classList.add('hidden'); return; }
+  const won = (n) => `${Math.round(n).toLocaleString('ko-KR')}원`;
+  const daily4 = p['일일 외부세차'] * 3 + p['외부+내부세차'];
+  const save = daily4 - p['월 4회'];
+  box.innerHTML = `<p>💡 같은 차를 <b>월 4회</b>로 맡기시면 1회 약 <b>${won(p['월 4회'] / 4)}</b> (일일 외부 ${won(p['일일 외부세차'])}).<br>매달 <b>${won(save)}</b> 아끼고, 첫 달 10,000원 할인까지 받으실 수 있어요.</p>
+    <div class="vip-nudge-btns"><button type="button" class="primary-btn" data-vip-start="월 4회">월 4회로 바꾸기</button><button type="button" class="secondary-btn" data-go="vip">VIP 혜택 보기</button></div>`;
+  box.classList.remove('hidden');
+}
+document.addEventListener('change', (e) => { if (e.target.closest('#bookingForm')) setTimeout(renderVipNudge, 0); });
+document.addEventListener('click', (e) => { if (e.target.closest('[data-vip-start]')) setTimeout(renderVipNudge, 50); });
 
