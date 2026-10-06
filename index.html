@@ -219,6 +219,11 @@
         .pw-gtitle span{font-weight:400;font-size:.76rem;color:var(--pw-muted)}
         .pw-lines{margin:0;padding:0;list-style:none;background:var(--pw-paper);border-radius:12px;overflow:hidden}
         .option-list .opt-size{display:block;margin-top:3px;font-size:12px;font-weight:600;color:#6b7f7a}
+        .option-list>div{align-items:flex-start;gap:14px}
+        .option-list>div>span{flex:1 1 auto;min-width:0;word-break:keep-all}
+        .option-list>div>b{flex:0 0 auto;white-space:nowrap;text-align:right}
+        @media(max-width:420px){.option-list>div>b{font-size:15px}.option-list>div{gap:10px}}
+        .option-list .opt-size2{display:block;margin-top:2px;font-size:12px;font-weight:600;color:#9a7b20}
         .opt-size-note{margin:-4px 0 10px;font-size:13px;font-weight:600;color:#6b7f7a;line-height:1.55}
         .blog-posts{display:grid;gap:12px}
         .blog-post{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;padding:12px;border:1px solid #dfe8e6;border-radius:16px;background:#fff;text-decoration:none;color:inherit}
@@ -575,7 +580,7 @@
         <!-- ▲▲▲ 차종별 요금 아코디언 끝 ▲▲▲ -->
 
         <div class="two-col">
-          <article class="panel"><h2>추가 옵션</h2><p class="opt-size-note">차량 크기에 따라 금액이 달라집니다. 소형: 경차·준중형 · 중형: 중형·준대형·대형 세단, 소형·중형 SUV · 대형: 대형 SUV, 대형 MPV, 수입 대형, 화물·탑차(실내 옵션은 중형). 실내 옵션은 외부세차에 추가할 때 기준이며, 실내까지 원하시면 외부+내부 세차가 더 저렴합니다.</p><div class="option-list"><div><span>휠 철분·집중세정<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>고급 왁스·실런트<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div><div><span>실내 집중세차<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>트렁크 청소<small class="opt-size">소형 1만 · 중형 1만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>벌레·타르 제거<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>유리 유막제거<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>발수코팅<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div><div><span>엔진룸 클리닝<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만 · 전기차·수소차 제외</small></span><b>+20,000원~</b></div><div><span>송진 제거<small class="opt-size">가벼움 1만 · 보통 2만 · 심함은 현장 견적 · 현장 확인 후 추가 가능</small></span><b>+10,000원~</b></div></div>
+          <article class="panel"><h2>추가 옵션</h2><p class="opt-size-note">차량 크기에 따라 금액이 달라집니다. 소형: 경차·준중형 · 중형: 중형·준대형·대형 세단, 소형·중형 SUV · 대형: 대형 SUV, 대형 MPV, 수입 대형, 화물·탑차(실내 옵션은 중형). 실내 옵션은 외부세차에 추가할 때 기준이며, 실내까지 원하시면 외부+내부 세차가 더 저렴합니다.</p><div class="option-list"><div><span>휠 철분·집중세정<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>고급 왁스·실런트<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div><div><span>실내 집중세차<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>트렁크 청소<small class="opt-size">소형 1만 · 중형 1만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>벌레·타르 제거<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>유리 유막제거<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>발수코팅<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div><div><span>엔진룸 클리닝<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small><small class="opt-size2">전기차·수소차 제외</small></span><b>+20,000원~</b></div><div><span>송진 제거<small class="opt-size">가벼움 1만 · 보통 2만 · 심함 별도</small><small class="opt-size2">현장 확인 후 추가될 수 있어요</small></span><b>+10,000원~</b></div></div>
             <div class="opt-detail">
               <h3>🌲 송진 제거 단계</h3>
               <table class="opt-step"><tr><th>가벼움</th><td>몇 군데, 손톱만 한 크기, 아직 말랑함</td><td>10,000원</td></tr>
