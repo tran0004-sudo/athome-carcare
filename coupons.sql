@@ -63,7 +63,7 @@ begin
   elsif p_kind = 'review' then
     v_label := '리뷰 작성 혜택'; v_amount := 3000;
   elsif p_kind = 'loyal' then
-    v_label := '꾸준히 이용 혜택'; v_gift := '휠 집중세정 또는 실내 집중세차 1회 (선택)';
+    v_label := '꾸준히 이용 혜택'; v_gift := '고급 왁스·실런트 관리 1회 무료';
   else
     return json_build_object('ok', false, 'reason', '알 수 없는 혜택입니다.');
   end if;
