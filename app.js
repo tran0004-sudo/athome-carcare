@@ -895,3 +895,16 @@ function renderVipNudge() {
 document.addEventListener('change', (e) => { if (e.target.closest('#bookingForm')) setTimeout(renderVipNudge, 0); });
 document.addEventListener('click', (e) => { if (e.target.closest('[data-vip-start]')) setTimeout(renderVipNudge, 50); });
 
+/* 케어 팁 → 해당 옵션이 체크된 예약 화면으로 */
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-care-option]');
+  if (!btn) return;
+  go('booking');
+  const form = document.querySelector('#bookingForm');
+  const svc = form?.querySelector('[name="service"]');
+  if (svc && !svc.value) { svc.value = '일일 외부세차'; svc.dispatchEvent(new Event('change', { bubbles: true })); }
+  const box = form?.querySelector(`[name="options"][value="${btn.dataset.careOption}"]`);
+  if (box && !box.checked) { box.checked = true; box.dispatchEvent(new Event('change', { bubbles: true })); }
+  setTimeout(() => box?.closest('label')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+});
+
