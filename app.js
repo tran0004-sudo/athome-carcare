@@ -456,6 +456,8 @@ const OPTION_PRICES = {
   '벌레·타르 제거':     [10000, 12000, 15000],
   '유리 유막제거':      [15000, 18000, 22000],
   '발수코팅':           [20000, 25000, 30000],
+  '엔진룸 클리닝':      [20000, 25000, 30000],
+  '송진 제거':          [10000, 10000, 10000],   // 가벼움 기준 — 보통 20,000 / 심함은 현장 확인 후 견적
 };
 const SIZE_OF_CLASS = {
   '경차·소형': 0, '준중형 세단': 0,
@@ -512,15 +514,46 @@ function refreshOptionChips(form) {
   form.querySelectorAll('[name="options"]').forEach((box) => {
     const chip = box.closest('label');
     // 화물·탑차는 트렁크가 없어 트렁크 청소 옵션 숨김 (적재함은 별도 견적)
-    const hide = cls === '화물·탑차' && box.value === '트렁크 청소';
+    // 전기차·수소차는 고전압 부품 보호를 위해 엔진룸 클리닝 불가
+    const hide = (cls === '화물·탑차' && box.value === '트렁크 청소')
+      || (box.value === '엔진룸 클리닝' && isEvModel(currentModelName(form)));
     if (chip) chip.classList.toggle('hidden', hide);
     if (hide) box.checked = false;
     const small = chip?.querySelector('small');
     if (!small || !OPTION_PRICES[box.value]) return;
+    if (box.value === '송진 제거') { small.textContent = '+10,000원~ (상태별)'; return; }
     small.textContent = known
       ? `+${won(optionPrice(box.value, cls))} (${SIZE_LABEL[optionSize(box.value, cls)]})`
       : `+${won(OPTION_PRICES[box.value][0])}~`;
   });
+  renderOptionNotice(form);
+}
+
+/* 전기차·수소차 판별 (엔진룸 클리닝 제외용) */
+function currentModelName(form) {
+  const sel = form.querySelector('#carModelSelect');
+  const typed = form.querySelector('[name="carModelCustom"], #carModelCustom');
+  const brand = form.querySelector('#carBrandSelect')?.value || '';
+  return `${brand} ${sel?.value || ''} ${typed?.value || ''}`;
+}
+function isEvModel(name) {
+  return /아이오닉|EV\d|봉고 EV|일렉트릭|넥쏘|EQ[A-Z]|\bi[4-7]\b|\biX\b|e-트론|ID\.\d|EX\d0|테슬라|모델[3SXY]|사이버트럭|타이칸|폴스타|BYD|돌핀|아토3|씨라이언|전기|수소/i.test(name || '');
+}
+
+/* 옵션 선택에 따른 안내 문구 */
+function renderOptionNotice(form) {
+  const box = form.querySelector('#optionNotice');
+  if (!box) return;
+  const msgs = [];
+  if (isEvModel(currentModelName(form))) msgs.push('🔌 전기차·수소차는 고전압 부품 보호를 위해 엔진룸 클리닝을 진행하지 않습니다.');
+  if (form.querySelector('[name="options"][value="송진 제거"]:checked')) {
+    msgs.push('🌲 송진 제거는 가벼움 10,000원 기준이며, 현장에서 상태(가벼움·보통·심함)를 확인한 뒤 요금이 추가될 수 있어요. 보통 20,000원 · 심함은 현장 견적이며, 작업 전에 금액을 먼저 안내드립니다.');
+  }
+  if (form.querySelector('[name="options"][value="엔진룸 클리닝"]:checked')) {
+    msgs.push('🔧 엔진룸 클리닝은 엔진이 식은 상태에서 진행하며, 누유가 심한 경우 정비가 먼저 필요할 수 있어요.');
+  }
+  box.innerHTML = msgs.map((m) => `<p>${m}</p>`).join('');
+  box.classList.toggle('hidden', !msgs.length);
 }
 
 function renderQuote(form) {

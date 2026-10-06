@@ -231,6 +231,16 @@
         .worklog-more{display:block;text-align:center;margin:18px 0 8px}
         .blog-empty{font-size:14px;color:#6b7f7a;padding:14px;border:1px dashed #cfdcda;border-radius:14px;text-align:center}
         .process-img{display:block;width:100%;max-width:560px;height:auto;margin:0 auto;border-radius:18px;box-shadow:0 6px 22px rgba(16,40,58,.10)}
+        .option-notice{grid-column:1/-1;display:grid;gap:6px;background:#f4fbf8;border:1px solid #cfe9e1;border-radius:12px;padding:10px 12px}
+        .option-notice p{margin:0;font-size:13px;line-height:1.55;color:#2f4d47;font-weight:600}
+        .opt-detail{margin-top:16px;border-top:1px dashed #d5e2df;padding-top:14px}
+        .opt-detail h3{font-size:16px;font-weight:900;margin:12px 0 8px;color:#10283a}
+        .opt-detail p{font-size:13px;line-height:1.65;color:#4a5f5b;margin:6px 0}
+        .opt-step{width:100%;border-collapse:collapse;font-size:13px}
+        .opt-step th{width:58px;text-align:left;color:#085041;font-weight:900;padding:8px 6px;border-bottom:1px solid #edf2f0;vertical-align:top}
+        .opt-step td{padding:8px 6px;border-bottom:1px solid #edf2f0;color:#2f4d47;vertical-align:top}
+        .opt-step td:last-child{text-align:right;font-weight:900;color:#0b7d68;white-space:nowrap}
+        .opt-warn{background:#fff6dc;border:1px solid #f2dca0;border-radius:10px;padding:10px 12px;color:#6a5200 !important}
         .vip-hero-chip{display:flex;align-items:center;gap:8px;width:100%;margin-top:12px;padding:12px 14px;border:0;border-radius:14px;background:#ffd34d;color:#3a2a00;font:inherit;font-size:14px;cursor:pointer;text-align:left;box-shadow:0 6px 16px rgba(255,180,0,.35);animation:vipPulse 2.4s ease-in-out infinite}
         .vip-hero-chip b{flex:1;font-weight:900}
         .vip-hero-chip span{font-weight:800;font-size:13px;white-space:nowrap}
@@ -562,7 +572,17 @@
         <!-- ▲▲▲ 차종별 요금 아코디언 끝 ▲▲▲ -->
 
         <div class="two-col">
-          <article class="panel"><h2>추가 옵션</h2><p class="opt-size-note">차량 크기에 따라 금액이 달라집니다. 소형: 경차·준중형 · 중형: 중형·준대형·대형 세단, 소형·중형 SUV · 대형: 대형 SUV, 대형 MPV, 수입 대형, 화물·탑차(실내 옵션은 중형). 실내 옵션은 외부세차에 추가할 때 기준이며, 실내까지 원하시면 외부+내부 세차가 더 저렴합니다.</p><div class="option-list"><div><span>휠 철분·집중세정<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>고급 왁스·실런트<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div><div><span>실내 집중세차<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>트렁크 청소<small class="opt-size">소형 1만 · 중형 1만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>벌레·타르 제거<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>유리 유막제거<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>발수코팅<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div></div></article>
+          <article class="panel"><h2>추가 옵션</h2><p class="opt-size-note">차량 크기에 따라 금액이 달라집니다. 소형: 경차·준중형 · 중형: 중형·준대형·대형 세단, 소형·중형 SUV · 대형: 대형 SUV, 대형 MPV, 수입 대형, 화물·탑차(실내 옵션은 중형). 실내 옵션은 외부세차에 추가할 때 기준이며, 실내까지 원하시면 외부+내부 세차가 더 저렴합니다.</p><div class="option-list"><div><span>휠 철분·집중세정<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>고급 왁스·실런트<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div><div><span>실내 집중세차<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>트렁크 청소<small class="opt-size">소형 1만 · 중형 1만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>벌레·타르 제거<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>유리 유막제거<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>발수코팅<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div><div><span>엔진룸 클리닝<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만 · 전기차·수소차 제외</small></span><b>+20,000원~</b></div><div><span>송진 제거<small class="opt-size">가벼움 1만 · 보통 2만 · 심함은 현장 견적 · 현장 확인 후 추가 가능</small></span><b>+10,000원~</b></div></div>
+            <div class="opt-detail">
+              <h3>🌲 송진 제거 단계</h3>
+              <table class="opt-step"><tr><th>가벼움</th><td>몇 군데, 손톱만 한 크기, 아직 말랑함</td><td>10,000원</td></tr>
+              <tr><th>보통</th><td>보닛·지붕 등 한두 면에 여러 개, 일부 굳음</td><td>20,000원</td></tr>
+              <tr><th>심함</th><td>차 전체에 퍼짐, 오래돼 딱딱하게 굳음</td><td>현장 확인 후 견적</td></tr></table>
+              <p>송진 상태는 현장에서 확인한 뒤 단계를 안내드리며, 상태에 따라 요금이 추가될 수 있습니다. 작업 전에 금액을 먼저 말씀드리고 동의하실 때만 진행해요. 오래 굳은 송진은 자국이 남을 수 있습니다.</p>
+              <h3>🔧 엔진룸 클리닝</h3>
+              <p>엔진룸의 먼지와 기름때를 전용 세정제로 닦아내고 고무·플라스틱 부품에 보호제를 발라 마무리합니다. 엔진이 식은 상태에서 진행하며, 누유가 심한 차량은 정비가 먼저 필요할 수 있어요.</p>
+              <p class="opt-warn"><b>진행하지 않는 차종</b> — 전기차·수소차 (아이오닉5·6·9, EV3~EV9, 테슬라, 넥쏘 등)<br>고전압 배터리·전장 부품 보호를 위해 엔진룸 세척을 하지 않습니다.</p>
+            </div></article>
           <article class="panel promo"><h2>오픈 혜택</h2><ul class="check-list" id="promoList"></ul></article>
         </div>
         <button class="sticky-cta primary-btn" data-go="booking">이 가격으로 예약 문의하기</button>
@@ -690,7 +710,10 @@
                 <label class="opt-chip"><input type="checkbox" name="options" value="벌레·타르 제거"><span>벌레·타르 제거<small>+10,000원~</small></span></label>
                 <label class="opt-chip"><input type="checkbox" name="options" value="유리 유막제거"><span>유리 유막제거<small>+15,000원~</small></span></label>
                 <label class="opt-chip"><input type="checkbox" name="options" value="발수코팅"><span>발수코팅<small>+20,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="엔진룸 클리닝"><span>엔진룸 클리닝<small>+20,000원~</small></span></label>
+                <label class="opt-chip"><input type="checkbox" name="options" value="송진 제거"><span>송진 제거<small>+10,000원~ (상태별)</small></span></label>
               </div>
+              <div id="optionNotice" class="option-notice hidden"></div>
             </div>
             <div class="span-2 opt-field" id="promoField">
               <span class="opt-title">혜택 적용 <small class="field-hint">예약 1건당 1개만 적용됩니다 (중복 불가)</small></span>
@@ -787,7 +810,7 @@
   </script>
   <script src="compat-fix.js?v=20260929-area1"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
-  <script src="app.js?v=20261005-review2"></script>
+  <script src="app.js?v=20261006-opt4"></script>
   <script src="supabase-integration.js?v=20261005-kakao3"></script>
 <script id="hash-go">
 window.addEventListener('load',function(){try{var h=(location.hash||'').replace(/^#\/?/,'');if(h&&h!=='home'&&document.getElementById(h)&&typeof go==='function'){setTimeout(function(){go(h)},50)}}catch(e){}});
