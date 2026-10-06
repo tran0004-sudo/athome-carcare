@@ -241,6 +241,8 @@
         .opt-step td{padding:8px 6px;border-bottom:1px solid #edf2f0;color:#2f4d47;vertical-align:top}
         .opt-step td:last-child{text-align:right;font-weight:900;color:#0b7d68;white-space:nowrap}
         .opt-warn{background:#fff6dc;border:1px solid #f2dca0;border-radius:10px;padding:10px 12px;color:#6a5200 !important}
+        .kakao-add-btn{display:flex;align-items:center;justify-content:center;gap:6px;margin:4px 0 22px;padding:14px;border-radius:14px;background:#fee500;color:#3c1e1e;font-weight:900;font-size:15px;text-decoration:none;box-shadow:0 4px 14px rgba(254,229,0,.35)}
+        .promo .kakao-add-btn{margin:14px 0 0}
         .vip-hero-chip{display:flex;align-items:center;gap:8px;width:100%;margin-top:12px;padding:12px 14px;border:0;border-radius:14px;background:#ffd34d;color:#3a2a00;font:inherit;font-size:14px;cursor:pointer;text-align:left;box-shadow:0 6px 16px rgba(255,180,0,.35);animation:vipPulse 2.4s ease-in-out infinite}
         .vip-hero-chip b{flex:1;font-weight:900}
         .vip-hero-chip span{font-weight:800;font-size:13px;white-space:nowrap}
@@ -584,7 +586,7 @@
               <p>엔진룸의 먼지와 기름때를 전용 세정제로 닦아내고 고무·플라스틱 부품에 보호제를 발라 마무리합니다. 엔진이 식은 상태에서 진행하며, 누유가 심한 차량은 정비가 먼저 필요할 수 있어요.</p>
               <p class="opt-warn"><b>진행하지 않는 차종</b> — 전기차·수소차 (아이오닉5·6·9, EV3~EV9, 테슬라, 넥쏘 등)<br>고전압 배터리·전장 부품 보호를 위해 엔진룸 세척을 하지 않습니다.</p>
             </div></article>
-          <article class="panel promo"><h2>오픈 혜택</h2><ul class="check-list" id="promoList"></ul></article>
+          <article class="panel promo"><h2>오픈 혜택</h2><ul class="check-list" id="promoList"></ul><a class="kakao-add-btn" href="https://pf.kakao.com/_xbwxaaX" target="_blank" rel="noopener" data-kakao-home>💛 카카오채널 추가하고 혜택 소식 받기</a></article>
         </div>
         <button class="sticky-cta primary-btn" data-go="booking">이 가격으로 예약 문의하기</button>
       </section>
@@ -625,6 +627,7 @@
           <button class="primary-btn" type="button" data-vip-start="월 4회">월 4회로 시작하기</button>
           <button class="secondary-btn" type="button" data-vip-start="월 2회">월 2회로 시작하기</button>
         </div>
+        <a class="kakao-add-btn" href="https://pf.kakao.com/_xbwxaaX" target="_blank" rel="noopener" data-kakao-home>💛 카카오채널 추가하고 혜택 소식 받기</a>
         </div>
       </section>
 
@@ -811,8 +814,8 @@
   </script>
   <script src="compat-fix.js?v=20260929-area1"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
-  <script src="app.js?v=20261006-vip3"></script>
-  <script src="supabase-integration.js?v=20261005-kakao3"></script>
+  <script src="app.js?v=20261006-kakaosplit"></script>
+  <script src="supabase-integration.js?v=20261006-kakaosplit"></script>
 <script id="hash-go">
 window.addEventListener('load',function(){try{var h=(location.hash||'').replace(/^#\/?/,'');if(h&&h!=='home'&&document.getElementById(h)&&typeof go==='function'){setTimeout(function(){go(h)},50)}}catch(e){}});
 </script>
