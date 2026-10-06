@@ -17,7 +17,7 @@ const DEFAULT_PROMOS = [
   { id: 'first2', auto: 'first', text: '첫 달 월 2회 ', highlight: '5,000원 할인', amount: 5000, services: ['월 2회'] },
   { id: 'refer', text: '가족·지인 소개 시 ', highlight: '외부세차 1회', amount: 0, gift: '외부세차 1회 제공', services: [] },
   { id: 'apt5', auto: 'apt5', text: '같은 아파트 5대 이상 ', highlight: '차량당 5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
-  { id: 'loyal', auto: 'loyal', text: '꾸준히 이용 시 ', highlight: '3개월마다 고급 왁스·실런트 관리 1회', amount: 0, gift: '3개월마다 고급 왁스·실런트 관리 1회 (소형 2만·중형 2.5만·대형 3만 상당)', services: ['월 2회', '월 4회'] },
+  { id: 'loyal', auto: 'loyal', text: '3개월 이용하실 때마다 ', highlight: '고급 왁스·실런트 관리 1회 무료', amount: 0, gift: '고급 왁스·실런트 관리 1회 무료 (소형 2만·중형 2.5만·대형 3만 상당)', services: ['월 2회', '월 4회'] },
   { id: 'review', text: '리뷰 작성 시 ', highlight: '3,000원 할인 · 실외 전체 왁스 · 트렁크 청소 중 택 1 쿠폰', amount: 3000, services: [] },
 ];
 
@@ -790,6 +790,10 @@ async function init() {
   state = loadLocal();
   restorePublishedSectionsOnce();
   mergePublishedGallery();
+  if (publishedState && Array.isArray(publishedState.promos) && publishedState.promos.length) {
+    state.promos = deepClone(publishedState.promos);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
   applyHiddenGallery();
   renderBlogPosts();
   bindEvents();
