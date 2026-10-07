@@ -44,7 +44,7 @@ begin
     -- 리뷰 혜택도 사장님이 실제 리뷰를 확인한 뒤 승인하면 사용 가능 (기본값 '승인대기' 유지)
 
   elsif p_kind = 'loyal' then
-    v_label := '꾸준히 이용 혜택'; v_gift := '고급 왁스·실런트 관리 1회 무료';
+    v_label := '꾸준히 이용 혜택'; v_gift := '고급 왁스코팅 1회 무료';
 
   else
     return json_build_object('ok', false, 'reason', '알 수 없는 혜택입니다.');

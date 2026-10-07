@@ -17,7 +17,7 @@ const DEFAULT_PROMOS = [
   { id: 'first2', auto: 'first', text: '첫 달 월 2회 ', highlight: '5,000원 할인', amount: 5000, services: ['월 2회'] },
   { id: 'refer', text: '가족·지인 소개 시 ', highlight: '외부세차 1회', amount: 0, gift: '외부세차 1회 제공', services: [] },
   { id: 'apt5', auto: 'apt5', text: '같은 아파트 5대 이상 ', highlight: '차량당 5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
-  { id: 'loyal', auto: 'loyal', text: '3개월 이용하실 때마다 ', highlight: '고급 왁스·실런트 관리 1회 무료', amount: 0, gift: '고급 왁스·실런트 관리 1회 무료 (소형 2만·중형 2.5만·대형 3만 상당)', services: ['월 2회', '월 4회'] },
+  { id: 'loyal', auto: 'loyal', text: '3개월 이용하실 때마다 ', highlight: '고급 왁스코팅 1회 무료', amount: 0, gift: '고급 왁스코팅 1회 무료 (소형 2만·중형 2.5만·대형 3만 상당)', services: ['월 2회', '월 4회'] },
   { id: 'review', text: '리뷰 작성 시 ', highlight: '3,000원 할인 · 트렁크 청소 중 택 1 쿠폰', amount: 3000, services: [] },
 ];
 
@@ -455,7 +455,7 @@ const PRICE_TABLE = {
 /* 추가 옵션 — 차량 크기별 [소형, 중형, 대형] */
 const OPTION_PRICES = {
   '휠 철분·집중세정':   [10000, 12000, 15000],
-  '고급 왁스·실런트':   [20000, 25000, 30000],
+  '고급 왁스코팅':   [20000, 25000, 30000],
   '실내 집중세차':      [15000, 18000, 22000],
   '트렁크 청소':        [10000, 10000, 15000],
   '벌레·타르 제거':     [10000, 12000, 15000],
