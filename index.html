@@ -102,7 +102,7 @@
 
         <section class="content-section" id="priceTableSection">
           <div class="section-head"><div><span class="section-kicker">PRICE</span><h2>방문세차 요금표</h2></div><button class="text-link" data-go="menu">차종별 상세 →</button></div>
-          <img class="process-img" src="assets/info/price-table.jpg" width="1055" height="1491" loading="lazy" alt="앳홈카케어 방문세차 요금표: 차종별 일일세차(외부·외부+내부)와 월세차(월 2회·월 4회) 요금 비교. 출장비 무료, 비대면 가능">
+          <img class="process-img" src="assets/info/price-table.jpg" width="1055" height="1538" loading="lazy" alt="앳홈카케어 방문세차 요금표: 차종별 일일세차(외부·외부+내부·고급 세차)와 월세차(월 2회·월 4회) 요금 비교. 출장비 무료, 비대면 가능">
         </section>
 
         <section class="content-section" id="washGuideSection">
@@ -328,6 +328,7 @@
         .pw-lines li + li{border-top:1px solid var(--pw-line)}
         .pw-lines li::before{content:none}
         .pw-lines dfn{font-style:normal;color:var(--pw-muted)}
+        .pw-lines dfn small{display:block;font-size:.72rem;opacity:.85}
         .pw-lines b{font-size:1.02rem;font-weight:900;letter-spacing:-.02em;white-space:nowrap}
 
         @media (prefers-reduced-motion:reduce){.pw *{transition:none!important}}
@@ -348,6 +349,7 @@
                   <ul class="pw-lines">
                     <li><dfn>월 4회</dfn><b>7.5만원</b></li>
                     <li><dfn>월 2회</dfn><b>5만원</b></li>
+                    <li><dfn>고급 업그레이드 <small>월 1회 고급 세차</small></dfn><b>+2만원</b></li>
                   </ul>
                 </div>
                 <div class="pw-group">
@@ -373,6 +375,7 @@
                   <ul class="pw-lines">
                     <li><dfn>월 4회</dfn><b>7.7만원</b></li>
                     <li><dfn>월 2회</dfn><b>5.4만원</b></li>
+                    <li><dfn>고급 업그레이드 <small>월 1회 고급 세차</small></dfn><b>+2만원</b></li>
                   </ul>
                 </div>
                 <div class="pw-group">
@@ -398,6 +401,7 @@
                   <ul class="pw-lines">
                     <li><dfn>월 4회</dfn><b>7.8만원</b></li>
                     <li><dfn>월 2회</dfn><b>6만원</b></li>
+                    <li><dfn>고급 업그레이드 <small>월 1회 고급 세차</small></dfn><b>+2.5만원</b></li>
                   </ul>
                 </div>
                 <div class="pw-group">
@@ -423,6 +427,7 @@
                   <ul class="pw-lines">
                     <li><dfn>월 4회</dfn><b>8.1만원</b></li>
                     <li><dfn>월 2회</dfn><b>6.4만원</b></li>
+                    <li><dfn>고급 업그레이드 <small>월 1회 고급 세차</small></dfn><b>+2.5만원</b></li>
                   </ul>
                 </div>
                 <div class="pw-group">
@@ -448,6 +453,7 @@
                   <ul class="pw-lines">
                     <li><dfn>월 4회</dfn><b>7.9만원</b></li>
                     <li><dfn>월 2회</dfn><b>6만원</b></li>
+                    <li><dfn>고급 업그레이드 <small>월 1회 고급 세차</small></dfn><b>+2.5만원</b></li>
                   </ul>
                 </div>
                 <div class="pw-group">
@@ -473,6 +479,7 @@
                   <ul class="pw-lines">
                     <li><dfn>월 4회</dfn><b>8.1만원</b></li>
                     <li><dfn>월 2회</dfn><b>6.4만원</b></li>
+                    <li><dfn>고급 업그레이드 <small>월 1회 고급 세차</small></dfn><b>+2.5만원</b></li>
                   </ul>
                 </div>
                 <div class="pw-group">
@@ -498,6 +505,7 @@
                   <ul class="pw-lines">
                     <li><dfn>월 4회</dfn><b>8.6만원</b></li>
                     <li><dfn>월 2회</dfn><b>7.4만원</b></li>
+                    <li><dfn>고급 업그레이드 <small>월 1회 고급 세차</small></dfn><b>+3만원</b></li>
                   </ul>
                 </div>
                 <div class="pw-group">
@@ -523,6 +531,7 @@
                   <ul class="pw-lines">
                     <li><dfn>월 4회</dfn><b>10.1만원</b></li>
                     <li><dfn>월 2회</dfn><b>8.8만원</b></li>
+                    <li><dfn>고급 업그레이드 <small>월 1회 고급 세차</small></dfn><b>+3만원</b></li>
                   </ul>
                 </div>
                 <div class="pw-group">
@@ -549,6 +558,7 @@
                   <ul class="pw-lines">
                     <li><dfn>월 4회</dfn><b>11.5만원</b></li>
                     <li><dfn>월 2회</dfn><b>8만원</b></li>
+                    <li><dfn>고급 업그레이드 <small>월 1회 고급 세차</small></dfn><b>+3만원</b></li>
                   </ul>
                 </div>
                 <div class="pw-group">
@@ -562,32 +572,6 @@
               </div>
             </div>
 
-
-            <div class="pw-item">
-              <button class="pw-row" type="button" aria-expanded="false" aria-controls="pw-p10">
-                <span class="pw-name">화물 · 탑차<span class="pw-models">포터 · 봉고 · 탑차 · 카고 등</span></span>
-                <span class="pw-from">5만원~</span>
-                <span class="pw-chev" aria-hidden="true"></span>
-              </button>
-              <div class="pw-panel" id="pw-p10">
-                <div class="pw-group">
-                  <p class="pw-gtitle">월세차 <span>업무용 차량 정기관리</span></p>
-                  <ul class="pw-lines">
-                    <li><dfn>월 4회</dfn><b>13.5만원</b></li>
-                    <li><dfn>월 2회</dfn><b>9.5만원</b></li>
-                  </ul>
-                </div>
-                <div class="pw-group">
-                  <p class="pw-gtitle">일일세차 <span>캡 + 탑 외부 포함</span></p>
-                  <ul class="pw-lines">
-                    <li><dfn>외부</dfn><b>5만원</b></li>
-                    <li><dfn>외부+캡 실내</dfn><b>6.5만원</b></li>
-                    <li><dfn>고급 세차</dfn><b>9.5만원</b></li>
-                  </ul>
-                </div>
-                <p class="pw-note">실내 옵션은 캡이 좁아 중형 요금이 적용됩니다. 탑 내부(적재함) 청소는 오염도에 따라 3~5만원 별도 견적입니다.</p>
-              </div>
-            </div>
 
           </div>
         </section>
@@ -616,7 +600,7 @@
         <!-- ▲▲▲ 차종별 요금 아코디언 끝 ▲▲▲ -->
 
         <div class="two-col">
-          <article class="panel"><h2>추가 옵션</h2><p class="opt-size-note">차량 크기에 따라 금액이 달라집니다. 소형: 경차·소형 세단 · 중형: 중형·대형 세단, 소형·중형 SUV · 대형: 대형 SUV, 프리미엄 SUV, 미니밴, 화물·탑차(실내 옵션은 중형). 실내 옵션은 외부세차에 추가할 때 기준이며, 실내까지 원하시면 외부+내부 세차가 더 저렴합니다.</p><div class="option-list"><div><span>휠 철분·집중세정<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>고급 왁스코팅<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div><div><span>실내 집중세차<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>트렁크 청소<small class="opt-size">소형 1만 · 중형 1만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>벌레·타르 제거<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>유리 유막제거<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>발수코팅<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div><div><span>엔진룸 클리닝<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small><small class="opt-size2">전기차·수소차 제외</small></span><b>+20,000원~</b></div><div><span>송진 제거<small class="opt-size">가벼움 1만 · 보통 2만 · 심함 별도</small><small class="opt-size2">현장 확인 후 추가될 수 있어요</small></span><b>+10,000원~</b></div></div>
+          <article class="panel"><h2>추가 옵션</h2><p class="opt-size-note">차량 크기에 따라 금액이 달라집니다. 소형: 경차·소형 세단 · 중형: 중형·대형 세단, 소형·중형 SUV · 대형: 대형 SUV, 프리미엄 SUV, 미니밴. 실내 옵션은 외부세차에 추가할 때 기준이며, 실내까지 원하시면 외부+내부 세차가 더 저렴합니다.</p><div class="option-list"><div><span>휠 철분·집중세정<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>고급 왁스코팅<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div><div><span>실내 집중세차<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>트렁크 청소<small class="opt-size">소형 1만 · 중형 1만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>벌레·타르 제거<small class="opt-size">소형 1만 · 중형 1.2만 · 대형 1.5만</small></span><b>+10,000원~</b></div><div><span>유리 유막제거<small class="opt-size">소형 1.5만 · 중형 1.8만 · 대형 2.2만</small></span><b>+15,000원~</b></div><div><span>발수코팅<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small></span><b>+20,000원~</b></div><div><span>엔진룸 클리닝<small class="opt-size">소형 2만 · 중형 2.5만 · 대형 3만</small><small class="opt-size2">전기차·수소차 제외</small></span><b>+20,000원~</b></div><div><span>송진 제거<small class="opt-size">가벼움 1만 · 보통 2만 · 심함 별도</small><small class="opt-size2">현장 확인 후 추가될 수 있어요</small></span><b>+10,000원~</b></div></div>
             <div class="opt-detail">
               <h3>🌲 송진 제거 단계</h3>
               <table class="opt-step"><tr><th>가벼움</th><td>몇 군데, 손톱만 한 크기, 아직 말랑함</td><td>10,000원</td></tr>
@@ -717,6 +701,7 @@
         <h2 class="vip-title">월세차 고객이라면, 늘 함께하는 혜택</h2>
         <div class="vip-benefits">
           <article class="vip-card"><span class="vip-ic">🎁</span><h4>첫 달 할인</h4><p>월 4회 <b>10,000원</b>, 월 2회 <b>5,000원</b> 할인이 첫 달에 자동으로 적용돼요.</p></article>
+          <article class="vip-card"><span class="vip-ic">✨</span><h4>고급 세차 업그레이드</h4><p>월 2회·월 4회 모두 매달 1회를 <b>고급 세차</b>(프리미엄 가죽시트 코팅 + 프리미엄 왁스 시공)로 업그레이드할 수 있어요. <small class="vip-worth">차량 크기별 월 +20,000~30,000원</small></p></article>
           <article class="vip-card"><span class="vip-ic">🏆</span><h4>3개월 이용 감사 혜택</h4><p>3개월 이용하실 때마다 <b>고급 왁스코팅 1회</b>를 무료로 해드려요.<br><small class="vip-worth">옵션 요금 기준 소형 20,000원 · 중형 25,000원 · 대형 30,000원 상당</small></p></article>
           <article class="vip-card"><span class="vip-ic">🏢</span><h4>같은 아파트 함께 신청</h4><p>같은 아파트에서 <b>5대 이상</b> 신청하시면 차량당 <b>5,000원</b> 할인돼요.</p></article>
           <article class="vip-card"><span class="vip-ic">📋</span><h4>매달 차량 관리 리포트</h4><p>한 달 동안의 <b>작업 전후 사진</b>과 차량 상태, <b>다음 달 추천 관리</b>를 정리해 보내드려요.</p></article>
@@ -792,7 +777,6 @@
               <option>대형 SUV</option>
               <option>프리미엄 SUV</option>
               <option>미니밴</option>
-              <option>화물·탑차</option>
             </select></label>
             <label>희망 서비스<select name="service">
               <option>월 2회</option>
@@ -807,6 +791,7 @@
             <div class="span-2 opt-field">
               <span class="opt-title">추가 옵션 <small class="field-hint">필요한 항목을 선택하세요 (선택사항)</small></span>
               <div class="opt-grid">
+                <label class="opt-chip"><input type="checkbox" name="options" value="월세차 고급 업그레이드"><span>월세차 고급 업그레이드<small>월 1회 고급 세차 +20,000원~</small></span></label>
                 <label class="opt-chip"><input type="checkbox" name="options" value="휠 철분·집중세정"><span>휠 철분·집중세정<small>+10,000원~</small></span></label>
                 <label class="opt-chip"><input type="checkbox" name="options" value="고급 왁스코팅"><span>고급 왁스코팅<small>+20,000원~</small></span></label>
                 <label class="opt-chip"><input type="checkbox" name="options" value="실내 집중세차"><span>실내 집중세차<small>+15,000원~</small></span></label>
