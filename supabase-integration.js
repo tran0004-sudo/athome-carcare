@@ -1229,7 +1229,7 @@ ${linkLines ? '\n' + linkLines : ''}
   function normalizeService(svc) {
     if (svc === '월 2회') return '월2회';
     if (svc === '월 4회') return '월4회';
-    if (svc === '일일 외부세차' || svc === '외부+내부세차') return '일일세차';
+    if (svc === '일일 외부세차' || svc === '외부+내부세차' || svc === '고급 세차') return '일일세차';
     return '기타';
   }
 
@@ -1480,6 +1480,7 @@ ${linkLines ? '\n' + linkLines : ''}
     '월 4회': '월 4회 정기 방문세차로 진행했습니다.',
     '일일 외부세차': '일일 외부세차로 진행했습니다.',
     '외부+내부세차': '외부세차와 실내세차를 함께 진행했습니다.',
+    '고급 세차': '외부·내부 세차에 프리미엄 가죽시트 코팅과 프리미엄 왁스 시공까지 진행했습니다.',
   };
 
   function blogJobs() {
