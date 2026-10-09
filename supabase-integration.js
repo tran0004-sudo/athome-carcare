@@ -8,16 +8,18 @@
   const SUPABASE_KEY = 'sb_publishable_ZMYuEmyPRMc0Q3c2q2Ok3A_vjCYppoE';
   const SESSION_KEY  = 'athomeCarcareAdminSession';
 
-  // 차종 구분 8종 (개선점 2: 예약 폼 선택지)
+  // 차종 구분 10종 (개선점 2: 예약 폼 선택지)
   const CAR_CLASSES = [
-    '경차·소형',
-    '준중형 세단',
-    '중형·준대형 세단',
+    '경차',
+    '소형 세단',
+    '중형 세단',
     '대형 세단',
     '소형 SUV',
     '중형 SUV',
     '대형 SUV',
-    '대형 MPV·특대형',
+    '프리미엄 SUV',
+    '미니밴',
+    '화물·탑차',
   ];
 
   const STATUSES = ['접수', '확정', '완료', '취소'];
