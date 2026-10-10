@@ -387,3 +387,6 @@
 #bookingForm .bk-saved{margin:0;font-size:13px;color:#4F6B5D;background:#EEF7F1;border-radius:10px;padding:9px 12px;}
 #bookingForm .bk-saved button{border:0;background:none;color:#1F7A55;font-weight:700;text-decoration:underline;font-family:inherit;font-size:13px;cursor:pointer;padding:0 0 0 4px;}
 @media (max-width:420px){#bookingForm .bk-custom{grid-template-columns:1fr;}}
+/* v37 세차 진행 과정: 홈 토글로 이동 */
+#processSection{padding-top:0;}
+#processSection .process-img{display:block;width:100%;max-width:560px;height:auto;margin:12px auto 0;border-radius:16px;}
