@@ -26,8 +26,8 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png?v=20261001-icon7" />
   <link rel="stylesheet" href="styles.css?v=20260929-seo" />
   <link rel="stylesheet" href="home-polish.css?v=20260916-nohero1" />
-  <link rel="stylesheet" href="vip-refresh.css?v=20261010-vip18" />
-  <link rel="stylesheet" href="member-dashboard.css?v=20261010-member2" />
+  <link rel="stylesheet" href="vip-refresh.css?v=20261010-vip19" />
+  <link rel="stylesheet" href="member-dashboard.css?v=20261010-member3" />
   <link rel="stylesheet" href="vip-contract.css?v=20261010-vip4" />
   <link rel="stylesheet" href="dual-access.css?v=20261010-both1" />
   <title>대구·경산 월세차 VIP 정기관리 | 집앞세차 앳홈카케어</title>
@@ -793,14 +793,15 @@
             <div>
               <span class="eyebrow">MEMBER ONLY · MY CARCARE</span>
               <h1>내 차량관리</h1>
-              <p>다음 세차 예정일과 정기관리 현황, 완료된 세차 이력을 확인하세요.</p>
+              <p>월 정기관리 회원 전용 화면입니다. 다음 세차 예정일, 남은 횟수, 이용 이력을 확인하세요.</p>
             </div>
             <button type="button" data-go="vip">VIP 혜택 보기 →</button>
           </div>
 
           <div id="memberLoginCard" class="mypage-panel">
             <h2>카카오로 간편 로그인</h2>
-            <p class="member-login-intro">카카오 계정으로 로그인하면 내 다음 세차 일정과 관리 이력을 확인할 수 있어요. 처음 한 번만, 예약에 사용한 휴대폰 번호를 연결하면 됩니다.</p>
+            <p class="member-login-intro">카카오 로그인은 본인 확인용입니다. 처음 한 번만 계약 때 알려 주신 휴대폰 번호를 연결하면, 이후에는 로그인만으로 바로 확인돼요.</p>
+            <p class="member-newbie">처음 이용하시나요? 회원가입 없이 바로 예약할 수 있어요. <button type="button" data-go="booking">방문세차 예약하기 →</button></p>
             <button type="button" class="member-kakao" id="memberKakaoLogin"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="#191919" d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.8 5.3 4.6 6.7l-1 3.6c-.1.3.3.6.6.4l4.2-2.8c.5.1 1.1.1 1.6.1 5.5 0 10-3.6 10-8S17.5 3 12 3z"/></svg><span>카카오로 로그인</span></button>
             <form id="memberLoginForm" class="member-form" hidden style="display:none">
               <input id="memberPhone" type="tel" tabindex="-1" autocomplete="off">
@@ -811,9 +812,9 @@
 
           <div id="memberLinkCard" class="mypage-panel" hidden>
             <h2>휴대폰 번호 연결</h2>
-            <p class="member-login-intro" id="memberLinkIntro">예약 또는 계약에 사용한 휴대폰 번호를 입력해 주세요. 사장님이 확인하면 내 일정이 표시됩니다. (보통 당일 처리)</p>
+            <p class="member-login-intro" id="memberLinkIntro">카카오 로그인은 본인 확인용입니다. 계약 때 알려 주신 번호를 입력하면 사장님이 확인 후 연결해 드려요. 연결은 처음 한 번만 하면 됩니다.</p>
             <form id="memberLinkForm" class="member-form">
-              <label for="memberLinkPhone">예약에 사용한 휴대폰 번호</label>
+              <label for="memberLinkPhone">계약·예약 때 알려 주신 휴대폰 번호</label>
               <input id="memberLinkPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" maxlength="14" required>
               <button class="member-submit" id="memberLinkSubmit" type="submit">연결 요청하기</button>
             </form>
@@ -949,7 +950,7 @@
       </div>
 
       <section id="booking" class="page">
-        <div class="page-title"><span>BOOKING · ALL CUSTOMERS</span><h2>방문세차 예약</h2><p>비회원도 로그인 없이 예약할 수 있습니다. 원하는 이용 방식을 고르고 차량·방문 정보를 입력해 주세요.</p></div>
+        <div class="page-title"><span>BOOKING · ALL CUSTOMERS</span><h2>방문세차 예약</h2><p>처음이시면 로그인 없이 바로 예약하세요. 월 정기관리 회원은 '내 관리'에서 계약과 남은 횟수를 확인할 수 있어요.</p></div>
         <section class="booking-path-selector" aria-label="예약 방식 선택">
           <h3>어떤 방식으로 이용하시나요?</h3>
           <p>일회성 세차부터 월세차 VIP까지, 상황에 맞는 경로를 선택하세요.</p>
@@ -1035,7 +1036,7 @@
             <div class="span-2 vip-nudge hidden" id="vipNudge" data-vip-step="1"></div>
             <div class="span-2 booking-wizard-controls"><button type="button" class="secondary-btn" id="wizardPrev" hidden>← 이전 단계</button><button type="button" class="primary-btn" id="wizardNext">다음: 방문 정보 입력 →</button></div>
             <button type="submit" class="primary-btn span-2">예약 접수하기</button>
-            <p class="span-2 customer-guest-notice">비회원 예약에는 로그인이 필요하지 않습니다. VIP 멤버십 등록이나 기존 이용권 차감은 예약 접수만으로 자동 처리되지 않으며, 관리자 확인 후 반영됩니다.</p>
+            <p class="span-2 customer-guest-notice">접수 후 확인 연락을 드립니다. VIP 등록·이용권 차감은 관리자 확인 후 반영됩니다.</p>
           </form>
           <div id="bookingResult" class="booking-result hidden"></div>
         </article>
@@ -1113,9 +1114,10 @@
   <script src="compat-fix.js?v=20260929-area1"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
   <script src="app.js?v=20261007-care1"></script>
-  <script src="supabase-integration.js?v=20261006-kakaosplit"></script>
+  <script src="supabase-integration.js?v=20261010-simple1"></script>
   <script src="vip-refresh.js?v=20261010-vip4" defer></script>
-  <script src="member-dashboard.js?v=20261010-member5" defer></script>
+  <script src="booking-simple.js?v=20261010-simple1" defer></script>
+  <script src="member-dashboard.js?v=20261010-member6" defer></script>
   <script src="vip-contract-admin.js?v=20261010-vip3" defer></script>
   <script src="member-link-admin.js?v=20261010-link1" defer></script>
   <script src="dual-access.js?v=20261010-both2" defer></script>

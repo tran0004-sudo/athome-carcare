@@ -365,3 +365,25 @@
   .gc ul{font-size:14.5px;}
   #priceTableSection .vip-guide-toggle summary .pt-tx{font-size:16px;}
 }
+
+/* ===== v35 예약 폼 간소화 ===== */
+#bookingForm .bk-hide{display:none !important;}
+.booking-path-selector>h3,.booking-path-selector>p:not(.booking-path-summary){display:none;}
+.booking-path-selector{padding-top:14px;}
+#bookingForm .bk-when{display:grid;gap:10px;}
+#bookingForm .bk-chips{display:flex;flex-wrap:wrap;gap:8px;}
+#bookingForm .bk-chips button{flex:1 1 0;min-width:60px;min-height:46px;padding:0 6px;white-space:nowrap;border:1.5px solid #D5E2DA;border-radius:12px;background:#fff;color:#20312D;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;}
+#bookingForm .bk-chips button[aria-pressed="true"]{background:#1F7A55;border-color:#1F7A55;color:#fff;}
+#bookingForm .bk-custom{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+#bookingForm .bk-custom[hidden]{display:none;}
+#bookingForm .bk-more{border:1.5px solid #D5E2DA;border-radius:14px;background:#F8FBF9;padding:0;}
+#bookingForm .bk-more>summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px;padding:14px 16px;font-size:15px;font-weight:700;color:#20312D;cursor:pointer;min-height:48px;}
+#bookingForm .bk-more>summary::-webkit-details-marker{display:none;}
+#bookingForm .bk-more>summary::after{content:"＋";font-weight:700;color:#1F7A55;}
+#bookingForm .bk-more[open]>summary::after{content:"－";}
+#bookingForm .bk-more>summary em{font-style:normal;font-weight:500;color:#6B8074;font-size:13px;}
+#bookingForm .bk-more>summary b{margin-left:auto;font-size:13px;color:#1F7A55;}
+#bookingForm .bk-more-body{display:grid;gap:14px;padding:0 14px 16px;}
+#bookingForm .bk-saved{margin:0;font-size:13px;color:#4F6B5D;background:#EEF7F1;border-radius:10px;padding:9px 12px;}
+#bookingForm .bk-saved button{border:0;background:none;color:#1F7A55;font-weight:700;text-decoration:underline;font-family:inherit;font-size:13px;cursor:pointer;padding:0 0 0 4px;}
+@media (max-width:420px){#bookingForm .bk-custom{grid-template-columns:1fr;}}

@@ -90,3 +90,7 @@
 #memberLoginForm[hidden],#memberLinkForm[hidden],#memberLinkActions[hidden]{display:none !important;}
 #memberLinkActions{display:flex;gap:10px;margin-top:14px;}
 #memberLinkActions button{flex:1;min-height:48px;}
+
+/* v36 안내 문구 */
+.member-newbie{margin:14px 0 0;padding:12px 14px;background:#EEF7F1;border-radius:12px;font-size:14px;line-height:1.6;color:#33493F;}
+.member-newbie button{display:block;margin-top:8px;width:100%;min-height:46px;border:0;border-radius:12px;background:#1F7A55;color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;}
