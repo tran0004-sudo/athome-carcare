@@ -421,3 +421,52 @@
 .addon-toggle::before,.addon-toggle::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:2px;margin:-1px 0 0 -7px;background:#1F7A55;border-radius:2px;}
 .addon-toggle::after{transform:rotate(90deg);transition:transform .2s;}
 .addon-fold[open] .addon-toggle::after{transform:rotate(0);}
+
+/* ===== v41 홈 바로가기 4줄(VIP·진행과정·요금표·추가항목) 통일 ===== */
+.quick-stack{display:grid;gap:12px;padding:6px 16px 26px;}
+.quick-stack>.vip-banner-wrap,.quick-stack>.content-section{padding:0 !important;margin:0 !important;}
+/* 공통 박스 */
+.quick-stack .vip-banner,
+.quick-stack .vip-guide-toggle,
+.quick-stack .addon-fold{margin:0 !important;border:1.5px solid #D5E2DA !important;border-radius:16px !important;background:#fff !important;box-shadow:0 4px 14px rgba(20,48,43,.05) !important;overflow:hidden;color:#14302B;}
+/* 공통 줄(아이콘 · 글 · 버튼) */
+.quick-stack .vip-banner,
+.quick-stack .vip-guide-toggle>summary,
+.quick-stack .addon-fold>summary{display:flex;align-items:center;gap:12px;width:100%;min-height:72px;padding:14px 16px !important;list-style:none;cursor:pointer;text-align:left;border:0 !important;background:none !important;box-sizing:border-box;}
+.quick-stack .vip-guide-toggle>summary::-webkit-details-marker,
+.quick-stack .addon-fold>summary::-webkit-details-marker{display:none;}
+.quick-stack .vip-guide-toggle[open]>summary,
+.quick-stack .addon-fold[open]>summary{border-bottom:1px solid #E2EAE6 !important;}
+/* 아이콘 원 */
+.quick-stack .vip-banner-ic,
+.quick-stack .pt-ic{flex:0 0 auto;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:#EEF7F1;color:#1F7A55;font-size:0;}
+.quick-stack .vip-banner-ic{background:#FBF3DD;color:#8E6F36;}
+.quick-stack .vip-banner-ic svg,.quick-stack .pt-ic svg{width:22px;height:22px;}
+/* 글자: 제목 16px / 설명 13px 으로 통일 */
+.quick-stack .vip-banner-txt,
+.quick-stack .pt-tx{flex:1;min-width:0;display:grid;gap:3px;word-break:keep-all;}
+.quick-stack .vip-banner-txt b,
+.quick-stack .pt-tx b{font-size:16px;font-weight:800;line-height:1.35;color:#14302B;letter-spacing:-.3px;}
+.quick-stack .vip-banner-txt small,
+.quick-stack .pt-tx small{font-size:13px;font-weight:500;line-height:1.45;color:#6B8074;opacity:1;}
+/* 바로가기/펼치기 버튼(알약) */
+.quick-stack .vip-banner-go,
+.quick-stack .vip-guide-toggle>summary::after,
+.quick-stack .addon-fold>summary::after{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;min-width:72px;height:36px;padding:0 14px;border-radius:999px;border:1.5px solid #1F7A55;background:#fff;color:#1F7A55;font-size:13.5px;font-weight:800;white-space:nowrap;line-height:1;}
+.quick-stack .vip-banner-go{background:#1F7A55;color:#fff;}
+.quick-stack .vip-guide-toggle>summary::after,
+.quick-stack .addon-fold>summary::after{content:"펼치기";}
+.quick-stack .vip-guide-toggle[open]>summary::after,
+.quick-stack .addon-fold[open]>summary::after{content:"접기";background:#1F7A55;color:#fff;}
+.quick-stack .addon-fold>.care-list{padding:12px 12px 14px;}
+.quick-stack .process-img{margin:14px auto !important;width:calc(100% - 28px) !important;}
+@media(max-width:380px){.quick-stack .vip-banner-txt small,.quick-stack .pt-tx small{font-size:12.5px;}.quick-stack .vip-banner-go,.quick-stack .vip-guide-toggle>summary::after,.quick-stack .addon-fold>summary::after{min-width:64px;padding:0 10px;}}
+.quick-stack .vip-banner{border:1.5px solid #D5E2DA !important;background:#fff !important;}
+.quick-stack #priceTableSection .vip-guide-toggle>summary{padding:14px 16px !important;font-size:16px;color:#14302B;}
+.quick-stack #priceTableSection .vip-guide-toggle>summary::after,
+.quick-stack #processSection .vip-guide-toggle>summary::after{font-size:13.5px !important;color:#1F7A55;font-weight:800;}
+.quick-stack #priceTableSection .vip-guide-toggle[open]>summary::after,
+.quick-stack #processSection .vip-guide-toggle[open]>summary::after{color:#fff;}
+.quick-stack #priceTableSection .pt-ic{background:#EEF7F1 !important;color:#1F7A55 !important;border:0;}
+.quick-stack .pt-ic svg{stroke:currentColor;}
+.quick-stack .pt-ic{width:42px !important;min-width:42px;height:42px !important;padding:0 !important;box-sizing:border-box;margin:0 !important;}
