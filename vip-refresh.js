@@ -31,7 +31,13 @@
     }
 
     function checkFirstStep() {
-      var inputs = form.querySelectorAll('[data-vip-step="1"] input, [data-vip-step="1"] select, [data-vip-step="1"] textarea');
+      // 폼 자신도 data-vip-step 속성을 가지므로, 폼 전체가 1단계로 잡히지 않게 자기 자신은 제외합니다.
+      var inputs = [];
+      Array.prototype.forEach.call(form.querySelectorAll('[data-vip-step="1"]'), function (box) {
+        if (box === form) return;
+        if (box.matches('input,select,textarea')) inputs.push(box);
+        Array.prototype.forEach.call(box.querySelectorAll('input,select,textarea'), function (el) { inputs.push(el); });
+      });
       for (var i = 0; i < inputs.length; i++) {
         var input = inputs[i];
         if (input.disabled || input.closest('.hidden') || input.classList.contains('hidden')) continue;

@@ -45,7 +45,10 @@
     // Keep one-off booking as the safe default for unrecognized deep links or no JavaScript.
     setMode('guest');
     document.addEventListener('click',function(e){
-      const modeButton=e.target.closest('[data-booking-mode]');
+      let modeButton=e.target.closest('[data-booking-mode]');
+      // 예약 폼 자신도 data-booking-mode 속성을 가지므로, 폼 안의 다른 버튼(다음 단계 등)을 눌러도
+      // 폼이 "모드 버튼"으로 잘못 인식되어 1단계로 되돌아갔습니다. 폼 자신은 제외합니다.
+      if(modeButton===f) modeButton=null;
       if(modeButton) {
         e.preventDefault();
         const mode=modeButton.dataset.bookingMode;
