@@ -783,24 +783,25 @@
       </div>
 
       <section id="booking" class="page">
-        <div class="page-title"><span>BOOKING</span><h2>문의 / 예약</h2><p>아래 내용을 입력하면 예약이 바로 접수됩니다. 접수 후 확인 연락을 드립니다.</p></div>
+        <div class="page-title"><span>MEMBERSHIP BOOKING</span><h2>월세차 · 방문 예약</h2><p>차량과 관리 주기를 먼저 고르고, 방문 정보를 입력해 주세요. 접수 후 일정 확인 연락을 드립니다.</p></div>
         <article class="panel form-panel">
           <form id="bookingForm" class="form-grid">
-            <label>예약자 이름<input name="customerName" placeholder="예: 홍길동" autocomplete="name" required></label>
-            <label>연락처<input name="phone" inputmode="tel" placeholder="010-0000-0000" autocomplete="tel" required></label>
-            <label>아파트명<input name="apartment" placeholder="예: 중산지구 ○○아파트" required></label>
-            <label>제조사<select name="carBrand" id="carBrandSelect" required>
+            <div class="booking-wizard-head span-2" aria-live="polite"><span class="wizard-label" id="wizardStepLabel">STEP 1 / 2</span><h3 class="wizard-title" id="wizardStepTitle">차량과 관리 주기를 선택해 주세요</h3><div class="wizard-progress" aria-hidden="true"><i></i></div></div>
+            <label data-vip-step="2">예약자 이름<input name="customerName" placeholder="예: 홍길동" autocomplete="name" required></label>
+            <label data-vip-step="2">연락처<input name="phone" inputmode="tel" placeholder="010-0000-0000" autocomplete="tel" required></label>
+            <label data-vip-step="2">아파트명<input name="apartment" placeholder="예: 중산지구 ○○아파트" required></label>
+            <label data-vip-step="1">제조사<select name="carBrand" id="carBrandSelect" required>
               <option value="">제조사를 선택하세요</option>
             </select></label>
-            <label>모델<select name="carModelSel" id="carModelSelect" required>
+            <label data-vip-step="1">모델<select name="carModelSel" id="carModelSelect" required>
               <option value="">제조사를 먼저 선택하세요</option>
             </select></label>
-            <label class="span-2 hidden" id="carCustomWrap">차종 직접 입력<input name="carCustom" id="carCustomInput" placeholder="예: 벤츠 CLE 쿠페"></label>
-            <label>차량 번호<input name="plate" placeholder="예: 12가 3456" autocomplete="off" required></label>
-            <label>상세 주소 <small class="field-hint">동·호수 또는 주차 위치</small><input name="address" placeholder="예: 103동 지하 2층 B구역" autocomplete="off"></label>
+            <label class="span-2 hidden" id="carCustomWrap" data-vip-step="1">차종 직접 입력<input name="carCustom" id="carCustomInput" placeholder="예: 벤츠 CLE 쿠페"></label>
+            <label data-vip-step="2">차량 번호<input name="plate" placeholder="예: 12가 3456" autocomplete="off" required></label>
+            <label data-vip-step="2">상세 주소 <small class="field-hint">동·호수 또는 주차 위치</small><input name="address" placeholder="예: 103동 지하 2층 B구역" autocomplete="off"></label>
             <input type="hidden" name="car" id="carHidden">
             <input type="hidden" name="carClass" id="carClassHidden">
-            <label>차종 구분 <small class="field-hint" id="carClassHint">모델을 고르면 자동으로 선택됩니다</small><select id="carClassSelect">
+            <label data-vip-step="1">차종 구분 <small class="field-hint" id="carClassHint">모델을 고르면 자동으로 선택됩니다</small><select id="carClassSelect">
               <option value="">선택 (선택사항)</option>
               <option>경차</option>
               <option>소형 세단</option>
@@ -812,7 +813,7 @@
               <option>프리미엄 SUV</option>
               <option>미니밴</option>
             </select></label>
-            <label>희망 서비스<select name="service">
+            <label data-vip-step="1">희망 서비스<select name="service">
               <option>월 2회</option>
               <option>월 4회</option>
               <option>일일 외부세차</option>
@@ -820,9 +821,9 @@
               <option>고급 세차</option>
               <option>기타 상담</option>
             </select></label>
-            <label>희망 날짜<input name="preferredDate" type="date"></label>
-            <label>희망 시간<input name="preferredTime" type="time"></label>
-            <div class="span-2 opt-field">
+            <label data-vip-step="2">희망 날짜<input name="preferredDate" type="date"></label>
+            <label data-vip-step="2">희망 시간<input name="preferredTime" type="time"></label>
+            <div class="span-2 opt-field" data-vip-step="2">
               <span class="opt-title">추가 옵션 <small class="field-hint">필요한 항목을 선택하세요 (선택사항)</small></span>
               <div class="opt-grid">
                 <label class="opt-chip"><input type="checkbox" name="options" value="월세차 고급 업그레이드"><span>월세차 고급 업그레이드<small>월 1회 고급 세차 +20,000원~</small></span></label>
@@ -838,7 +839,7 @@
               </div>
               <div id="optionNotice" class="option-notice hidden"></div>
             </div>
-            <div class="span-2 opt-field" id="promoField">
+            <div class="span-2 opt-field" id="promoField" data-vip-step="2">
               <span class="opt-title">혜택 적용 <small class="field-hint">예약 1건당 1개만 적용됩니다 (중복 불가)</small></span>
               <div class="opt-grid" id="promoGrid"></div>
               <div class="coupon-row">
@@ -847,15 +848,16 @@
               </div>
               <p class="coupon-msg" id="couponMsg"></p>
             </div>
-            <label class="span-2">추천인 연락처 <small class="field-hint">소개해주신 분의 번호를 적으면 그분께 외부세차 1회 쿠폰이 신청됩니다 (선택)</small><input name="referrer" inputmode="tel" placeholder="010-0000-0000" autocomplete="off"></label>
-            <label class="span-2">요청사항<textarea name="memo" rows="3" placeholder="주차 위치, 가능한 요일, 그 외 요청사항을 적어주세요."></textarea></label>
-            <div class="span-2 quote-box" id="quoteBox">
+            <label class="span-2" data-vip-step="2">추천인 연락처 <small class="field-hint">소개해주신 분의 번호를 적으면 그분께 외부세차 1회 쿠폰이 신청됩니다 (선택)</small><input name="referrer" inputmode="tel" placeholder="010-0000-0000" autocomplete="off"></label>
+            <label class="span-2" data-vip-step="2">요청사항<textarea name="memo" rows="3" placeholder="주차 위치, 가능한 요일, 그 외 요청사항을 적어주세요."></textarea></label>
+            <div class="span-2 quote-box" id="quoteBox" data-vip-step="both">
               <div class="quote-head"><span>예상 금액</span><em id="quoteCar">차량을 선택해주세요</em></div>
               <ul class="quote-lines" id="quoteLines"></ul>
               <div class="quote-total"><span id="quoteTotalLabel">합계</span><b id="quoteTotal">-</b></div>
               <p class="quote-note">차량 상태·오염도에 따라 금액이 달라질 수 있습니다. 최종 금액은 접수 후 안내드립니다.</p>
             </div>
-            <div class="span-2 vip-nudge hidden" id="vipNudge"></div>
+            <div class="span-2 vip-nudge hidden" id="vipNudge" data-vip-step="1"></div>
+            <div class="span-2 booking-wizard-controls"><button type="button" class="secondary-btn" id="wizardPrev" hidden>← 이전 단계</button><button type="button" class="primary-btn" id="wizardNext">다음: 방문 정보 입력 →</button></div>
             <button type="submit" class="primary-btn span-2">예약 접수하기</button>
           </form>
           <div id="bookingResult" class="booking-result hidden"></div>
