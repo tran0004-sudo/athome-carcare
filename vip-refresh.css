@@ -168,3 +168,16 @@
 @media(max-width:760px){.process-top{padding:10px 12px 2px;}.process-top img{border-radius:16px;}}
 .addon-lead{margin:2px 0 14px;color:#536761;font-size:14px;line-height:1.6;word-break:keep-all;}#addonSection .care-card{padding:0 16px;}
 .addon-lead{margin:2px 0 14px;color:#536761;font-size:14px;line-height:1.6;word-break:keep-all;}
+/* 기본·고급 세차 안내 · 확인 사항 */
+.guide-time-note{margin:14px 2px 0;color:#6C7B76;font-size:12.5px;line-height:1.6;word-break:keep-all;}
+.guide-check{margin-top:12px;padding:16px;border-radius:18px;background:#EFF7F3;border:1px solid #DCEBE4;}
+.guide-check h3{margin:0 0 12px;font-size:16px;color:#20312D;}
+.guide-check-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.gc{background:#fff;border-radius:14px;padding:14px 14px 12px;border-left:4px solid #CBD8D3;}
+.gc b{display:block;font-size:14px;margin-bottom:8px;}
+.gc ul{margin:0;padding-left:16px;font-size:12.5px;line-height:1.65;color:#465B57;word-break:keep-all;}
+.gc li+li{margin-top:4px;}
+.gc-ok{border-left-color:#087C68;}.gc-ok b{color:#087C68;}
+.gc-no{border-left-color:#C8452E;}.gc-no b{color:#C8452E;}
+.gc-opt{border-left-color:#3F6FB5;}.gc-opt b{color:#3F6FB5;}
+@media(max-width:760px){.guide-check-grid{grid-template-columns:1fr;}}
