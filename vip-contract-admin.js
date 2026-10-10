@@ -185,7 +185,8 @@
     busy=true;note('계약 저장 중입니다.');
     try{
       const path='vip_contracts'+(id?'?id=eq.'+encodeURIComponent(id):'');
-      await api(path,{method:id?'PATCH':'POST',body:JSON.stringify(payload),headers:{Prefer:'return=minimal'}});
+      const saved=await api(path,{method:id?'PATCH':'POST',body:JSON.stringify(payload),headers:{Prefer:'return=representation'}});
+      if(!id && Array.isArray(saved) && saved[0]?.id) selectedId=saved[0].id;
       busy=false;
       await load();
       note('계약이 저장되었습니다. 실제 완료 세차를 연결하면 잔여 횟수에 반영됩니다.');
