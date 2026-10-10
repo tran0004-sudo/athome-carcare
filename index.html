@@ -28,6 +28,7 @@
   <link rel="stylesheet" href="home-polish.css?v=20260916-nohero1" />
   <link rel="stylesheet" href="vip-refresh.css?v=20261010-vip1" />
   <link rel="stylesheet" href="member-dashboard.css?v=20261010-member1" />
+  <link rel="stylesheet" href="vip-contract.css?v=20261010-vip3" />
   <title>대구·경산 월세차 VIP 정기관리 | 집앞세차 앳홈카케어</title>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"AutoWash","name":"집앞세차 앳홈카케어","alternateName":["앳홈카케어","At Home Car Care"],
@@ -766,9 +767,14 @@
                 <button type="button" id="memberLogout">로그아웃</button>
               </div>
             </div>
+            <section class="member-contract-section" aria-label="VIP 계약 · 잔여 횟수">
+              <h3>나의 VIP 계약</h3>
+              <p>실제 계약 기간을 기준으로 계산합니다. 완료된 방문 중 관리자가 계약에 연결한 작업만 횟수에서 차감됩니다.</p>
+              <div id="memberContractList" class="member-contract-list"><div class="member-contract-empty">계약 정보를 조회 중입니다.</div></div>
+            </section>
             <div class="member-kpi-grid">
-              <article class="member-kpi next"><span class="member-kpi-label">다음 세차 예정일</span><strong id="memberNextDate">조회 중</strong><small id="memberNextService">확정된 방문 일정을 확인합니다.</small></article>
-              <article class="member-kpi plan"><span class="member-kpi-label">최근 월세차 신청</span><strong id="memberPlan">조회 중</strong><small id="memberPlanStatus"></small><small id="memberPlanDate"></small></article>
+              <article class="member-kpi next"><span class="member-kpi-label" id="memberNextLabel">다음 세차 예정일</span><strong id="memberNextDate">조회 중</strong><small id="memberNextService">확정된 방문 일정을 확인합니다.</small></article>
+              <article class="member-kpi plan"><span class="member-kpi-label" id="memberPlanLabel">최근 월세차 신청</span><strong id="memberPlan">조회 중</strong><small id="memberPlanStatus"></small><small id="memberPlanDate"></small></article>
               <article class="member-kpi compact"><span class="member-kpi-label">이번 달 완료</span><strong id="memberMonthCompleted">0회</strong><small>실제 완료 처리된 작업</small></article>
               <article class="member-kpi compact"><span class="member-kpi-label">누적 관리 완료</span><strong id="memberTotalCompleted">0회</strong><small>확인 가능한 이용 이력</small></article>
             </div>
@@ -786,7 +792,7 @@
               <button type="button" data-go="booking">다음 세차 예약하기 →</button>
               <button type="button" data-go="vip">VIP 정기관리 혜택 보기</button>
             </div>
-            <p class="member-privacy-hint">이 화면의 월세차 정보는 기존 예약 기록에 기반합니다. 별도 계약의 유효기간이나 미사용 회차를 보증하는 회원증은 아닙니다.</p>
+            <p class="member-privacy-hint">VIP 잔여 횟수와 만료일은 실제 등록된 계약에 기반합니다. 확정 방문일은 운영자가 등록한 예약이며, 정기관리 권장일은 확정 예약이 아닙니다.</p>
           </div>
         </div>
       </section>
@@ -1017,7 +1023,8 @@
   <script src="app.js?v=20261007-care1"></script>
   <script src="supabase-integration.js?v=20261006-kakaosplit"></script>
   <script src="vip-refresh.js?v=20261010-vip1" defer></script>
-  <script src="member-dashboard.js?v=20261010-member1" defer></script>
+  <script src="member-dashboard.js?v=20261010-member3" defer></script>
+  <script src="vip-contract-admin.js?v=20261010-vip3" defer></script>
 <script id="hash-go">
 window.addEventListener('load',function(){try{var h=(location.hash||'').replace(/^#\/?/,'');if(h&&h!=='home'&&document.getElementById(h)&&typeof go==='function'){setTimeout(function(){go(h)},50)}}catch(e){}});
 </script>
