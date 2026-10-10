@@ -166,3 +166,5 @@
 .process-top{padding:16px 16px 4px;background:linear-gradient(180deg,#F8FBF9,#fff);}
 .process-top img{display:block;width:100%;max-width:560px;height:auto;margin:0 auto;border-radius:20px;box-shadow:0 10px 30px rgba(13,60,53,.12);}
 @media(max-width:760px){.process-top{padding:10px 12px 2px;}.process-top img{border-radius:16px;}}
+.addon-lead{margin:2px 0 14px;color:#536761;font-size:14px;line-height:1.6;word-break:keep-all;}#addonSection .care-card{padding:0 16px;}
+.addon-lead{margin:2px 0 14px;color:#536761;font-size:14px;line-height:1.6;word-break:keep-all;}
