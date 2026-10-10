@@ -131,3 +131,25 @@
   #home .vip-hero-copy .hero-buttons button,
   #booking .wizard-progress i {transition:none;}
 }
+
+/* 홈 · 실제 관리 결과 슬라이더 */
+.work-slider{position:relative;margin-top:4px;}
+.work-track{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-radius:20px;outline-offset:3px;}
+.work-track::-webkit-scrollbar{display:none;}
+.work-slide{flex:0 0 100%;scroll-snap-align:center;background:#fff;border:1px solid #E3EBE7;border-radius:20px;padding:12px 12px 16px;box-sizing:border-box;box-shadow:0 6px 22px rgba(13,60,53,.06);}
+.work-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.work-pair figure{margin:0;min-width:0;}
+.work-pair img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:14px;background:#E8EFED;}
+.work-pair figcaption{font-size:12px;font-weight:800;margin-top:8px;color:#5D6B66;}
+.work-pair .after-label{color:#087C68;}
+.work-slide h3{margin:14px 4px 4px;font-size:18px;color:#10282A;}
+.work-slide p{margin:0 4px;font-size:13.5px;line-height:1.6;color:#536761;word-break:keep-all;}
+.work-nav{position:absolute;top:calc(50% - 50px);width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.94);color:#087C68;font-size:26px;line-height:1;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.2);cursor:pointer;display:grid;place-items:center;padding:0 0 3px;}
+.work-nav.prev{left:-6px;}.work-nav.next{right:-6px;}
+.work-nav[disabled]{opacity:.35;cursor:default;}
+.work-dots{display:flex;justify-content:center;gap:8px;margin-top:14px;}
+.work-dots button{width:8px;height:8px;border-radius:99px;border:0;padding:0;background:#CBD8D3;cursor:pointer;transition:width .2s,background .2s;}
+.work-dots button.on{width:22px;background:#087C68;}
+@media(max-width:760px){.work-nav{display:none;}.work-slide{padding:10px 10px 14px;}.work-slide h3{font-size:17px;}}
+@media(prefers-reduced-motion:reduce){.work-track{scroll-behavior:auto;}}
+@media(max-width:760px){.vip-proof-section .section-head{align-items:flex-end}.vip-proof-section .text-link{white-space:nowrap;font-size:13px}}

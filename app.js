@@ -236,7 +236,8 @@ function renderPromos() {
 }
 
 function render() {
-  document.querySelector('#homeComparisons').innerHTML = state.gallery.slice(0, 3).map(comparisonMarkup).join('');
+  const homeCmp = document.querySelector('#homeComparisons');
+  if (homeCmp) homeCmp.innerHTML = state.gallery.slice(0, 3).map(comparisonMarkup).join('');
   document.querySelector('#galleryList').innerHTML = state.gallery.length
     ? state.gallery.map(comparisonMarkup).join('')
     : '<p class="empty-state">등록된 세차 전후 사진이 없습니다.</p>';

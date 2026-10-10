@@ -64,3 +64,48 @@
     initWizard();
   }
 })();
+
+/* 홈 · 실제 관리 결과 슬라이더 */
+(function () {
+  'use strict';
+  function init() {
+    var track = document.getElementById('workTrack');
+    if (!track || track.dataset.ready) return;
+    track.dataset.ready = '1';
+    var root = document.getElementById('workSlider');
+    var slides = track.querySelectorAll('.work-slide');
+    var dots = root.querySelectorAll('.work-dots button');
+    var prev = root.querySelector('.work-nav.prev');
+    var next = root.querySelector('.work-nav.next');
+    var cur = 0, timer = null;
+    function width() { return slides[0].offsetWidth + 14; }
+    function go(i) {
+      cur = Math.max(0, Math.min(slides.length - 1, i));
+      track.scrollTo({ left: cur * width(), behavior: 'smooth' });
+    }
+    function sync() {
+      cur = Math.round(track.scrollLeft / width());
+      dots.forEach(function (d, i) { d.classList.toggle('on', i === cur); d.setAttribute('aria-selected', i === cur ? 'true' : 'false'); });
+      prev.disabled = cur === 0; next.disabled = cur === slides.length - 1;
+    }
+    function stop() { if (timer) { clearInterval(timer); timer = null; } }
+    function play() {
+      stop();
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      timer = setInterval(function () { go(cur === slides.length - 1 ? 0 : cur + 1); }, 5000);
+    }
+    track.addEventListener('scroll', function () { window.requestAnimationFrame(sync); }, { passive: true });
+    prev.addEventListener('click', function () { go(cur - 1); play(); });
+    next.addEventListener('click', function () { go(cur + 1); play(); });
+    dots.forEach(function (d, i) { d.addEventListener('click', function () { go(i); play(); }); });
+    track.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(cur - 1); }
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(cur + 1); }
+    });
+    ['touchstart', 'mouseenter', 'focusin'].forEach(function (ev) { root.addEventListener(ev, stop, { passive: true }); });
+    ['touchend', 'mouseleave', 'focusout'].forEach(function (ev) { root.addEventListener(ev, play, { passive: true }); });
+    window.addEventListener('resize', function () { go(cur); });
+    sync(); play();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();

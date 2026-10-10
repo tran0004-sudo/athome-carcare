@@ -26,7 +26,7 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png?v=20261001-icon7" />
   <link rel="stylesheet" href="styles.css?v=20260929-seo" />
   <link rel="stylesheet" href="home-polish.css?v=20260916-nohero1" />
-  <link rel="stylesheet" href="vip-refresh.css?v=20261010-vip1" />
+  <link rel="stylesheet" href="vip-refresh.css?v=20261010-vip2" />
   <link rel="stylesheet" href="member-dashboard.css?v=20261010-member1" />
   <link rel="stylesheet" href="vip-contract.css?v=20261010-vip3" />
   <link rel="stylesheet" href="dual-access.css?v=20261010-both1" />
@@ -113,11 +113,48 @@
         <section class="content-section vip-proof-section">
           <div class="section-head"><div><span class="vip-section-label">OUR WORK</span><h2>말보다, 실제 관리 결과</h2></div><button class="text-link" data-go="gallery">시공 전·후 더보기 →</button></div>
           <p class="vip-proof-heading">내 차를 매달 맡기는 일인 만큼, 차량 관리 결과를 직접 확인해 보세요.</p>
-          <div class="vip-photo-pair">
-            <figure><img src="assets/before-after/grandeur-front-before.jpg" loading="lazy" alt="그랜저 전면 세차 전 사진"><figcaption>BEFORE · 세차 전</figcaption></figure>
-            <figure><img src="assets/before-after/grandeur-front-after.jpg" loading="lazy" alt="그랜저 전면 세차 후 사진"><figcaption class="after-label">AFTER · 세차 후</figcaption></figure>
+          <div class="work-slider" id="workSlider" role="region" aria-roledescription="carousel" aria-label="세차 전·후 사례">
+            <div class="work-track" id="workTrack" tabindex="0">
+              <article class="work-slide" role="group" aria-roledescription="slide" aria-label="1 / 5">
+                <div class="work-pair">
+                  <figure><img src="assets/before-after/front-before-plate.jpg" width="640" height="480" alt="GV80 세차 전"><figcaption>BEFORE · 세차 전</figcaption></figure>
+                  <figure><img src="assets/before-after/front-after.jpg?v=2" width="640" height="480" alt="GV80 세차 후"><figcaption class="after-label">AFTER · 세차 후</figcaption></figure>
+                </div>
+                <h3>GV80 외부 세차</h3><p>먼지와 오염을 걷어내고 도장 광택을 되살렸어요</p>
+              </article>
+              <article class="work-slide" role="group" aria-roledescription="slide" aria-label="2 / 5">
+                <div class="work-pair">
+                  <figure><img src="assets/before-after/wheel-before.jpg?v=2" width="640" height="480" loading="lazy" alt="휠 세차 전"><figcaption>BEFORE · 세차 전</figcaption></figure>
+                  <figure><img src="assets/before-after/wheel-after.jpg?v=2" width="640" height="480" loading="lazy" alt="휠 세차 후"><figcaption class="after-label">AFTER · 세차 후</figcaption></figure>
+                </div>
+                <h3>휠 세척</h3><p>브레이크 분진과 찌든 때까지 꼼꼼하게</p>
+              </article>
+              <article class="work-slide" role="group" aria-roledescription="slide" aria-label="3 / 5">
+                <div class="work-pair">
+                  <figure><img src="assets/before-after/mat-before.jpg?v=2" width="640" height="480" loading="lazy" alt="실내 매트 세차 전"><figcaption>BEFORE · 세차 전</figcaption></figure>
+                  <figure><img src="assets/before-after/mat-after.jpg?v=2" width="640" height="480" loading="lazy" alt="실내 매트 세차 후"><figcaption class="after-label">AFTER · 세차 후</figcaption></figure>
+                </div>
+                <h3>실내 매트 세차</h3><p>발자국과 얼룩을 제거해 쾌적한 실내로</p>
+              </article>
+              <article class="work-slide" role="group" aria-roledescription="slide" aria-label="4 / 5">
+                <div class="work-pair">
+                  <figure><img src="assets/before-after/tucson-front-before.jpg" width="640" height="480" loading="lazy" alt="투싼 정면 세차 전"><figcaption>BEFORE · 세차 전</figcaption></figure>
+                  <figure><img src="assets/before-after/tucson-front-after.jpg" width="640" height="480" loading="lazy" alt="투싼 정면 세차 후"><figcaption class="after-label">AFTER · 세차 후</figcaption></figure>
+                </div>
+                <h3>투싼 외부 세차</h3><p>생활 오염을 지우고 깨끗한 정면으로</p>
+              </article>
+              <article class="work-slide" role="group" aria-roledescription="slide" aria-label="5 / 5">
+                <div class="work-pair">
+                  <figure><img src="assets/before-after/grandeur-front-before.jpg" width="640" height="480" loading="lazy" alt="그랜저 전면 세차 전"><figcaption>BEFORE · 세차 전</figcaption></figure>
+                  <figure><img src="assets/before-after/grandeur-front-after.jpg" width="640" height="480" loading="lazy" alt="그랜저 전면 세차 후"><figcaption class="after-label">AFTER · 세차 후</figcaption></figure>
+                </div>
+                <h3>그랜저 외부 세차</h3><p>야간 작업에서도 선명하게 살아나는 광택</p>
+              </article>
+            </div>
+            <button type="button" class="work-nav prev" aria-label="이전 사례">‹</button>
+            <button type="button" class="work-nav next" aria-label="다음 사례">›</button>
+            <div class="work-dots" role="tablist" aria-label="사례 선택"><button type="button" role="tab" aria-label="1번 사례"></button><button type="button" role="tab" aria-label="2번 사례"></button><button type="button" role="tab" aria-label="3번 사례"></button><button type="button" role="tab" aria-label="4번 사례"></button><button type="button" role="tab" aria-label="5번 사례"></button></div>
           </div>
-          <div id="homeComparisons" class="comparison-grid"></div>
           <div class="vip-trust-links"><button type="button" data-go="gallery">관리 사례 더 살펴보기 →</button><button type="button" data-go="vip">VIP 정기관리 알아보기 →</button><button type="button" data-go="mypage">내 세차 일정 확인 →</button></div>
         </section>
 
@@ -1051,7 +1088,7 @@
   <script src="restore-classic.js?v=20260916-2"></script>
   <script src="app.js?v=20261007-care1"></script>
   <script src="supabase-integration.js?v=20261006-kakaosplit"></script>
-  <script src="vip-refresh.js?v=20261010-vip1" defer></script>
+  <script src="vip-refresh.js?v=20261010-vip2" defer></script>
   <script src="member-dashboard.js?v=20261010-member3" defer></script>
   <script src="vip-contract-admin.js?v=20261010-vip3" defer></script>
   <script src="dual-access.js?v=20261010-both1" defer></script>
