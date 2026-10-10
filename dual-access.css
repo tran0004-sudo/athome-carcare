@@ -43,3 +43,8 @@
   .booking-path-buttons button.member-portal{grid-column:1/-1}
   .customer-path-card button{width:100%}
 }
+
+/* Existing VIP visit requests are verified against the stored contract by staff.
+   Do not display a new one-off price quote for an unverified contract visit. */
+#bookingForm[data-booking-mode="existing"] #quoteBox{display:none!important}
+#memberExistingVisit[hidden]{display:none!important}
