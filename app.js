@@ -804,9 +804,17 @@ async function init() {
   bindBookingExtras();
 
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () =>
-      navigator.serviceWorker.register('./service-worker.js').catch(console.warn)
-    );
+    window.addEventListener('load', () => {
+      let refreshedForUpdate = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshedForUpdate) return;
+        refreshedForUpdate = true;
+        window.location.reload();
+      });
+      navigator.serviceWorker.register('./service-worker.js', { updateViaCache: 'none' })
+        .then((registration) => registration.update())
+        .catch(console.warn);
+    });
   }
 }
 
