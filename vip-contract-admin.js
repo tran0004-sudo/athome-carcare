@@ -19,6 +19,12 @@
     if(/^8210\d{8}$/.test(s))s='0'+s.slice(2);
     return s;
   };
+  function seoulDay(value) {
+    const parts=new Intl.DateTimeFormat('en-US',{timeZone:'Asia/Seoul',
+      year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(value));
+    const part=key=>parts.find(p=>p.type===key)?.value||'';
+    return part('year')+'-'+part('month')+'-'+part('day');
+  }
   function note(message,error=false) {
     const el=$('vipAdminMessage');
     if(el){el.textContent=message;el.dataset.error=error?'1':'0';}
@@ -122,8 +128,8 @@
     const sel=node('select');sel.id='vipCompletedJob';
     const occupied=new Set(links.map(v=>v.reservation_id));
     const eligible=jobs.filter(j=>phone(j.phone)===c.phone && j.status==='완료' && j.done_at &&
-      new Date(j.done_at).toLocaleDateString('en-CA',{timeZone:'Asia/Seoul'})>=c.starts_on &&
-      new Date(j.done_at).toLocaleDateString('en-CA',{timeZone:'Asia/Seoul'})<=c.expires_on && !occupied.has(j.id));
+      seoulDay(j.done_at)>=c.starts_on &&
+      seoulDay(j.done_at)<=c.expires_on && !occupied.has(j.id));
     const intro=node('option','',eligible.length?'완료된 세차를 선택하세요':'연결 가능한 완료 세차 없음');intro.value='';sel.append(intro);
     for(const j of eligible) {
       const o=node('option','',new Date(j.done_at).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'})+' · '+(j.car_model||'차량')+' · '+j.service_type);
