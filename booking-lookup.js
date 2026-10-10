@@ -38,18 +38,23 @@
     return r.json();
   }
   function init() {
-    var sec = document.getElementById('booking');
-    var anchor = sec && sec.querySelector('.booking-path-selector');
-    if (!anchor || document.getElementById('guestLookup')) return;
-    var box = document.createElement('details');
-    box.id = 'guestLookup'; box.className = 'guest-lookup';
-    box.innerHTML = '<summary><span>이미 예약하셨나요? <em>예약 확인</em></span></summary>' +
+    var slot = document.getElementById('guestLookupSlot');
+    if (!slot || document.getElementById('guestLookup')) return;
+    var box = document.createElement('section');
+    box.id = 'guestLookup'; box.className = 'mypage-panel guest-lookup-card';
+    box.innerHTML = '<h2>비회원 예약 확인</h2>' +
       '<form class="gl-form" novalidate><p>예약할 때 입력한 휴대폰 번호와 차량번호를 넣어 주세요. 로그인은 필요 없어요.</p>' +
       '<input name="glPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="휴대폰 번호 010-0000-0000" required>' +
       '<input name="glPlate" autocomplete="off" placeholder="차량번호 예: 12가 3456" required>' +
       '<button type="submit" class="primary-btn">예약 확인하기</button><div class="gl-result" role="status" aria-live="polite"></div></form>';
-    anchor.parentNode.insertBefore(box, anchor.nextSibling);
+    slot.appendChild(box);
     var form = box.querySelector('form'), out = box.querySelector('.gl-result'), btn = form.querySelector('button');
+    /* 예약 폼에 기억된 번호·차량번호가 있으면 미리 채움 */
+    try {
+      var saved = JSON.parse(localStorage.getItem('athomeBookingProfile') || '{}');
+      if (saved.phone) form.glPhone.value = saved.phone;
+      if (saved.plate) form.glPlate.value = saved.plate;
+    } catch (e) {}
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
       var phone = form.glPhone.value.trim(), plate = form.glPlate.value.trim();
@@ -59,18 +64,26 @@
       btn.disabled = true; btn.textContent = '확인 중…';
       try {
         var rows = await lookup(phone, plate);
+        if (rows && !Array.isArray(rows) && rows.error === 'rate_limited') {
+          out.innerHTML = '<p class="gl-msg">확인 시도가 너무 많아 잠시 막아 두었어요. 1시간 뒤 다시 시도하시거나 카카오채널로 문의해 주세요.</p>'; return;
+        }
+        if (!Array.isArray(rows)) rows = [];
         out.innerHTML = rows.length ? rows.map(card).join('')
           : '<p class="gl-msg">일치하는 예약을 찾지 못했어요. 예약할 때 입력한 번호와 차량번호가 맞는지 확인하시고, 계속 안 보이면 카카오채널로 문의해 주세요.</p>';
       } catch (err) {
         out.innerHTML = '<p class="gl-msg">지금은 확인할 수 없어요. 잠시 후 다시 시도하거나 카카오채널로 문의해 주세요.</p>';
       } finally { btn.disabled = false; btn.textContent = '예약 확인하기'; }
     });
-    /* 내 관리 화면에서 넘어오는 링크 */
-    document.addEventListener('click', function (e) {
-      var a = e.target.closest('[data-open-lookup]'); if (!a) return;
-      var go = document.querySelector('.bottom-nav [data-go="booking"]'); if (go) go.click();
-      box.open = true; setTimeout(function () { box.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 250);
-    });
+    /* 월회원으로 로그인해 일정 화면이 보이면 비회원 확인 칸은 숨김 */
+    var dash = document.getElementById('memberDashboard');
+    var split = document.getElementById('memberSplit');
+    function sync() {
+      var logged = dash && !dash.hidden && dash.offsetParent !== null;
+      box.hidden = !!logged; if (split) split.hidden = !!logged;
+    }
+    if (dash) new MutationObserver(sync).observe(dash, { attributes: true, attributeFilter: ['hidden', 'style', 'class'] });
+    sync();
   }
+
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

@@ -1299,7 +1299,7 @@ ${linkLines ? '\n' + linkLines : ''}
         result.innerHTML = `<div class="booking-success">
           <p class="booking-success-title">✅ 예약이 접수되었습니다!</p>
           <p>${esc(payload.customer_name)}님, ${esc(payload.apartment)} · ${esc(payload.car_model)} 예약을 확인 후 카카오톡 또는 문자로 연락드리겠습니다.</p>
-          <p class="booking-success-next">일정 변경·취소는 아래 문자 또는 카카오채널로 말씀해 주세요. 접수 상태는 예약 화면의 '예약 확인'에서 휴대폰 번호와 차량번호로 언제든 볼 수 있어요.</p>
+          <p class="booking-success-next">일정 변경·취소는 아래 문자 또는 카카오채널로 말씀해 주세요. 접수 상태는 하단 '내 예약' 탭에서 휴대폰 번호와 차량번호로 언제든 볼 수 있어요.</p>
           ${couponUseWarning ? `<p class="coupon-msg bad">⚠️ ${esc(couponUseWarning)}</p>` : ''}
           ${isMonthly && typeof paymentInfoCard === 'function' ? paymentInfoCard(quoteTotal) : ''}
           <div class="booking-success-btns">

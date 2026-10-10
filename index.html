@@ -26,11 +26,11 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png?v=20261001-icon7" />
   <link rel="stylesheet" href="styles.css?v=20260929-seo" />
   <link rel="stylesheet" href="home-polish.css?v=20260916-nohero1" />
-  <link rel="stylesheet" href="vip-refresh.css?v=20261010-vip28" />
+  <link rel="stylesheet" href="vip-refresh.css?v=20261010-vip29" />
   <link rel="stylesheet" href="service-luxury.css?v=20261010-lux5" />
   <link rel="stylesheet" href="member-dashboard.css?v=20261010-member4" />
   <link rel="stylesheet" href="vip-contract.css?v=20261010-vip4" />
-  <link rel="stylesheet" href="dual-access.css?v=20261010-both1" />
+  <link rel="stylesheet" href="dual-access.css?v=20261010-both4" />
   <title>대구·경산 월세차 정기관리 | 집앞세차 앳홈카케어</title>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"AutoWash","name":"집앞세차 앳홈카케어","alternateName":["앳홈카케어","At Home Car Care"],
@@ -790,18 +790,19 @@
         <div class="mypage-shell">
           <div class="mypage-heading">
             <div>
-              <span class="eyebrow">MEMBER ONLY · MY CARCARE</span>
-              <h1>내 차량관리</h1>
-              <p>월 정기관리 회원 전용 화면입니다. 다음 세차 예정일, 남은 횟수, 이용 이력을 확인하세요.</p>
+              <span class="eyebrow">MY BOOKING</span>
+              <h1>내 예약</h1>
+              <p>비회원은 예약 상태를, 월회원은 일정·남은 횟수·이용 이력을 여기서 확인하세요.</p>
             </div>
             <button type="button" data-go="vip">월세차 혜택 보기 →</button>
           </div>
 
+          <div id="guestLookupSlot"></div>
+          <p class="my-split" id="memberSplit"><span>월회원이신가요?</span></p>
           <div id="memberLoginCard" class="mypage-panel">
-            <h2>카카오로 간편 로그인</h2>
+            <h2>월회원 로그인</h2>
             <p class="member-login-intro">카카오 로그인은 본인 확인용입니다. 처음 한 번만 계약 때 알려 주신 휴대폰 번호를 연결하면, 이후에는 로그인만으로 바로 확인돼요.</p>
             <p class="member-newbie">처음 이용하시나요? 회원가입 없이 바로 예약할 수 있어요. <button type="button" data-go="booking">방문세차 예약하기 →</button></p>
-            <p class="member-guest-link">비회원으로 예약하셨나요? <button type="button" data-open-lookup>예약 확인하기</button></p>
             <button type="button" class="member-kakao" id="memberKakaoLogin"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="#191919" d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.8 5.3 4.6 6.7l-1 3.6c-.1.3.3.6.6.4l4.2-2.8c.5.1 1.1.1 1.6.1 5.5 0 10-3.6 10-8S17.5 3 12 3z"/></svg><span>카카오로 로그인</span></button>
             <form id="memberLoginForm" class="member-form" hidden style="display:none">
               <input id="memberPhone" type="tel" tabindex="-1" autocomplete="off">
@@ -887,7 +888,7 @@
           <p>정기 관리 고객님만을 위한 혜택을 한곳에 모았습니다.</p>
         </div>
 
-        <div class="member-entry"><div><strong>내 차량관리 · 회원 전용</strong><p>다음 방문 예정일, 예약 상태, 완료된 세차 이력을 한눈에 확인하세요.<br>휴대폰 본인인증 후 안전하게 조회할 수 있습니다.</p></div><button type="button" data-go="mypage">내 관리 일정 확인 →</button></div>
+        <div class="member-entry"><div><strong>내 예약 · 월회원 일정</strong><p>다음 방문 예정일, 예약 상태, 완료된 세차 이력을 한눈에 확인하세요.<br>휴대폰 본인인증 후 안전하게 조회할 수 있습니다.</p></div><button type="button" data-go="mypage">내 관리 일정 확인 →</button></div>
 
         <div class="vip-calc">
           <h3>월세차로 얼마나 아낄 수 있을까요?</h3>
@@ -950,14 +951,13 @@
       </div>
 
       <section id="booking" class="page">
-        <div class="page-title"><span>BOOKING · ALL CUSTOMERS</span><h2>방문세차 예약</h2><p>처음이시면 로그인 없이 바로 예약하세요. 월 정기관리 회원은 '내 관리'에서 계약과 남은 횟수를 확인할 수 있어요.</p></div>
+        <div class="page-title"><span>BOOKING · ALL CUSTOMERS</span><h2>방문세차 예약</h2><p>처음이시면 로그인 없이 바로 예약하세요. 예약 확인과 월회원 일정은 아래 '내 예약' 탭에서 볼 수 있어요.</p></div>
         <section class="booking-path-selector" aria-label="예약 방식 선택">
           <h3>어떤 방식으로 이용하시나요?</h3>
           <p>일회성 세차부터 월세차까지, 상황에 맞는 경로를 선택하세요.</p>
           <div class="booking-path-buttons">
             <button type="button" data-booking-mode="guest" data-booking-choice="guest" aria-pressed="true"><strong>비회원 · 일일세차</strong><small>로그인 없이 예약 접수</small></button>
             <button type="button" data-booking-mode="monthly" data-booking-choice="monthly" aria-pressed="false"><strong>월세차 신규 신청</strong><small>월 2회·4회 정기관리 상담</small></button>
-            <button type="button" class="member-portal" data-go="mypage" data-booking-choice="existing" aria-pressed="false"><strong>기존 회원 내 관리</strong><small>인증 후 계약·이력 확인</small></button>
           </div>
           <p class="booking-path-summary" id="bookingModeText" data-kind="guest" role="status">비회원도 로그인·회원가입 없이 예약할 수 있습니다.</p>
         </section>
@@ -1090,7 +1090,7 @@
     </main>
 
     <nav class="bottom-nav" aria-label="하단 메뉴">
-      <button data-go="home" class="active"><svg class="ui-line-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v10H3z"/><path d="M9 21v-7h6v7"/></svg><small>홈</small></button><button data-go="vip"><svg class="ui-line-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 8 4.5 4 4.5-7 4.5 7L21 8l-2 11H5z"/><path d="M5 19h14"/></svg><small>월세차</small></button><button data-go="menu"><svg class="ui-line-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 8H9c-2 0-2 3 0 3h6c2 0 2 4 0 4H9M12 6v12"/></svg><small>요금</small></button><button data-go="mypage"><svg class="ui-line-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M7 2v5M17 2v5M3 10h18"/><circle cx="12" cy="15" r="2"/></svg><small>내 관리</small></button><button data-go="booking"><svg class="ui-line-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/><path d="m9 15 2 2 4-4"/></svg><small>예약</small></button>
+      <button data-go="home" class="active"><svg class="ui-line-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 9-8 9 8v10H3z"/><path d="M9 21v-7h6v7"/></svg><small>홈</small></button><button data-go="vip"><svg class="ui-line-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 8 4.5 4 4.5-7 4.5 7L21 8l-2 11H5z"/><path d="M5 19h14"/></svg><small>월세차</small></button><button data-go="menu"><svg class="ui-line-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 8H9c-2 0-2 3 0 3h6c2 0 2 4 0 4H9M12 6v12"/></svg><small>요금</small></button><button data-go="mypage"><svg class="ui-line-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg><small>내 예약</small></button><button data-go="booking"><svg class="ui-line-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/><path d="M12 13v6M9 16h6"/></svg><small>예약하기</small></button>
     </nav>
   </div>
   <div id="toast" class="toast"></div>
@@ -1114,11 +1114,11 @@
   <script src="compat-fix.js?v=20260929-area1"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
   <script src="app.js?v=20261010-opt1"></script>
-  <script src="supabase-integration.js?v=20261010-simple3"></script>
+  <script src="supabase-integration.js?v=20261010-simple4"></script>
   <script src="vip-refresh.js?v=20261010-vip4" defer></script>
   <script src="booking-simple.js?v=20261010-simple1" defer></script>
-  <script src="booking-lookup.js?v=20261010-lookup1" defer></script>
-  <script src="member-dashboard.js?v=20261010-member7" defer></script>
+  <script src="booking-lookup.js?v=20261010-lookup3" defer></script>
+  <script src="member-dashboard.js?v=20261010-member8" defer></script>
   <script src="vip-contract-admin.js?v=20261010-vip4" defer></script>
   <script src="member-link-admin.js?v=20261010-link2" defer></script>
   <script src="dual-access.js?v=20261010-both3" defer></script>

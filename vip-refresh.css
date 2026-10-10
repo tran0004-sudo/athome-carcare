@@ -431,3 +431,9 @@
 #home .vip-hero-copy .hero-buttons .primary-btn,
 #home .vip-hero-copy .hero-buttons .secondary-btn{width:100% !important;min-width:0 !important;font-size:14px !important;font-weight:800 !important;padding:11px 8px !important;border-radius:14px !important;}
 @media(min-width:761px){#home .vip-hero-copy .hero-buttons .primary-btn,#home .vip-hero-copy .hero-buttons .secondary-btn{font-size:15px !important;padding:11px 18px !important;}#home .vip-hero-copy .hero-buttons{grid-template-columns:repeat(2,minmax(0,150px)) !important;justify-content:start;}}
+/* v50 내 예약: 비회원 확인 + 월회원 로그인 */
+.guest-lookup-card h2{margin:0 0 6px;}
+.guest-lookup-card .gl-form{padding:0;}
+.my-split{display:flex;align-items:center;gap:12px;margin:22px 2px 12px;color:#6B8074;font-size:13.5px;font-weight:700;}
+.my-split::before,.my-split::after{content:"";flex:1;height:1px;background:#DCE6E1;}
+.my-split[hidden],.guest-lookup-card[hidden]{display:none !important;}

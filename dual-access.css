@@ -48,3 +48,6 @@
    Do not display a new one-off price quote for an unverified contract visit. */
 #bookingForm[data-booking-mode="existing"] #quoteBox{display:none!important}
 #memberExistingVisit[hidden]{display:none!important}
+
+/* v50: 기존 회원 버튼 제거 → 2칸 */
+.booking-path-buttons{grid-template-columns:repeat(2,minmax(0,1fr)) !important}

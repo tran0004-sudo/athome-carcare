@@ -59,7 +59,7 @@
   function clearSession() {
     sessionStorage.removeItem(STORAGE_KEY);
     phoneAwaitingCode = '';
-    text(elem('homeMemberHeader'),'정기회원 내 관리 일정');
+    text(elem('homeMemberHeader'),'월회원 내 일정');
     text(elem('homeMemberSummary'),'카카오 로그인 후 다음 세차 예정일과 관리 이력을 간편하게 확인하세요.');
     // Erase private dashboard widgets on expired sessions or sign-out.
     const ids = ['memberNextLabel','memberPlanLabel','memberNextDate','memberNextService','memberPlan','memberPlanStatus','memberPlanDate',
@@ -165,10 +165,10 @@
     show(elem('memberNoRecords'), !data.hasRecords);
     const homeTitle = elem('homeMemberHeader');
     const homeInfo = elem('homeMemberSummary');
-    text(homeTitle, upcoming ? '다음 방문: ' + formatDate(upcoming.date,false) : '정기회원 내 관리 일정');
+    text(homeTitle, upcoming ? '다음 방문: ' + formatDate(upcoming.date,false) : '월회원 내 일정');
     text(homeInfo, upcoming
       ? service(upcoming.service) + ' · 본인 확인이 완료된 관리 일정입니다.'
-      : '본인 확인 완료 · 예약 및 관리 이력을 내 관리에서 확인하세요.');
+      : '본인 확인 완료 · 예약 및 관리 이력을 내 예약에서 확인하세요.');
   }
 
   function makeContractCard(c) {
@@ -367,7 +367,7 @@
     clearSession();
     view('login');
     if (elem('memberCode')) elem('memberCode').value = '';
-    text(elem('homeMemberHeader'),'정기회원 내 관리 일정');
+    text(elem('homeMemberHeader'),'월회원 내 일정');
     text(elem('homeMemberSummary'),'카카오 로그인 후 다음 세차 예정일과 관리 이력을 간편하게 확인하세요.');
     status('로그아웃했습니다. 이 기기에서는 다시 본인인증이 필요합니다.');
     if (s) {
