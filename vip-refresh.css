@@ -390,3 +390,22 @@
 /* v37 세차 진행 과정: 홈 토글로 이동 */
 #processSection{padding-top:0;}
 #processSection .process-img{display:block;width:100%;max-width:560px;height:auto;margin:12px auto 0;border-radius:16px;}
+/* v38 비회원 예약 확인 */
+.guest-lookup{margin:12px 16px;border:1.5px solid #D5E2DA;border-radius:14px;background:#fff;}
+.guest-lookup>summary{list-style:none;padding:14px 16px;min-height:48px;display:flex;align-items:center;font-size:15px;font-weight:700;color:#20312D;cursor:pointer;}
+.guest-lookup>summary::-webkit-details-marker{display:none;}
+.guest-lookup>summary em{font-style:normal;color:#1F7A55;margin-left:6px;text-decoration:underline;}
+.guest-lookup>summary::after{content:"＋";margin-left:auto;color:#1F7A55;}
+.guest-lookup[open]>summary::after{content:"－";}
+.gl-form{display:grid;gap:10px;padding:0 16px 16px;}
+.gl-form p{margin:0;font-size:13.5px;line-height:1.6;color:#4F6B5D;}
+.gl-form input{min-height:48px;padding:0 14px;border:1.5px solid #D5E2DA;border-radius:12px;font-size:16px;font-family:inherit;}
+.gl-item{padding:12px 14px;border-radius:12px;background:#F4FAF6;border-left:4px solid #1F7A55;margin-top:6px;}
+.gl-item[data-st="취소"]{border-left-color:#B0B7B3;background:#F5F6F5;}
+.gl-item[data-st="접수"]{border-left-color:#E0A82E;background:#FFF9EB;}
+.gl-top{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:#6B8074;}
+.gl-top b{font-size:16px;color:#20312D;}
+.gl-item p{margin:4px 0 0;font-size:14px;color:#33493F;}
+.gl-when{font-weight:700;}
+.gl-sub{color:#6B8074 !important;font-size:13px !important;}
+.gl-msg{background:#FFF9EB;padding:10px 12px;border-radius:10px;}
