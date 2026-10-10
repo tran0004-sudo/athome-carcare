@@ -1,0 +1,45 @@
+/* Guest + member dual entry: a neutral, premium access layer over the existing application */
+.customer-paths{margin:0 24px 24px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.customer-path-card{border:1px solid #DDEAE4;background:#fff;border-radius:18px;padding:22px;min-width:0;display:flex;flex-direction:column;gap:10px;box-shadow:0 6px 18px rgba(32,49,45,.035)}
+.customer-path-card.member-path{border-color:#E9DBBD;background:linear-gradient(140deg,#FFFEFA,#FCF8EF)}
+.customer-path-kicker{display:inline-flex;gap:7px;align-items:center;color:#087C68;font-size:11px;font-weight:850;letter-spacing:.09em}
+.customer-path-card.member-path .customer-path-kicker{color:#8A6B34}
+.customer-path-card h2{font-size:20px;margin:0;color:#20312D;letter-spacing:-.35px}
+.customer-path-card p{color:#667A70;line-height:1.75;font-size:13px;margin:0;flex:1;word-break:keep-all}
+.customer-path-card button{align-self:flex-start;min-height:43px;background:#087C68;color:#fff;border:0;border-radius:11px;padding:11px 19px;font-size:13px;font-weight:800;cursor:pointer}
+.customer-path-card.member-path button{background:#fff;border:1px solid #C5AB75;color:#765C2B}
+.customer-path-footer{text-align:center;margin:0 24px 26px;color:#68796E;font-size:13px;line-height:1.65}
+.customer-path-footer button{background:none;border:0;padding:3px 4px;color:#087C68;font-size:13px;font-weight:850;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+#home .vip-hero-copy .hero-buttons button[data-booking-mode="guest"]{background:#087C68 !important;color:#fff}
+#home .vip-hero-copy .hero-buttons button[data-go="mypage"]{background:#fff !important;color:#087C68;border:1px solid #AFCFC0 !important}
+.dual-hero-tip{font-size:12px;color:#65796F;line-height:1.55;margin-top:12px}
+.dual-hero-tip button{border:0;background:transparent;color:#816639;font-size:12px;font-weight:800;padding:1px 0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.booking-path-selector{padding:19px;margin:0 0 18px;border:1px solid #DAE7DF;background:#F8FBF9;border-radius:17px}
+.booking-path-selector h3{font-size:17px;color:#20312D;margin:0 0 7px}
+.booking-path-selector>p{font-size:12px;color:#697A72;margin:0 0 15px;line-height:1.7}
+.booking-path-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.booking-path-buttons button{border:1px solid #D2E4DA;background:#fff;color:#3F6256;display:flex;flex-direction:column;gap:6px;align-items:flex-start;text-align:left;padding:13px 12px;border-radius:12px;min-width:0;cursor:pointer;transition:background .15s,border-color .15s}
+.booking-path-buttons button strong{font-size:13px;color:inherit;line-height:1.4}
+.booking-path-buttons button small{font-size:11px;color:#74867C;line-height:1.55}
+.booking-path-buttons button[aria-pressed="true"]{border-color:#087C68;background:#EBF7F2;box-shadow:inset 0 0 0 1px #087C68}
+.booking-path-buttons button[aria-pressed="true"] strong{color:#087C68}
+.booking-path-buttons button.member-portal{border-color:#E6DABF}
+.booking-path-summary{margin:14px 0 0!important;background:#fff;border:1px solid #E2E9E3;border-radius:11px;padding:11px 13px;color:#3D6455!important;font-size:12px!important;line-height:1.7!important}
+.booking-path-summary[data-kind="existing"]{border-color:#E6D6B6;background:#FFFCF4;color:#725B32!important}
+.customer-guest-notice{font-size:12px;color:#6B8074;line-height:1.65;padding:12px 15px;background:#F6FAF7;border-radius:11px;margin:2px 0 14px}
+.member-mypage-open{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0 0}
+.member-mypage-open button{background:#fff;border:1px solid #AACFBD;color:#087C68;padding:10px 14px;font-size:13px;font-weight:800;border-radius:10px;cursor:pointer}
+.customer-path-card button:focus-visible,.booking-path-buttons button:focus-visible,.dual-hero-tip button:focus-visible{outline:3px solid rgba(8,124,104,.32);outline-offset:2px}
+@media(max-width:760px){
+  .customer-paths{margin:0 14px 14px;gap:10px}
+  .customer-path-card{padding:17px}
+  .customer-path-card h2{font-size:17px}
+  .customer-path-footer{margin:0 14px 18px}
+  .booking-path-selector{padding:15px}
+}
+@media(max-width:540px){
+  .customer-paths{grid-template-columns:1fr}
+  .booking-path-buttons{grid-template-columns:1fr 1fr}
+  .booking-path-buttons button.member-portal{grid-column:1/-1}
+  .customer-path-card button{width:100%}
+}
