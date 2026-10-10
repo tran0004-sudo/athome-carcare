@@ -250,35 +250,8 @@
 }
 
 /* ===== 기본 / 고급 세차 카드 (골드 프리미엄) ===== */
-.pkg-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:stretch;}
-.pkg-card{border-radius:22px;overflow:hidden;background:#fff;border:1px solid #DDE9E3;box-shadow:0 10px 28px rgba(20,48,43,.08);display:flex;flex-direction:column;min-width:0;}
-.pkg-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 22px 18px;color:#fff;}
-.pkg-head h3{margin:0;font-size:25px;letter-spacing:-.6px;font-weight:850;}
-.pkg-head small{display:block;margin-top:5px;font-size:13.5px;opacity:.92;font-weight:600;}
-.pkg-body{padding:18px 22px 22px;flex:1;}
-.pkg-time{text-align:center;padding:12px 14px;border-radius:999px;font-size:16px;font-weight:850;letter-spacing:-.2px;margin-bottom:18px;}
-.pkg-body h4{margin:16px 0 6px;font-size:15px;font-weight:850;}
-.pkg-body ul{list-style:none;margin:0;padding:0;}
-.pkg-body li{position:relative;padding:5px 0 5px 26px;font-size:15px;line-height:1.5;font-weight:550;}
-.pkg-body li::before{content:'✓';position:absolute;left:2px;top:5px;font-weight:900;}
 /* 기본 */
-.pkg-basic .pkg-head{background:linear-gradient(135deg,#0E6B58,#138468);}
-.pkg-basic .pkg-time{background:#E7F2EE;color:#17302B;}
-.pkg-basic h4{color:#0E6B58;}
-.pkg-basic li{color:#243F39;}.pkg-basic li::before{color:#0E7A63;}
 /* 고급 — 골드 */
-.pkg-premium{border:1.5px solid #D2A74A;background:linear-gradient(160deg,#FFFBEF,#F8EACB);box-shadow:0 14px 32px rgba(150,108,28,.18);}
-.pkg-premium .pkg-head{background:linear-gradient(120deg,#8C6420 0%,#BB8F34 38%,#DDBB6B 62%,#B98A30 100%);position:relative;}
-.pkg-premium .pkg-head::after{content:'';position:absolute;inset:0;background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.28) 52%,transparent 64%);pointer-events:none;}
-.pkg-premium .pkg-head h3{text-shadow:0 1px 2px rgba(80,52,8,.35);}
-.pkg-badge{position:relative;z-index:1;flex:none;padding:7px 15px;border:1.5px solid rgba(255,244,214,.9);border-radius:999px;font-size:13px;font-weight:850;letter-spacing:.12em;color:#FFF4D6;background:rgba(120,82,14,.18);}
-.pkg-premium .pkg-time{background:linear-gradient(180deg,#FFF6DB,#F4DFA6);border:1.5px solid #DCB962;color:#4A3410;box-shadow:inset 0 1px 0 rgba(255,255,255,.7);}
-.pkg-premium h4{color:#9A6A12;}
-.pkg-premium li{color:#3A2B10;}.pkg-premium li::before{color:#B7791F;}
-.pkg-strong li{font-size:16.5px;font-weight:850;color:#2A1E08;}
-.pkg-divider{display:flex;align-items:center;margin:16px 0 4px;}
-.pkg-divider::before,.pkg-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,#D4B069,transparent);}
-.pkg-divider i{width:7px;height:7px;background:#C99B3F;transform:rotate(45deg);margin:0 10px;}
 
 /* 서비스 소개 · 월세차 VIP 카드도 골드 톤으로 통일 */
 #serviceSection .service-card.vip-service{background:linear-gradient(155deg,#FFFBEF,#F6E6C0);border:1.5px solid #D2A74A;box-shadow:0 12px 28px rgba(150,108,28,.18);}
@@ -296,10 +269,6 @@
 #priceTableSection .vip-guide-toggle summary{color:#3A2B10;}
 #priceTableSection .vip-guide-toggle summary::after{color:#B7791F;}
 @media(max-width:760px){
-  .pkg-grid{grid-template-columns:1fr;gap:14px;}
-  .pkg-head{padding:18px 18px 16px;}.pkg-head h3{font-size:23px;}
-  .pkg-body{padding:16px 18px 20px;}
-  .pkg-time{font-size:15px;}
 }
 
 /* v31 · 첨부 디자인 형식 + 가독성 강화 */
@@ -313,24 +282,6 @@
 #serviceSection .service-card li{font-size:15px;line-height:1.55;padding:5px 0 5px 20px;color:#1E2F2B;font-weight:600;}
 #serviceSection .service-card li::before{width:9px;height:1.5px;top:1.05em;background:#9B7B3C;}
 
-.pkg-head h3{font-size:28px;}
-.pkg-head small{font-size:15px;}
-.pkg-badge{display:inline-flex;align-items:center;gap:7px;}
-.pkg-badge svg{width:16px;height:16px;}
-.pkg-body{padding:22px 24px 26px;}
-.pkg-time{display:flex;align-items:center;justify-content:center;gap:9px;font-size:17px;padding:13px 14px;margin-bottom:22px;}
-.pkg-time svg{width:21px;height:21px;flex:none;}
-.pkg-sec+.pkg-sec{margin-top:18px;padding-top:18px;border-top:1px solid rgba(40,60,50,.12);}
-.pkg-premium .pkg-sec+.pkg-sec{border-top-color:rgba(160,120,40,.28);}
-.pkg-body h4{display:flex;align-items:center;gap:12px;margin:0 0 8px;font-size:18px;letter-spacing:-.3px;}
-.pk-ic{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;flex:none;}
-.pk-ic svg{width:21px;height:21px;}
-.pkg-basic .pk-ic{background:#E1EFE9;color:#0E6B58;}
-.pkg-premium .pk-ic{background:#F6E7BF;color:#A5701A;}
-.pkg-body ul{padding-left:52px;}
-.pkg-body li{font-size:16px;line-height:1.5;padding:6px 0 6px 26px;}
-.pkg-body li::before{top:6px;font-size:16px;}
-.pkg-strong li{font-size:17px;}
 .guide-time-note{font-size:14px;color:#5E6B66;margin:18px 4px 0;}
 
 .guide-check{padding:24px 22px 22px;}
@@ -356,11 +307,6 @@
   #serviceSection .service-card h3{font-size:19px;margin:14px 0 4px;}
   #serviceSection .service-card>p{font-size:13.5px;margin-bottom:12px;}
   #serviceSection .service-card li{font-size:14px;padding-left:16px;}
-  .pkg-head h3{font-size:25px;}
-  .pkg-body{padding:18px 18px 22px;}
-  .pkg-time{font-size:16px;}
-  .pkg-body ul{padding-left:50px;}
-  .pkg-body li{font-size:15.5px;}
   .guide-check{padding:20px 14px 16px;}
   .gc ul{font-size:14.5px;}
   #priceTableSection .vip-guide-toggle summary .pt-tx{font-size:16px;}
