@@ -411,3 +411,13 @@
 .gl-msg{background:#FFF9EB;padding:10px 12px;border-radius:10px;}
 #washGuideSection .text-link{color:#82632F;font-weight:800;font-size:13.5px;}
 #washGuideSection .section-head{margin-bottom:22px;}
+/* v40 추가 항목 전체 접기/펼치기 */
+.addon-fold>summary.section-head{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:0;}
+.addon-fold>summary::-webkit-details-marker{display:none;}
+.addon-fold[open]>summary.section-head{margin-bottom:14px;}
+.addon-hint{display:block;margin-top:6px;font-size:13.5px;color:#6B8074;font-weight:500;}
+.addon-fold[open] .addon-hint{display:none;}
+.addon-toggle{flex:none;width:40px;height:40px;border-radius:50%;border:1.5px solid #D5E2DA;background:#fff;position:relative;}
+.addon-toggle::before,.addon-toggle::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:2px;margin:-1px 0 0 -7px;background:#1F7A55;border-radius:2px;}
+.addon-toggle::after{transform:rotate(90deg);transition:transform .2s;}
+.addon-fold[open] .addon-toggle::after{transform:rotate(0);}
