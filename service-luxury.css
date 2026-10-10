@@ -346,3 +346,74 @@
 #home #washGuideSection .pkg-sec+.pkg-sec{margin-top:22px;padding-top:20px;border-top:1px solid #e5ebe7;}
 #home #washGuideSection .pkg-premium .pkg-sec+.pkg-sec{border-top-color:#ead8ab;}
 #home #washGuideSection .pkg-basic .pkg-body h4:nth-of-type(2){margin-top:0;padding-top:0;border-top:0;}
+
+/* ===== v2: 첨부 시안과 동일하게 ===== */
+/* 헤더 */
+#home #washGuideSection .pkg-card{border-radius:24px;box-shadow:0 14px 34px rgba(20,48,43,.10);}
+#home #washGuideSection .pkg-basic .pkg-head,
+#home #washGuideSection .pkg-premium .pkg-head{min-height:132px;padding:28px 30px 46px;align-items:flex-start;}
+#home #washGuideSection .pkg-basic .pkg-head h3,
+#home #washGuideSection .pkg-premium .pkg-head h3{font-size:32px;font-weight:800;letter-spacing:-.02em;word-spacing:.08em;}
+#home #washGuideSection .pkg-basic .pkg-head small,
+#home #washGuideSection .pkg-premium .pkg-head small{font-size:15px;font-weight:600;margin-top:8px;}
+#home #washGuideSection .pkg-basic .pkg-head{background:linear-gradient(135deg,#066a58 0%,#0b7c65 50%,#0f8a70 100%);}
+/* 기본: 부드러운 곡선 + 어두운 자동차 실루엣 */
+#home #washGuideSection .pkg-basic .pkg-head::before{
+  background:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 140' preserveAspectRatio='none'><path d='M0 120 C110 110 190 70 280 52 S380 30 400 20' fill='none' stroke='white' stroke-opacity='.22' stroke-width='1.4'/><path d='M0 138 C120 124 210 92 300 70 S390 48 400 40' fill='none' stroke='white' stroke-opacity='.14' stroke-width='1.2'/></svg>") center/100% 100% no-repeat,
+    radial-gradient(90% 90% at 100% 0%,rgba(255,255,255,.14),rgba(255,255,255,0) 60%);
+}
+#home #washGuideSection .pkg-basic .pkg-head::after{
+  right:6%;top:auto;bottom:6px;width:46%;height:70%;opacity:.55;
+  background-position:right bottom;background-size:contain;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 100'><path d='M10 70 C34 46 76 30 124 28 L170 28 C192 28 208 38 220 54 L242 56 C250 57 254 62 256 70 L10 70 Z' fill='%23031f1a' fill-opacity='.55'/><path d='M60 46 C84 34 112 30 140 30 L168 30 C180 30 190 36 198 46 Z' fill='%23ffffff' fill-opacity='.08'/><circle cx='64' cy='74' r='12' fill='%23031f1a' fill-opacity='.7'/><circle cx='214' cy='74' r='12' fill='%23031f1a' fill-opacity='.7'/></svg>");
+}
+/* 고급: 금빛 + 대각선 광택 */
+#home #washGuideSection .pkg-premium .pkg-head{background:linear-gradient(115deg,#8a5a14 0%,#b5832a 36%,#d4ab58 62%,#a4701f 100%);}
+#home #washGuideSection .pkg-premium .pkg-head::before{
+  background:
+    linear-gradient(118deg,transparent 38%,rgba(255,244,205,.55) 52%,rgba(255,255,255,.12) 58%,transparent 66%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 140' preserveAspectRatio='none'><path d='M0 130 C120 120 220 80 320 50 S390 28 400 22' fill='none' stroke='white' stroke-opacity='.28' stroke-width='1.3'/><path d='M0 140 C130 126 230 98 330 70 S395 52 400 46' fill='none' stroke='white' stroke-opacity='.16' stroke-width='1.1'/></svg>") center/100% 100% no-repeat;
+}
+#home #washGuideSection .pkg-badge{margin-top:2px;padding:9px 20px;font-size:13px;letter-spacing:.1em;border:1.5px solid rgba(255,236,190,.9);background:rgba(110,70,10,.22);}
+/* 본문: 헤더 위로 둥글게 겹침 */
+#home #washGuideSection .pkg-basic .pkg-body,
+#home #washGuideSection .pkg-premium .pkg-body{position:relative;margin-top:-24px;border-radius:24px 24px 0 0;padding:24px 24px 26px;}
+#home #washGuideSection .pkg-premium .pkg-body{background:linear-gradient(180deg,#fffcf4 0%,#fcf5e4 100%);}
+/* 시간 알약 */
+#home #washGuideSection .pkg-basic .pkg-time,
+#home #washGuideSection .pkg-premium .pkg-time{min-height:56px;font-size:18px;font-weight:800;margin:0 0 24px;gap:12px;}
+#home #washGuideSection .pkg-basic .pkg-time{background:#e8efeb;}
+#home #washGuideSection .pkg-premium .pkg-time{background:linear-gradient(180deg,#fffaf0,#fcf0d6);border:1.5px solid #ecd397;}
+#home #washGuideSection .pkg-time::before{width:22px;height:22px;background:linear-gradient(currentColor,currentColor) center 4px/2px 7px no-repeat,linear-gradient(currentColor,currentColor) 10px 10px/6px 2px no-repeat;}
+/* 아이콘 + 제목 + 목록 */
+#home #washGuideSection .pk-ic{width:48px;height:48px;}
+#home #washGuideSection .pk-ic svg{width:26px;height:26px;fill:currentColor !important;stroke:none !important;}
+#home #washGuideSection .pkg-basic .pk-ic{background:#e6f0eb;color:#0a4d41;}
+#home #washGuideSection .pkg-premium .pk-ic{background:#f9efd6;color:#a96a12;}
+#home #washGuideSection .pkg-basic .pkg-body h4,
+#home #washGuideSection .pkg-premium .pkg-body h4{gap:16px;margin:0 0 6px;font-size:19px;font-weight:800;letter-spacing:-.02em;}
+#home #washGuideSection .pkg-premium .pkg-body h4{color:#945a0b;}
+#home #washGuideSection .pkg-basic .pkg-body h4{color:#0a4d41;}
+#home #washGuideSection .pkg-basic .pkg-body ul,
+#home #washGuideSection .pkg-premium .pkg-body ul{padding-left:64px;margin-top:-4px;}
+#home #washGuideSection .pkg-basic .pkg-body li,
+#home #washGuideSection .pkg-premium .pkg-body li{padding:3px 0 3px 30px;font-size:15px;font-weight:400;line-height:1.55;}
+#home #washGuideSection .pkg-basic .pkg-body li{color:#33423d;}
+#home #washGuideSection .pkg-premium .pkg-body li{color:#4a3a20;}
+#home #washGuideSection .pkg-premium .pkg-body .pkg-strong li{font-weight:600;}
+#home #washGuideSection .pkg-basic .pkg-body li::before{color:#0a4d41;font-size:17px;top:2px;}
+#home #washGuideSection .pkg-premium .pkg-body li::before{color:#8d5a10;font-size:17px;top:2px;}
+/* 섹션 구분선: 양쪽 여백 */
+#home #washGuideSection .pkg-sec+.pkg-sec{position:relative;border-top:0;margin-top:26px;padding-top:26px;}
+#home #washGuideSection .pkg-sec+.pkg-sec::before{content:"";position:absolute;top:0;left:6px;right:6px;height:1px;background:#e3eae6;}
+#home #washGuideSection .pkg-premium .pkg-sec+.pkg-sec::before{background:#eddcb4;}
+@media(max-width:760px){
+  #home #washGuideSection .pkg-basic .pkg-head,#home #washGuideSection .pkg-premium .pkg-head{min-height:120px;padding:24px 22px 42px;}
+  #home #washGuideSection .pkg-basic .pkg-head h3,#home #washGuideSection .pkg-premium .pkg-head h3{font-size:28px;}
+  #home #washGuideSection .pkg-basic .pkg-body,#home #washGuideSection .pkg-premium .pkg-body{padding:20px 18px 24px;}
+  #home #washGuideSection .pkg-basic .pkg-time,#home #washGuideSection .pkg-premium .pkg-time{font-size:16.5px;min-height:52px;}
+  #home #washGuideSection .pkg-basic .pkg-body ul,#home #washGuideSection .pkg-premium .pkg-body ul{padding-left:64px;}
+}
+#home #washGuideSection .pk-ic svg{width:29px;height:29px;}
+#home #washGuideSection .pkg-sec+.pkg-sec{margin-top:20px;padding-top:22px;}
