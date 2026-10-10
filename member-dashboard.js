@@ -59,6 +59,16 @@
   function clearSession() {
     sessionStorage.removeItem(STORAGE_KEY);
     phoneAwaitingCode = '';
+    text(elem('homeMemberHeader'),'정기회원 내 관리 일정');
+    text(elem('homeMemberSummary'),'휴대폰 본인인증 후 다음 세차 예정일과 관리 이력을 간편하게 확인하세요.');
+    // Erase private dashboard widgets on expired sessions or sign-out.
+    const ids = ['memberNextDate','memberNextService','memberPlan','memberPlanStatus','memberPlanDate',
+      'memberMonthCompleted','memberTotalCompleted'];
+    ids.forEach(id => text(elem(id),''));
+    ['memberUpcoming','memberPending','memberHistory'].forEach(id => {
+      const node = elem(id);
+      if (node) node.replaceChildren();
+    });
   }
   async function fetchJson(path, options) {
     const r = await fetch(PROJECT + path, {
