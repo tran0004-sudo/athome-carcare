@@ -417,3 +417,37 @@
 }
 #home #washGuideSection .pk-ic svg{width:29px;height:29px;}
 #home #washGuideSection .pkg-sec+.pkg-sec{margin-top:20px;padding-top:22px;}
+
+/* ===== v3: 시안 이미지의 배경 아트 사용 + 세부 간격 ===== */
+#home #washGuideSection .pkg-basic .pkg-head{background:linear-gradient(100deg,#055b4d 0%,#066253 45%,#0a6956 100%);}
+#home #washGuideSection .pkg-premium .pkg-head{background:linear-gradient(100deg,#734d12 0%,#87601c 40%,#8f6420 70%,#7a5212 100%);}
+#home #washGuideSection .pkg-basic .pkg-head::before,
+#home #washGuideSection .pkg-premium .pkg-head::before{background:none;}
+#home #washGuideSection .pkg-basic .pkg-head::after{
+  content:"";position:absolute;top:0;right:0;bottom:0;left:auto;width:72%;height:auto;opacity:1;
+  background:url("assets/info/pkg-basic-art.jpg") right center/cover no-repeat;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 35%);mask-image:linear-gradient(90deg,transparent 0%,#000 35%);
+}
+#home #washGuideSection .pkg-premium .pkg-head::after{
+  content:"";position:absolute;top:0;bottom:0;left:30%;width:52%;
+  background:url("assets/info/pkg-premium-art.jpg") center/cover no-repeat;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 30%,#000 70%,transparent 100%);mask-image:linear-gradient(90deg,transparent 0%,#000 30%,#000 70%,transparent 100%);
+  pointer-events:none;
+}
+#home #washGuideSection .pkg-badge{background:rgba(90,58,8,.25);border-color:rgba(255,235,190,.95);}
+/* 제목 바로 아래 목록 (시안처럼 촘촘하게) */
+#home #washGuideSection .pkg-basic .pkg-body h4,
+#home #washGuideSection .pkg-premium .pkg-body h4{margin:0;align-items:flex-start;}
+#home #washGuideSection .pkg-body h4 .pk-ic{margin-top:-2px;}
+#home #washGuideSection .pkg-body h4{line-height:1.3;padding-top:4px;}
+#home #washGuideSection .pkg-basic .pkg-body ul,
+#home #washGuideSection .pkg-premium .pkg-body ul{margin-top:-18px;}
+#home #washGuideSection .pkg-premium .pkg-sec:first-child ul{margin-top:-14px;}
+/* 가는 체크 표시 */
+#home #washGuideSection .pkg-basic .pkg-body li::before,
+#home #washGuideSection .pkg-premium .pkg-body li::before{
+  content:"";top:9px;left:3px;width:12px;height:6px;border-left:2.2px solid currentColor;border-bottom:2.2px solid currentColor;transform:rotate(-45deg);font-size:0;
+}
+#home #washGuideSection .pkg-basic .pkg-head::after,
+#home #washGuideSection .pkg-premium .pkg-head::after{bottom:22px;}
+#home #washGuideSection .pkg-basic .pkg-head::after{background-position:right bottom;}
