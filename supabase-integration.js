@@ -1245,6 +1245,12 @@ ${linkLines ? '\n' + linkLines : ''}
 
     const exactSvc = String(fd.get('service') || '기타 상담');
     const memo     = String(fd.get('memo') || '').trim();
+    // Route labels are for operator triage only; they never grant VIP entitlement.
+    const bookingIntentNote = form.dataset.bookingMode === 'existing'
+      ? '[예약 구분: 기존 VIP 방문 요청 · 계약 및 잔여 횟수는 관리자 확인 후 연결]'
+      : (form.dataset.bookingMode === 'monthly' || exactSvc === '월 2회' || exactSvc === '월 4회')
+        ? '[예약 구분: 월세차 신규 신청 · 계약 확정 전]'
+        : '[예약 구분: 비회원 일일세차]';
     const options  = fd.getAll('options').map(v => String(v).trim()).filter(Boolean);
     const quoteTotal = (document.querySelector('#quoteTotal')?.textContent || '').trim();
     const pickedPromo = document.querySelector('[name="promo"]:checked');
@@ -1264,7 +1270,7 @@ ${linkLines ? '\n' + linkLines : ''}
       service_type:   normalizeService(exactSvc),
       preferred_date: fd.get('preferredDate') || null,
       preferred_time: fd.get('preferredTime') || null,
-      memo: `[희망 서비스: ${exactSvc}]${options.length ? `\n[추가 옵션: ${options.join(', ')}]` : ''}${promoLabels.length ? `\n[적용 혜택: ${promoLabels.join(', ')}]` : ''}${referrer ? `\n[추천인: ${referrer}]` : ''}${quoteTotal && quoteTotal !== '-' ? `\n[예상 금액: ${quoteTotal}]` : ''}${memo ? `\n${memo}` : ''}`,
+      memo: `${bookingIntentNote}\n[희망 서비스: ${exactSvc}]${options.length ? `\n[추가 옵션: ${options.join(', ')}]` : ''}${promoLabels.length ? `\n[적용 혜택: ${promoLabels.join(', ')}]` : ''}${referrer ? `\n[추천인: ${referrer}]` : ''}${quoteTotal && quoteTotal !== '-' ? `\n[예상 금액: ${quoteTotal}]` : ''}${memo ? `\n${memo}` : ''}`,
       status: '접수',
     };
 
