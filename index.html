@@ -26,7 +26,7 @@
   <link rel="apple-touch-icon" href="icons/icon-192.png?v=20261001-icon7" />
   <link rel="stylesheet" href="styles.css?v=20260929-seo" />
   <link rel="stylesheet" href="home-polish.css?v=20260916-nohero1" />
-  <link rel="stylesheet" href="vip-refresh.css?v=20261010-vip2" />
+  <link rel="stylesheet" href="vip-refresh.css?v=20261010-vip3" />
   <link rel="stylesheet" href="member-dashboard.css?v=20261010-member1" />
   <link rel="stylesheet" href="vip-contract.css?v=20261010-vip3" />
   <link rel="stylesheet" href="dual-access.css?v=20261010-both1" />
@@ -81,8 +81,15 @@
               </div>
               <figure class="vip-hero-photo">
                 <span class="vip-photo-tag">MONTHLY CARE</span>
-                <img src="assets/before-after/grandeur-side-after.jpg" width="900" height="600" alt="앳홈카케어 차량 세차 후 모습" fetchpriority="high">
-                <figcaption>앳홈카케어 시공 전·후 갤러리 이미지</figcaption>
+                <div class="compare hero-compare" id="heroCompare">
+                  <img src="assets/before-after/front-before-plate.jpg" width="1280" height="960" alt="GV80 세차 전" fetchpriority="high">
+                  <img class="after" src="assets/before-after/front-after.jpg?v=2" width="1280" height="960" alt="GV80 세차 후" fetchpriority="high">
+                  <div class="divider"></div>
+                  <span class="compare-label before">세차 전</span>
+                  <span class="compare-label after-label">세차 후</span>
+                  <input type="range" min="0" max="100" value="50" aria-label="GV80 세차 전후 비교 슬라이더">
+                </div>
+                <figcaption>GV80 시공 전·후 · 좌우로 밀어서 비교해 보세요</figcaption>
               </figure>
             </div>
           </div>
@@ -1088,7 +1095,7 @@
   <script src="restore-classic.js?v=20260916-2"></script>
   <script src="app.js?v=20261007-care1"></script>
   <script src="supabase-integration.js?v=20261006-kakaosplit"></script>
-  <script src="vip-refresh.js?v=20261010-vip2" defer></script>
+  <script src="vip-refresh.js?v=20261010-vip3" defer></script>
   <script src="member-dashboard.js?v=20261010-member3" defer></script>
   <script src="vip-contract-admin.js?v=20261010-vip3" defer></script>
   <script src="dual-access.js?v=20261010-both1" defer></script>

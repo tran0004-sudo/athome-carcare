@@ -153,3 +153,10 @@
 @media(max-width:760px){.work-nav{display:none;}.work-slide{padding:10px 10px 14px;}.work-slide h3{font-size:17px;}}
 @media(prefers-reduced-motion:reduce){.work-track{scroll-behavior:auto;}}
 @media(max-width:760px){.vip-proof-section .section-head{align-items:flex-end}.vip-proof-section .text-link{white-space:nowrap;font-size:13px}}
+
+/* 홈 히어로 · GV80 전후 슬라이더 */
+.vip-hero-photo .hero-compare{aspect-ratio:auto;height:300px;border-radius:17px;touch-action:pan-y;}
+.vip-hero-photo .hero-compare img{height:100%;border-radius:0;}
+.vip-hero-photo .hero-compare .compare-label{bottom:10px;}
+.vip-hero-photo .vip-photo-tag{z-index:3;}
+@media(max-width:760px){.vip-hero-photo .hero-compare{height:240px;}}

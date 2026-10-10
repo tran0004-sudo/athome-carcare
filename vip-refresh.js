@@ -109,3 +109,33 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
+
+/* 홈 히어로 · GV80 전후 슬라이더 (처음 한 번 살짝 움직여 사용법을 알려줌) */
+(function () {
+  'use strict';
+  function init() {
+    var wrap = document.getElementById('heroCompare');
+    if (!wrap || wrap.dataset.ready) return;
+    wrap.dataset.ready = '1';
+    var input = wrap.querySelector('input');
+    var after = wrap.querySelector('.after');
+    var divider = wrap.querySelector('.divider');
+    function set(v) { after.style.clipPath = 'inset(0 0 0 ' + v + '%)'; divider.style.left = v + '%'; }
+    input.addEventListener('input', function () { set(input.value); });
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    var t0 = null, stopped = false;
+    ['pointerdown', 'touchstart', 'input'].forEach(function (ev) { wrap.addEventListener(ev, function () { stopped = true; }, { passive: true, once: true }); });
+    function step(ts) {
+      if (stopped) return;
+      if (t0 === null) t0 = ts;
+      var p = (ts - t0) / 2400;
+      if (p >= 1) { set(50); input.value = 50; return; }
+      var v = 50 + Math.sin(p * Math.PI * 2) * 28 * (1 - p);
+      set(v); input.value = v;
+      requestAnimationFrame(step);
+    }
+    setTimeout(function () { requestAnimationFrame(step); }, 900);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
