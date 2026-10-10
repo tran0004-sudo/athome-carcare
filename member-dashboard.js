@@ -148,6 +148,12 @@
     renderList('memberPending',data.pending,'pending','접수 대기 중인 예약이 없습니다.');
     renderList('memberHistory',data.history,'done','완료 처리된 관리 이력이 아직 없습니다.');
     show(elem('memberNoRecords'), !data.hasRecords);
+    const homeTitle = elem('homeMemberHeader');
+    const homeInfo = elem('homeMemberSummary');
+    text(homeTitle, upcoming ? '다음 방문: ' + formatDate(upcoming.date,false) : '정기회원 내 관리 일정');
+    text(homeInfo, upcoming
+      ? service(upcoming.service) + ' · 본인 확인이 완료된 관리 일정입니다.'
+      : '본인 확인 완료 · 예약 및 관리 이력을 내 관리에서 확인하세요.');
   }
   async function loadDashboard() {
     if (busy) return;
@@ -223,7 +229,9 @@
     const s = readSession();
     clearSession();
     view('login');
-    text(elem('memberCode'),'');
+    if (elem('memberCode')) elem('memberCode').value = '';
+    text(elem('homeMemberHeader'),'정기회원 내 관리 일정');
+    text(elem('homeMemberSummary'),'휴대폰 본인인증 후 다음 세차 예정일과 관리 이력을 간편하게 확인하세요.');
     status('로그아웃했습니다. 이 기기에서는 다시 본인인증이 필요합니다.');
     if (s) {
       try { await fetchJson('/auth/v1/logout',{method:'POST',headers:{Authorization:'Bearer ' + s.access_token},body:'{}'}); }
