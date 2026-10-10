@@ -1,0 +1,56 @@
+/* VIP contracts: understated champagne/green, no heavy visual emphasis. */
+.member-contract-section{margin:0 0 20px;padding:20px;border:1px solid #E3E6DA;border-radius:18px;background:linear-gradient(140deg,#FFFEFA,#F8F5ED)}
+.member-contract-section h3{margin:0 0 4px;color:#20312D;font-size:19px}
+.member-contract-section>p{margin:0 0 16px;color:#68796E;font-size:12px;line-height:1.6}
+.member-contract-list{display:grid;gap:12px}
+.member-contract-card{padding:19px;border:1px solid #E2D5B8;border-radius:16px;background:#FFF}
+.member-contract-card[data-status="expired"],.member-contract-card[data-status="cancelled"]{background:#F9FAF9;border-color:#E4E9E5}
+.member-contract-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.member-contract-head strong{font-size:17px;color:#263F36}
+.member-contract-head span{font-size:12px;border-radius:999px;color:#7A612F;background:#F8F0DD;padding:6px 10px;font-weight:800}
+.member-contract-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.member-contract-metrics>div{padding:11px 12px;border-radius:12px;background:#F7FAF8}
+.member-contract-metrics small{display:block;color:#64766F;font-size:11px;margin-bottom:5px}
+.member-contract-metrics b{font-size:17px;line-height:1.45;color:#1B604F;overflow-wrap:anywhere;display:block}
+.member-contract-card p{font-size:12px;line-height:1.7;color:#65746B;margin:14px 0 0}
+.member-contract-empty{background:#fff;border:1px dashed #D5DCD5;border-radius:14px;padding:17px;color:#687C72;font-size:13px;line-height:1.75}
+.vip-ledger-root{border:1px solid #D5E2DA;border-radius:18px;padding:18px;margin:0 0 22px;background:#F9FCFA}
+.vip-ledger-root>h3{margin:0 0 6px;color:#203F35;font-size:19px}
+.vip-ledger-help{font-size:12px;color:#66786E;line-height:1.7;margin:0 0 12px}
+.vip-ledger-controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.vip-ledger-controls button,.vip-ledger-link-row button,.vip-ledger-connected button{padding:9px 13px;background:#fff;border:1px solid #AFCFC0;color:#176E57;font-size:12px;border-radius:9px;font-weight:800;cursor:pointer}
+.vip-ledger-grid{display:grid;grid-template-columns:minmax(170px,.85fr) minmax(0,1.65fr);gap:16px}
+.vip-ledger-list{display:flex;flex-direction:column;gap:7px;max-height:530px;overflow:auto}
+.vip-ledger-row{background:#fff;border:1px solid #E0EAE4;text-align:left;padding:11px;border-radius:12px;cursor:pointer}
+.vip-ledger-row.selected{background:#ECF8F2;border-color:#68B69C}
+.vip-ledger-row strong{display:block;font-size:13px;color:#203E35;margin-bottom:4px}
+.vip-ledger-row small{display:block;font-size:11px;color:#63776F;line-height:1.5;overflow-wrap:anywhere}
+.vip-ledger-editor{border:1px solid #E2EBE6;background:#FFF;border-radius:14px;padding:16px}
+.vip-ledger-editor h4{margin:0 0 13px;font-size:15px}
+#vipContractForm{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+#vipContractForm label{display:grid;gap:5px;font-size:12px;font-weight:800;color:#344E46}
+#vipContractForm label:has(textarea){grid-column:1/-1}
+#vipContractForm input,#vipContractForm select,#vipContractForm textarea,#vipCompletedJob{
+  width:100%;min-width:0;padding:11px;border:1px solid #D4E1D8;border-radius:9px;background:#FFF;color:#263F36;font:inherit;font-size:13px}
+#vipContractForm .vip-ledger-save{grid-column:1/-1;background:#087C68;color:#fff;border:0;border-radius:10px;min-height:41px;font-weight:850;cursor:pointer}
+.vip-ledger-connections{margin-top:22px;border-top:1px solid #DCE6DF;padding-top:18px}
+.vip-ledger-connections h4{font-size:14px;margin:13px 0 8px}
+.vip-ledger-stats{background:#F4F7F3;border-radius:12px;color:#3B6253;font-size:12px;padding:12px;line-height:1.65}
+.vip-ledger-link-row{display:flex;gap:8px}
+.vip-ledger-link-row select{flex:1}
+.vip-ledger-connected{padding:0;list-style:none}
+.vip-ledger-connected li{padding:7px 0;border-top:1px solid #E3EBE5;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;color:#506A5D}
+.vip-ledger-message{font-size:12px;line-height:1.6;color:#356D5D}
+.vip-ledger-message[data-error="1"]{color:#B93C31}
+.vip-ledger-empty{padding:14px;color:#6B7D74;font-size:12px}
+@media(max-width:720px){
+  .vip-ledger-grid{grid-template-columns:1fr}
+  .vip-ledger-list{max-height:190px}
+  .member-contract-metrics{grid-template-columns:1fr 1fr}
+}
+@media(max-width:430px){
+  #vipContractForm{grid-template-columns:1fr}
+  .vip-ledger-link-row{flex-direction:column}
+  .member-contract-metrics{grid-template-columns:1fr}
+  .member-contract-section{padding:15px}
+}
