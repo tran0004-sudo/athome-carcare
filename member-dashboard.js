@@ -86,6 +86,7 @@
     if (!r.ok) {
       const e = new Error((data && (data.msg || data.message || data.error_description || data.error)) || '요청을 처리하지 못했습니다.');
       e.status = r.status;
+      e.code = data && (data.error_code || data.code);
       throw e;
     }
     return data;
@@ -277,7 +278,9 @@
       // Do not reveal whether this phone has existing bookings.
       status(e.status === 429
         ? '인증 요청이 많습니다. 잠시 후 다시 시도해 주세요.'
-        : '문자 발송을 완료하지 못했습니다. 문자 인증 서비스 설정 또는 휴대폰 번호를 확인해 주세요.',true);
+        : (e.code === 'phone_provider_disabled' || e.code === 'sms_send_failed')
+          ? '문자 본인인증을 준비 중입니다. 일정 확인은 010-8391-8999 또는 카카오톡으로 문의해 주세요.'
+          : '문자 발송을 완료하지 못했습니다. 휴대폰 번호를 확인하고 잠시 후 다시 시도해 주세요.',true);
     } finally { setLoading(false); }
   }
   async function verifyCode(event) {
