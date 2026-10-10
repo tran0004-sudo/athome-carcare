@@ -69,6 +69,7 @@
       const node = elem(id);
       if (node) node.replaceChildren();
     });
+    show(elem('memberExistingVisit'),false);
   }
   async function fetchJson(path, options) {
     const r = await fetch(PROJECT + path, {
@@ -200,6 +201,7 @@
     if (!list) return;
     list.replaceChildren();
     const records=Array.isArray(payload?.contracts)?payload.contracts:[];
+    show(elem('memberExistingVisit'),records.some(c=>c && c.status==='active' && Number(c.remainingVisits)>0));
     if (!records.length) {
       list.append(make('div','member-contract-empty',
         '등록된 VIP 계약이 없습니다. 관리자에게 계약 등록을 요청해 주세요. 예약 신청 기록과 유효한 월세차 계약은 별개입니다.'));
