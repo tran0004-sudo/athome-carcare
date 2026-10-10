@@ -62,10 +62,10 @@
     text(elem('homeMemberHeader'),'정기회원 내 관리 일정');
     text(elem('homeMemberSummary'),'휴대폰 본인인증 후 다음 세차 예정일과 관리 이력을 간편하게 확인하세요.');
     // Erase private dashboard widgets on expired sessions or sign-out.
-    const ids = ['memberNextDate','memberNextService','memberPlan','memberPlanStatus','memberPlanDate',
+    const ids = ['memberNextLabel','memberPlanLabel','memberNextDate','memberNextService','memberPlan','memberPlanStatus','memberPlanDate',
       'memberMonthCompleted','memberTotalCompleted'];
     ids.forEach(id => text(elem(id),''));
-    ['memberUpcoming','memberPending','memberHistory'].forEach(id => {
+    ['memberUpcoming','memberPending','memberHistory','memberContractList'].forEach(id => {
       const node = elem(id);
       if (node) node.replaceChildren();
     });
@@ -148,6 +148,8 @@
     text(elem('memberPlanDate'), member
       ? '최근 신청 ' + formatDate(member.requestedAt,false)
       : '회원 가입만으로 정기회원 계약이 시작되지는 않습니다.');
+    text(elem('memberNextLabel'),'다음 세차 예정일');
+    text(elem('memberPlanLabel'),'최근 월세차 신청');
     text(elem('memberNextDate'), upcoming ? formatDate(upcoming.date,true) : '확정된 다음 방문 일정이 없습니다');
     text(elem('memberNextService'), upcoming
       ? service(upcoming.service) + (upcoming.carModel ? ' · ' + upcoming.carModel : '')
@@ -165,6 +167,62 @@
       ? service(upcoming.service) + ' · 본인 확인이 완료된 관리 일정입니다.'
       : '본인 확인 완료 · 예약 및 관리 이력을 내 관리에서 확인하세요.');
   }
+
+  function makeContractCard(c) {
+    const article=make('article','member-contract-card');
+    article.dataset.status=c.status;
+    const top=make('div','member-contract-head');
+    const title=make('strong','',((c.carModel||'내 차량')+' · 월 '+c.monthlyVisits+'회'));
+    const statusLabel=({'active':'정기관리 중',upcoming:'시작 예정',paused:'일시중지',cancelled:'계약 종료',expired:'계약 만료'})[c.status]||c.status;
+    top.append(title,make('span','',statusLabel));
+    article.append(top);
+    const metrics=make('div','member-contract-metrics');
+    function metric(label,value) {
+      const box=make('div');
+      box.append(make('small','',label),make('b','',value));
+      return box;
+    }
+    metrics.append(
+      metric('이번 이용주기 잔여',c.status==='expired'||c.status==='cancelled' ? '이용 불가' : c.remainingVisits+' / '+c.monthlyVisits+'회'),
+      metric('멤버십 만료일',formatDate(c.expiresOn,false)),
+      metric('다음 정기관리 권장일',c.nextRecommendedOn?formatDate(c.nextRecommendedOn,false):'미정')
+    );
+    article.append(metrics);
+    article.append(make('p','',
+      '월 이용주기: '+formatDate(c.cycleStart,false)+' ~ '+formatDate(c.cycleEnd,false)+
+      ' · 완료된 연결 작업: '+c.usedVisits+'회'+
+      (c.intervalDays?' · 권장 간격: '+c.intervalDays+'일':'')+
+      ' · 권장 관리일은 예약 확정일이 아닙니다.'));
+    return article;
+  }
+  function renderContracts(payload,existing) {
+    const list=elem('memberContractList');
+    if (!list) return;
+    list.replaceChildren();
+    const records=Array.isArray(payload?.contracts)?payload.contracts:[];
+    if (!records.length) {
+      list.append(make('div','member-contract-empty',
+        '등록된 VIP 계약이 없습니다. 관리자에게 계약 등록을 요청해 주세요. 예약 신청 기록과 유효한 월세차 계약은 별개입니다.'));
+      return;
+    }
+    records.forEach(c=>{if(c)list.append(makeContractCard(c));});
+    const preferred=records.find(c=>c && c.status==='active') || records.find(c=>c && c.status==='upcoming') || records[0];
+    if (!preferred) return;
+    text(elem('memberPlanLabel'),'실제 VIP 계약');
+    text(elem('memberPlan'),'월 '+preferred.monthlyVisits+'회 정기관리');
+    text(elem('memberPlanStatus'),
+      '현재 이용주기 잔여 '+preferred.remainingVisits+'회 · '+
+      ({active:'운영 중',upcoming:'시작 예정',paused:'일시중지',cancelled:'종료',expired:'만료'}[preferred.status]||'확인 중'));
+    text(elem('memberPlanDate'),'만료일 '+formatDate(preferred.expiresOn,false));
+    // Actual confirmed booking is always higher priority than a predicted cadence date.
+    if (!existing?.nextVisit && preferred.status==='active' && preferred.nextRecommendedOn) {
+      text(elem('memberNextLabel'),'다음 정기관리 권장일');
+      text(elem('memberNextDate'),formatDate(preferred.nextRecommendedOn,false));
+      text(elem('memberNextService'),'권장 '+preferred.intervalDays+'일 간격 · 아직 확정된 방문 예약은 아닙니다.');
+      text(elem('homeMemberHeader'),'다음 관리 권장일: '+formatDate(preferred.nextRecommendedOn,false));
+      text(elem('homeMemberSummary'),'관리 기준일로 계산한 날짜입니다. 실제 방문 일정은 예약 확정 후 안내됩니다.');
+    }
+  }
   async function loadDashboard() {
     if (busy) return;
     setLoading(true);
@@ -176,10 +234,16 @@
         status('인증이 만료되었습니다. 다시 로그인해 주세요.');
         return;
       }
-      const data = await fetchJson('/rest/v1/rpc/get_my_carcare_dashboard',{
-        method:'POST', body:'{}',headers:{Authorization:'Bearer ' + token}
-      });
+      const [data, contracts] = await Promise.all([
+        fetchJson('/rest/v1/rpc/get_my_carcare_dashboard',{
+          method:'POST',body:'{}',headers:{Authorization:'Bearer '+token}
+        }),
+        fetchJson('/rest/v1/rpc/get_my_vip_contracts',{
+          method:'POST',body:'{}',headers:{Authorization:'Bearer '+token}
+        })
+      ]);
       render(data || {});
+      renderContracts(contracts || {},data || {});
       view('dashboard');
       status('');
     } catch (e) {
