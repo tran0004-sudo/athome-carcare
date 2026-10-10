@@ -842,7 +842,7 @@ async function renderBlogPosts() {
   }
 }
 
-/* ── 월세차 VIP 라운지 ── */
+/* ── 월세차 라운지 ── */
 function renderVip() {
   const sel = document.querySelector('#vipClass');
   const out = document.querySelector('#vipCalcResult');
@@ -892,7 +892,7 @@ function renderVipNudge() {
   const daily4 = p['일일 외부세차'] * 3 + p['외부+내부세차'];
   const save = daily4 - p['월 4회'];
   box.innerHTML = `<p>💡 같은 차를 <b>월 4회</b>로 맡기시면 1회 약 <b>${won(p['월 4회'] / 4)}</b> (일일 외부 ${won(p['일일 외부세차'])}).<br>매달 <b>${won(save)}</b> 아끼고, 첫 달 10,000원 할인까지 받으실 수 있어요.</p>
-    <div class="vip-nudge-btns"><button type="button" class="primary-btn" data-vip-start="월 4회">월 4회로 바꾸기</button><button type="button" class="secondary-btn" data-go="vip">VIP 혜택 보기</button></div>`;
+    <div class="vip-nudge-btns"><button type="button" class="primary-btn" data-vip-start="월 4회">월 4회로 바꾸기</button><button type="button" class="secondary-btn" data-go="vip">월세차 혜택 보기</button></div>`;
   box.classList.remove('hidden');
 }
 document.addEventListener('change', (e) => { if (e.target.closest('#bookingForm')) setTimeout(renderVipNudge, 0); });

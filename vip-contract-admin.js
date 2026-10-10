@@ -72,13 +72,13 @@
     f.elements.namedItem('anchorOn').value=c?.anchor_on||'';
     f.elements.namedItem('status').value=c?.status||'active';
     f.elements.namedItem('note').value=c?.note||'';
-    $('vipContractFormTitle').textContent=c?'계약 수정':'새 VIP 계약 등록';
+    $('vipContractFormTitle').textContent=c?'계약 수정':'새 월세차 계약 등록';
     renderList();
     renderDetail();
   }
   async function load() {
     if(busy)return;
-    busy=true;note('VIP 계약 정보를 불러오는 중입니다.');
+    busy=true;note('월세차 계약 정보를 불러오는 중입니다.');
     try{
       const [c,l,r]=await Promise.all([
         api('vip_contracts?select=*&order=created_at.desc&limit=200'),
@@ -95,7 +95,7 @@
   function renderList() {
     const out=$('vipContractList');if(!out)return;
     out.replaceChildren();
-    if(!contracts.length){out.append(node('p','vip-ledger-empty','등록된 VIP 계약이 없습니다. 아래에서 새 계약을 등록하세요.'));return;}
+    if(!contracts.length){out.append(node('p','vip-ledger-empty','등록된 월세차 계약이 없습니다. 아래에서 새 계약을 등록하세요.'));return;}
     for(const c of contracts) {
       const button=node('button','vip-ledger-row'+(c.id===selectedId?' selected':''));
       button.type='button';
@@ -160,7 +160,7 @@
     }catch(e){busy=false;note(e.message,true);}
   }
   async function unlinkVisit(reservationId) {
-    if(!confirm('이 완료 기록을 VIP 이용 횟수에서 제외하시겠습니까?'))return;
+    if(!confirm('이 완료 기록을 월세차 이용 횟수에서 제외하시겠습니까?'))return;
     if(busy)return;busy=true;
     try {
       await api('vip_visit_links?reservation_id=eq.'+encodeURIComponent(reservationId),{method:'DELETE'});
@@ -197,7 +197,7 @@
     if(!root || root.querySelector('#vipContractsRoot'))return;
     const section=node('section','vip-ledger-root');
     section.id='vipContractsRoot';
-    const title=node('h3','','VIP 계약 · 월별 횟수 관리');
+    const title=node('h3','','월세차 계약 · 월별 횟수 관리');
     const hint=node('p','vip-ledger-help','월세차 계약 기간, 월 2·4회 이용권, 관리 기준일을 등록하세요. 기존 고객 목록은 아래 그대로 유지됩니다.');
     const controls=node('div','vip-ledger-controls');
     const refresh=node('button','','계약 새로고침');refresh.type='button';refresh.addEventListener('click',load);
@@ -206,7 +206,7 @@
     const content=node('div','vip-ledger-grid');
     const list=node('div','vip-ledger-list');list.id='vipContractList';
     const detail=node('div','vip-ledger-editor');
-    const heading=node('h4','','새 VIP 계약 등록');heading.id='vipContractFormTitle';
+    const heading=node('h4','','새 월세차 계약 등록');heading.id='vipContractFormTitle';
     const form=document.createElement('form');form.id='vipContractForm';
     const fields=[
       ['hidden','contractId',''],

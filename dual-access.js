@@ -32,7 +32,7 @@
       if(t){t.dataset.kind='monthly';t.textContent='월 2회 또는 월 4회 정기관리 신규 신청입니다. 접수 후 관리자가 계약 조건과 일정을 확인합니다.';}
       if(!opts?.keepService)serviceChange('월 2회');
     } else {
-      if(t){t.dataset.kind='existing';t.textContent='기존 VIP 방문 요청입니다. 계약 잔여 횟수와 예약 가능 일정은 관리자 확인 후 적용되며, 제출만으로 횟수가 차감되지 않습니다.';}
+      if(t){t.dataset.kind='existing';t.textContent='기존 월세차 방문 요청입니다. 계약 잔여 횟수와 예약 가능 일정은 관리자 확인 후 적용되며, 제출만으로 횟수가 차감되지 않습니다.';}
       if(!opts?.keepService)serviceChange('기타 상담');
       const memo=f.elements.namedItem('memo');
       if(memo && !memo.value.trim())memo.placeholder='원하시는 방문 날짜·시간과 정기관리 요청사항을 남겨주세요.';

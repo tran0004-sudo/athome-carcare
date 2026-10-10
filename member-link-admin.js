@@ -69,7 +69,7 @@
       const meta = node('p', 'link-admin-meta',
         '요청 ' + fmtDate(row.requestedAt) +
         ' · ' + (row.hasReservation ? '이 번호의 예약 기록 있음' : '이 번호의 예약 기록 없음') +
-        (row.contractName ? ' · VIP 계약: ' + row.contractName : ''));
+        (row.contractName ? ' · 월세차 계약: ' + row.contractName : ''));
       const actions = node('div', 'link-admin-actions');
       if (row.status !== 'approved') {
         const ok = node('button', 'link-admin-ok', '승인'); ok.type = 'button';

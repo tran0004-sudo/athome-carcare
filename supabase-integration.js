@@ -1247,7 +1247,7 @@ ${linkLines ? '\n' + linkLines : ''}
     const memo     = String(fd.get('memo') || '').trim();
     // Route labels are for operator triage only; they never grant VIP entitlement.
     const bookingIntentNote = form.dataset.bookingMode === 'existing'
-      ? '[예약 구분: 기존 VIP 방문 요청 · 계약 및 잔여 횟수는 관리자 확인 후 연결]'
+      ? '[예약 구분: 기존 월세차 방문 요청 · 계약 및 잔여 횟수는 관리자 확인 후 연결]'
       : (form.dataset.bookingMode === 'monthly' || exactSvc === '월 2회' || exactSvc === '월 4회')
         ? '[예약 구분: 월세차 신규 신청 · 계약 확정 전]'
         : '[예약 구분: 비회원 일일세차]';

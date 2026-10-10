@@ -206,13 +206,13 @@
     show(elem('memberExistingVisit'),records.some(c=>c && c.status==='active' && Number(c.remainingVisits)>0));
     if (!records.length) {
       list.append(make('div','member-contract-empty',
-        '등록된 VIP 계약이 없습니다. 관리자에게 계약 등록을 요청해 주세요. 예약 신청 기록과 유효한 월세차 계약은 별개입니다.'));
+        '등록된 월세차 계약이 없습니다. 관리자에게 계약 등록을 요청해 주세요. 예약 신청 기록과 유효한 월세차 계약은 별개입니다.'));
       return;
     }
     records.forEach(c=>{if(c)list.append(makeContractCard(c));});
     const preferred=records.find(c=>c && c.status==='active') || records.find(c=>c && c.status==='upcoming') || records[0];
     if (!preferred) return;
-    text(elem('memberPlanLabel'),'실제 VIP 계약');
+    text(elem('memberPlanLabel'),'실제 월세차 계약');
     text(elem('memberPlan'),'월 '+preferred.monthlyVisits+'회 정기관리');
     text(elem('memberPlanStatus'),
       '현재 이용주기 잔여 '+preferred.remainingVisits+'회 · '+
