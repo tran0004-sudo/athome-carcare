@@ -470,3 +470,10 @@
 .quick-stack #priceTableSection .pt-ic{background:#EEF7F1 !important;color:#1F7A55 !important;border:0;}
 .quick-stack .pt-ic svg{stroke:currentColor;}
 .quick-stack .pt-ic{width:42px !important;min-width:42px;height:42px !important;padding:0 !important;box-sizing:border-box;margin:0 !important;}
+/* v42 아이콘 정중앙 통일 + 월세차 펼치기 */
+.quick-stack .pt-ic{display:grid !important;place-items:center;}
+.quick-stack .pt-ic svg{display:block !important;width:22px !important;height:22px !important;margin:0 !important;position:static !important;transform:none !important;}
+.quick-stack .vip-fold-body{padding:14px 16px 16px;display:grid;gap:12px;}
+.quick-stack .vip-fold-body ul{margin:0;padding:0 0 0 18px;display:grid;gap:6px;font-size:14px;line-height:1.55;color:#33493F;}
+.quick-stack .vip-more{min-height:46px;border:1.5px solid #1F7A55;border-radius:12px;background:#fff;color:#1F7A55;font-size:14.5px;font-weight:800;font-family:inherit;cursor:pointer;}
+.quick-stack .pt-tx{margin:0 !important;padding:0 !important;}
