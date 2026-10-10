@@ -162,3 +162,7 @@
 @media(max-width:760px){.vip-hero-photo .hero-compare{height:240px;}}
 .price-toggle-section{padding-top:0 !important;padding-bottom:6px !important;margin-top:-6px;}
 #washGuideSection{padding-bottom:6px !important;}
+/* 홈 최상단 · 세차 과정 안내 이미지 */
+.process-top{padding:16px 16px 4px;background:linear-gradient(180deg,#F8FBF9,#fff);}
+.process-top img{display:block;width:100%;max-width:560px;height:auto;margin:0 auto;border-radius:20px;box-shadow:0 10px 30px rgba(13,60,53,.12);}
+@media(max-width:760px){.process-top{padding:10px 12px 2px;}.process-top img{border-radius:16px;}}
