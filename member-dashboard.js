@@ -376,6 +376,14 @@
     }
   }
   // 카카오 로그인 후 돌아오면 주소 뒤 #access_token=... 으로 세션이 전달됩니다.
+  let oauthErrorText = '';
+  function oauthErrorMessage(t) {
+    const raw = String(t || '').replace(/\+/g, ' ');
+    if (/email/i.test(raw)) return '카카오 계정의 이메일 제공에 동의해 주셔야 로그인할 수 있어요. 다시 로그인하면서 이메일 항목에 체크해 주세요.';
+    if (/provider is not enabled|Unsupported provider/i.test(raw)) return '카카오 로그인이 아직 켜져 있지 않습니다. 사장님께 문의해 주세요.';
+    if (/access_denied|cancel/i.test(raw)) return '카카오 로그인이 취소되었습니다. 다시 시도해 주세요.';
+    return '카카오 로그인을 완료하지 못했습니다. 다시 시도해 주세요.' + (raw ? ' (' + raw.slice(0, 120) + ')' : '');
+  }
   function captureOAuthReturn() {
     const raw = (location.hash || '').replace(/^#/, '');
     const query = new URLSearchParams(location.search);
@@ -386,6 +394,7 @@
       saveSession({access_token:q.get('access_token'), refresh_token:q.get('refresh_token'), expires_in:q.get('expires_in')});
       return 'ok';
     }
+    oauthErrorText = q.get('error_description') || query.get('error_description') || q.get('error') || query.get('error') || '';
     return 'error';
   }
   const oauthResult = captureOAuthReturn();
@@ -401,7 +410,7 @@
     elem('memberReload').addEventListener('click',loadDashboard);
     elem('memberLogout').addEventListener('click',signOut);
     view('login');
-    if (oauthResult === 'error') status('카카오 로그인을 완료하지 못했습니다. 다시 시도해 주세요.', true);
+    if (oauthResult === 'error') status(oauthErrorMessage(oauthErrorText), true);
     if (readSession()) loadDashboard();
     if (oauthResult) window.addEventListener('load', function () {
       setTimeout(function () {

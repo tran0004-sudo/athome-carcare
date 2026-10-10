@@ -78,10 +78,11 @@
     var dash = document.getElementById('memberDashboard');
     var split = document.getElementById('memberSplit');
     function sync() {
-      var logged = dash && !dash.hidden && dash.offsetParent !== null;
+      var logged = !!(dash && !dash.hidden && getComputedStyle(dash).display !== 'none');
       box.hidden = !!logged; if (split) split.hidden = !!logged;
     }
-    if (dash) new MutationObserver(sync).observe(dash, { attributes: true, attributeFilter: ['hidden', 'style', 'class'] });
+    var mp = document.getElementById('mypage');
+    if (mp) new MutationObserver(function () { setTimeout(sync, 0); }).observe(mp, { attributes: true, subtree: true, attributeFilter: ['hidden', 'style', 'class'] });
     sync();
   }
 
