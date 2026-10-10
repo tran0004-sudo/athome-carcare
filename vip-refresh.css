@@ -120,6 +120,7 @@
   #home .content-section {padding:27px 16px;}
 }
 @media(max-width:430px){
+  #home .vip-hero-copy .hero-buttons button[data-go="booking"]{grid-column:auto !important;}
   #home .vip-hero-copy h1{font-size:31px !important;}
   .vip-hero-photo img{height:193px;}
   .vip-photo-pair img{height:130px;}
