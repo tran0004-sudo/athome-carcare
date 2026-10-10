@@ -1,0 +1,433 @@
+/*
+ * Service / Package — editorial premium refresh
+ * Scoped to the home page so booking, pricing and VIP flows remain untouched.
+ */
+#home #serviceShowcase,
+#home #washGuideSection {
+  --care-ink: #172f2b;
+  --care-muted: #536b65;
+  --care-green: #087a68;
+  --care-line: #dfe9e4;
+  color: var(--care-ink);
+}
+
+#home #serviceShowcase { padding-top: 48px; padding-bottom: 20px; }
+#home #washGuideSection { padding-top: 42px; padding-bottom: 16px !important; }
+
+#home #serviceShowcase .section-head,
+#home #washGuideSection .section-head {
+  align-items: flex-end;
+  margin-bottom: 24px;
+  gap: 18px;
+}
+
+#home #serviceShowcase .section-kicker,
+#home #washGuideSection .section-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: .19em;
+  color: #167b6b;
+}
+#home #serviceShowcase .section-kicker::before,
+#home #washGuideSection .section-kicker::before {
+  content: "";
+  width: 20px;
+  height: 1px;
+  background: #bd9d66;
+}
+
+#home #serviceShowcase .section-head h2,
+#home #washGuideSection .section-head h2 {
+  margin: 8px 0 0;
+  color: #162e2b;
+  font-size: clamp(25px, 3.2vw, 33px);
+  font-weight: 850;
+  letter-spacing: -.055em;
+  line-height: 1.28;
+  word-break: keep-all;
+}
+#home #serviceShowcase .section-head .text-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 15px;
+  border: 1px solid #cfe3db;
+  border-radius: 99px;
+  background: #f6faf8;
+  color: #087a68;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: background .18s, border-color .18s, transform .18s;
+}
+#home #serviceShowcase .section-head .text-link:hover {
+  background: #eaf5ef;
+  border-color: #a6cdbf;
+  transform: translateY(-1px);
+}
+#home #serviceShowcase .section-head .text-link:focus-visible,
+#home #priceTableSection summary:focus-visible {
+  outline: 3px solid #7ac5ad;
+  outline-offset: 3px;
+}
+
+/* Service: quiet surfaces, strong hierarchy and larger copy. */
+#home #serviceShowcase .service-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+#home #serviceShowcase .service-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 290px;
+  padding: 23px 21px 22px;
+  overflow: hidden;
+  border: 1px solid #dce7e2;
+  border-radius: 20px;
+  background: linear-gradient(152deg, #fff, #f8fbf9);
+  box-shadow: 0 5px 20px rgba(18, 53, 46, .035);
+  transition: border-color .2s, box-shadow .2s, transform .2s;
+}
+#home #serviceShowcase .service-card::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: #86bbab;
+}
+#home #serviceShowcase .service-card:nth-child(2) {
+  background: linear-gradient(155deg, #f5fbf8, #fff);
+}
+#home #serviceShowcase .service-card:nth-child(3) {
+  background: linear-gradient(155deg, #f4faf9, #fff);
+}
+#home #serviceShowcase .service-card.cream {
+  background: linear-gradient(155deg, #fffaf0, #fffefa);
+  border-color: #ecdfc8;
+}
+#home #serviceShowcase .service-card.cream::after { background: #d5b479; }
+#home #serviceShowcase .service-card.vip-service {
+  background: linear-gradient(155deg, #fcf7eb, #fffefb);
+  border-color: #e4d5b8;
+}
+#home #serviceShowcase .service-card.vip-service::after { background: #b9995f; }
+#home #serviceShowcase .service-card:hover {
+  border-color: #aacbc0;
+  box-shadow: 0 15px 35px rgba(18, 53, 46, .085);
+  transform: translateY(-3px);
+}
+#home #serviceShowcase .service-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  border-radius: 15px;
+  background: #e8f4ef;
+  color: #167967;
+}
+#home #serviceShowcase .vip-service .service-icon {
+  background: #f1e5cc;
+  color: #8d6d36;
+}
+#home #serviceShowcase .cream .service-icon {
+  background: #f8ebcd;
+  color: #99763e;
+}
+#home #serviceShowcase .service-icon .ui-line-icon { width: 24px; height: 24px; }
+#home #serviceShowcase .service-card h3 {
+  margin: 18px 0 6px;
+  font-size: 21px;
+  font-weight: 850;
+  line-height: 1.3;
+  letter-spacing: -.045em;
+  color: #152e2b;
+  word-break: keep-all;
+}
+#home #serviceShowcase .service-card p {
+  margin: 0 0 19px;
+  color: #58716a;
+  font-size: 14px;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+#home #serviceShowcase .service-card ul {
+  list-style: none;
+  margin: auto 0 0;
+  padding: 15px 0 0;
+  border-top: 1px solid rgba(43, 93, 77, .13);
+  color: #27463f;
+  font-size: 14px;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+#home #serviceShowcase .service-card li {
+  position: relative;
+  padding-left: 14px;
+}
+#home #serviceShowcase .service-card li + li { margin-top: 7px; }
+#home #serviceShowcase .service-card li::before {
+  content: "";
+  position: absolute;
+  left: 1px;
+  top: .68em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #15917a;
+}
+#home #serviceShowcase .service-card.vip-service li::before,
+#home #serviceShowcase .service-card.cream li::before { background: #b58b49; }
+
+/* Package: neutral standard and a restrained champagne premium. */
+#home #washGuideSection .vip-summary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+#home #washGuideSection .vip-summary-card {
+  position: relative;
+  min-width: 0;
+  padding: 28px 28px 26px;
+  border: 1px solid #dae7e1;
+  border-radius: 20px;
+  background: linear-gradient(150deg, #fff, #f9fcfa);
+  box-shadow: 0 5px 22px rgba(19, 60, 49, .035);
+}
+#home #washGuideSection .vip-summary-card.premium {
+  border-color: #dfc99f;
+  background: linear-gradient(150deg, #fffdf7, #faf5e9);
+  box-shadow: 0 9px 28px rgba(118, 89, 42, .07);
+}
+#home #washGuideSection .vip-summary-card.premium::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 29px;
+  width: 68px;
+  height: 3px;
+  border-radius: 0 0 5px 5px;
+  background: #c5a067;
+}
+#home #washGuideSection .vip-summary-card .tag {
+  display: inline-block;
+  padding: 7px 11px;
+  border: 1px solid #d9e8e0;
+  border-radius: 99px;
+  background: #eff7f3;
+  color: #166c5c;
+  font-size: 11px;
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: .11em;
+}
+#home #washGuideSection .vip-summary-card.premium .tag {
+  border-color: #e8d4ad;
+  background: #f7ebd1;
+  color: #89642d;
+}
+#home #washGuideSection .vip-summary-card h3 {
+  margin: 17px 0 4px;
+  color: #172f2b;
+  font-size: 25px;
+  line-height: 1.3;
+  font-weight: 850;
+  letter-spacing: -.045em;
+}
+#home #washGuideSection .vip-summary-card p {
+  display: inline-block;
+  margin: 2px 0 19px;
+  color: #64776f;
+  font-size: 14px;
+  font-weight: 550;
+  line-height: 1.6;
+}
+#home #washGuideSection .vip-summary-card p::before {
+  content: "◷";
+  display: inline-block;
+  margin-right: 7px;
+  color: #168b74;
+  font-size: 17px;
+  vertical-align: -1px;
+}
+#home #washGuideSection .vip-summary-card.premium p::before { color: #ac8547; }
+#home #washGuideSection .vip-summary-card ul {
+  margin: 0;
+  padding: 18px 0 0;
+  border-top: 1px solid #e4ebe7;
+}
+#home #washGuideSection .vip-summary-card.premium ul { border-top-color: #eadbc0; }
+#home #washGuideSection .vip-summary-card li {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 5px 0;
+  color: #29443d;
+  font-size: 14px;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+#home #washGuideSection .vip-summary-card li + li { margin-top: 4px; }
+#home #washGuideSection .vip-summary-card li::before {
+  content: "✓";
+  flex: 0 0 20px;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  border-radius: 50%;
+  background: #e4f3ec;
+  color: #09836d;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 900;
+}
+#home #washGuideSection .vip-summary-card.premium li::before {
+  color: #9d773a;
+  background: #f3e7d0;
+}
+
+#home #washGuideSection .guide-time-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 15px 2px 24px;
+  color: #64766f;
+  font-size: 13px;
+  line-height: 1.6;
+}
+#home #washGuideSection .guide-time-note::before {
+  content: "ⓘ";
+  flex-shrink: 0;
+  color: #5c8979;
+  font-size: 15px;
+}
+
+/* Clear service boundaries without alarm-style red/blue blocks. */
+#home #washGuideSection .guide-check {
+  margin-top: 0;
+  padding: 24px;
+  border: 1px solid #e0e9e4;
+  border-radius: 20px;
+  background: #f6f9f7;
+}
+#home #washGuideSection .guide-check h3 {
+  margin: 0 0 16px;
+  color: #1d3530;
+  font-size: 19px;
+  font-weight: 850;
+  letter-spacing: -.04em;
+}
+#home #washGuideSection .guide-check-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+#home #washGuideSection .gc {
+  min-width: 0;
+  padding: 20px 18px 18px;
+  border: 1px solid #e1e9e4;
+  border-top: 3px solid #218c76;
+  border-radius: 14px;
+  background: #fff;
+}
+#home #washGuideSection .gc-no { border-top-color: #bd8c61; }
+#home #washGuideSection .gc-opt { border-top-color: #6d8c9c; }
+#home #washGuideSection .gc b {
+  display: block;
+  margin: 0 0 12px;
+  color: #1e7665;
+  font-size: 15px;
+  font-weight: 850;
+  line-height: 1.4;
+}
+#home #washGuideSection .gc-no b { color: #956640; }
+#home #washGuideSection .gc-opt b { color: #4f7588; }
+#home #washGuideSection .gc ul {
+  margin: 0;
+  padding-left: 16px;
+  color: #4b605a;
+  font-size: 13px;
+  line-height: 1.75;
+}
+#home #washGuideSection .gc li + li { margin-top: 6px; }
+
+#home #priceTableSection { padding-top: 0 !important; padding-bottom: 18px !important; margin-top: 0; }
+#home #priceTableSection .vip-guide-toggle {
+  margin-top: 0;
+  border: 1px solid #dbe8e2;
+  border-radius: 15px;
+  background: #fff;
+}
+#home #priceTableSection .vip-guide-toggle summary {
+  padding: 19px 22px;
+  color: #176e60;
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 800;
+}
+#home #priceTableSection .vip-guide-toggle summary::after {
+  content: "+";
+  display: grid;
+  place-items: center;
+  flex: 0 0 27px;
+  width: 27px;
+  height: 27px;
+  border: 1px solid #d7e6df;
+  border-radius: 50%;
+  background: #f2f8f5;
+  color: #267c69;
+  font-size: 20px;
+  font-weight: 400;
+}
+#home #priceTableSection .vip-guide-toggle[open] summary::after { content: "−"; }
+#home #priceTableSection .vip-guide-toggle summary:hover { background: #f7faf8; }
+
+@media (max-width: 1020px) {
+  #home #serviceShowcase .service-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #home #serviceShowcase .service-card { min-height: 252px; padding: 23px 24px; }
+}
+@media (max-width: 760px) {
+  #home #serviceShowcase { padding-top: 35px; padding-bottom: 8px; }
+  #home #washGuideSection { padding-top: 34px; padding-bottom: 10px !important; }
+  #home #serviceShowcase .section-head,
+  #home #washGuideSection .section-head { margin-bottom: 20px; }
+  #home #serviceShowcase .service-grid { gap: 12px; }
+  #home #serviceShowcase .service-card { min-height: 262px; padding: 21px; }
+  #home #serviceShowcase .service-card h3 { font-size: 20px; }
+  #home #serviceShowcase .service-card p { font-size: 13.5px; }
+  #home #washGuideSection .vip-summary-grid { grid-template-columns: 1fr; gap: 12px; }
+  #home #washGuideSection .vip-summary-card { padding: 24px; }
+  #home #washGuideSection .guide-check { padding: 20px; }
+  #home #washGuideSection .guide-check-grid { grid-template-columns: 1fr; gap: 10px; }
+  #home #washGuideSection .gc { padding: 18px; }
+}
+@media (max-width: 540px) {
+  #home #serviceShowcase .section-head { align-items: flex-end; gap: 10px; }
+  #home #serviceShowcase .section-head .text-link { padding: 9px 10px; font-size: 12px; }
+  #home #serviceShowcase .service-grid { grid-template-columns: 1fr; }
+  #home #serviceShowcase .service-card {
+    min-height: 0;
+    padding: 22px;
+  }
+  #home #serviceShowcase .service-card h3 { margin-top: 15px; }
+  #home #serviceShowcase .service-card p { margin-bottom: 15px; }
+  #home #serviceShowcase .service-card ul { margin-top: 0; font-size: 14px; }
+  #home #washGuideSection .vip-summary-card { padding: 23px 21px; }
+  #home #washGuideSection .vip-summary-card h3 { font-size: 23px; }
+  #home #washGuideSection .guide-check { padding: 17px 14px; }
+  #home #washGuideSection .gc { padding: 17px 16px; }
+  #home #priceTableSection .vip-guide-toggle summary { padding: 17px 16px; font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #home #serviceShowcase .service-card,
+  #home #serviceShowcase .section-head .text-link { transition: none; }
+  #home #serviceShowcase .service-card:hover,
+  #home #serviceShowcase .section-head .text-link:hover { transform: none; }
+}
