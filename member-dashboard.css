@@ -81,3 +81,12 @@
   .member-kpi.next,.member-kpi.plan{grid-column:1/-1}
   .member-form-actions{flex-direction:column}
 }
+
+/* 카카오 로그인 · 번호 연결 */
+.member-kakao{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:54px;margin:18px 0 6px;border:0;border-radius:14px;background:#FEE500;color:#191919;font-size:17px;font-weight:800;letter-spacing:-.2px;cursor:pointer;box-shadow:0 4px 12px rgba(120,100,0,.18);}
+.member-kakao:active{filter:brightness(.96);}
+.member-kakao:disabled{opacity:.6;cursor:default;}
+#memberLinkCard .member-privacy-hint a{color:#0B6B58;font-weight:800;}
+#memberLoginForm[hidden],#memberLinkForm[hidden],#memberLinkActions[hidden]{display:none !important;}
+#memberLinkActions{display:flex;gap:10px;margin-top:14px;}
+#memberLinkActions button{flex:1;min-height:48px;}

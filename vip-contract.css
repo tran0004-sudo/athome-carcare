@@ -54,3 +54,15 @@
   .member-contract-metrics{grid-template-columns:1fr}
   .member-contract-section{padding:15px}
 }
+/* 카카오 회원 번호 연결 승인 */
+.link-admin-list{display:grid;gap:10px;margin-top:10px;}
+.link-admin-card{padding:14px 16px;border-radius:14px;border:1px solid #E0E7E4;background:#fff;}
+.link-admin-card[data-status="pending"]{border-color:#D2A74A;background:#FFFBEF;}
+.link-admin-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;}
+.link-admin-badge{padding:3px 10px;border-radius:999px;background:#EEF3F1;font-size:12.5px;font-weight:800;color:#31544C;}
+.link-admin-card[data-status="pending"] .link-admin-badge{background:#F6E7BF;color:#7A5410;}
+.link-admin-meta{margin:6px 0 10px;font-size:13px;color:#5B6B66;line-height:1.55;}
+.link-admin-actions{display:flex;gap:8px;}
+.link-admin-actions button{min-height:38px;padding:0 18px;border-radius:10px;border:1px solid #C9D6D1;background:#fff;font-weight:800;cursor:pointer;}
+.link-admin-actions .link-admin-ok{background:#0E7A63;border-color:#0E7A63;color:#fff;}
+.link-admin-actions .link-admin-no{color:#B3402C;}

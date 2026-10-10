@@ -27,8 +27,8 @@
   <link rel="stylesheet" href="styles.css?v=20260929-seo" />
   <link rel="stylesheet" href="home-polish.css?v=20260916-nohero1" />
   <link rel="stylesheet" href="vip-refresh.css?v=20261010-vip18" />
-  <link rel="stylesheet" href="member-dashboard.css?v=20261010-member1" />
-  <link rel="stylesheet" href="vip-contract.css?v=20261010-vip3" />
+  <link rel="stylesheet" href="member-dashboard.css?v=20261010-member2" />
+  <link rel="stylesheet" href="vip-contract.css?v=20261010-vip4" />
   <link rel="stylesheet" href="dual-access.css?v=20261010-both1" />
   <title>대구·경산 월세차 VIP 정기관리 | 집앞세차 앳홈카케어</title>
   <script type="application/ld+json">
@@ -799,14 +799,29 @@
           </div>
 
           <div id="memberLoginCard" class="mypage-panel">
-            <h2>휴대폰 본인인증</h2>
-            <p class="member-login-intro">예약 시 사용한 휴대폰 번호로 인증하면, 본인에게 연결된 일정과 관리 이력을 보여드립니다.</p>
-            <form id="memberLoginForm" class="member-form">
-              <label for="memberPhone">휴대폰 번호</label>
-              <input id="memberPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" maxlength="14" required>
+            <h2>카카오로 간편 로그인</h2>
+            <p class="member-login-intro">카카오 계정으로 로그인하면 내 다음 세차 일정과 관리 이력을 확인할 수 있어요. 처음 한 번만, 예약에 사용한 휴대폰 번호를 연결하면 됩니다.</p>
+            <button type="button" class="member-kakao" id="memberKakaoLogin"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="#191919" d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.8 5.3 4.6 6.7l-1 3.6c-.1.3.3.6.6.4l4.2-2.8c.5.1 1.1.1 1.6.1 5.5 0 10-3.6 10-8S17.5 3 12 3z"/></svg><span>카카오로 로그인</span></button>
+            <form id="memberLoginForm" class="member-form" hidden style="display:none">
+              <input id="memberPhone" type="tel" tabindex="-1" autocomplete="off">
               <button class="member-submit" id="memberSendCode" type="submit">문자로 인증번호 받기</button>
             </form>
-            <p class="member-privacy-hint">본인인증을 완료해야 조회할 수 있습니다. 공용 기기에서는 확인 후 로그아웃해 주세요. 문자 발송은 인증 서비스 설정에 따라 제한될 수 있습니다.</p>
+            <p class="member-privacy-hint">카카오 닉네임만 연결 확인에 사용하며, 이메일·전화번호는 가져오지 않습니다. 공용 기기에서는 확인 후 로그아웃해 주세요.</p>
+          </div>
+
+          <div id="memberLinkCard" class="mypage-panel" hidden>
+            <h2>휴대폰 번호 연결</h2>
+            <p class="member-login-intro" id="memberLinkIntro">예약 또는 계약에 사용한 휴대폰 번호를 입력해 주세요. 사장님이 확인하면 내 일정이 표시됩니다. (보통 당일 처리)</p>
+            <form id="memberLinkForm" class="member-form">
+              <label for="memberLinkPhone">예약에 사용한 휴대폰 번호</label>
+              <input id="memberLinkPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="010-0000-0000" maxlength="14" required>
+              <button class="member-submit" id="memberLinkSubmit" type="submit">연결 요청하기</button>
+            </form>
+            <div class="member-form-actions" id="memberLinkActions" hidden>
+              <button type="button" class="member-back" id="memberLinkLogout">로그아웃</button>
+              <button type="button" class="member-submit" id="memberLinkRefresh">연결 상태 확인</button>
+            </div>
+            <p class="member-privacy-hint">급하시면 <a href="tel:01083918999">010-8391-8999</a> 또는 카카오톡으로 알려 주세요. 본인 번호가 아니면 연결이 거절될 수 있습니다.</p>
           </div>
 
           <div id="memberCodeCard" class="mypage-panel" hidden>
@@ -1100,8 +1115,9 @@
   <script src="app.js?v=20261007-care1"></script>
   <script src="supabase-integration.js?v=20261006-kakaosplit"></script>
   <script src="vip-refresh.js?v=20261010-vip3" defer></script>
-  <script src="member-dashboard.js?v=20261010-member4" defer></script>
+  <script src="member-dashboard.js?v=20261010-member5" defer></script>
   <script src="vip-contract-admin.js?v=20261010-vip3" defer></script>
+  <script src="member-link-admin.js?v=20261010-link1" defer></script>
   <script src="dual-access.js?v=20261010-both1" defer></script>
 <script id="hash-go">
 window.addEventListener('load',function(){try{var h=(location.hash||'').replace(/^#\/?/,'');if(h&&h!=='home'&&document.getElementById(h)&&typeof go==='function'){setTimeout(function(){go(h)},50)}}catch(e){}});

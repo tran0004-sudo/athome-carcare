@@ -60,7 +60,7 @@
     sessionStorage.removeItem(STORAGE_KEY);
     phoneAwaitingCode = '';
     text(elem('homeMemberHeader'),'정기회원 내 관리 일정');
-    text(elem('homeMemberSummary'),'휴대폰 본인인증 후 다음 세차 예정일과 관리 이력을 간편하게 확인하세요.');
+    text(elem('homeMemberSummary'),'카카오 로그인 후 다음 세차 예정일과 관리 이력을 간편하게 확인하세요.');
     // Erase private dashboard widgets on expired sessions or sign-out.
     const ids = ['memberNextLabel','memberPlanLabel','memberNextDate','memberNextService','memberPlan','memberPlanStatus','memberPlanDate',
       'memberMonthCompleted','memberTotalCompleted'];
@@ -110,11 +110,12 @@
   function view(mode) {
     show(elem('memberLoginCard'), mode === 'login');
     show(elem('memberCodeCard'), mode === 'verify');
+    show(elem('memberLinkCard'), mode === 'link');
     show(elem('memberDashboard'), mode === 'dashboard');
   }
   function setLoading(value) {
     busy = value;
-    for (const id of ['memberSendCode','memberVerifyCode','memberReload']) {
+    for (const id of ['memberSendCode','memberVerifyCode','memberReload','memberKakaoLogin','memberLinkSubmit','memberLinkRefresh']) {
       const el = elem(id);
       if (el) el.disabled = value;
     }
@@ -237,6 +238,15 @@
         status('인증이 만료되었습니다. 다시 로그인해 주세요.');
         return;
       }
+      const link = await fetchJson('/rest/v1/rpc/get_my_link_status',{
+        method:'POST',body:'{}',headers:{Authorization:'Bearer '+token}
+      });
+      if (!link || link.status !== 'approved') {
+        renderLink(link || {status:'none'});
+        view('link');
+        status('');
+        return;
+      }
       const [data, contracts] = await Promise.all([
         fetchJson('/rest/v1/rpc/get_my_carcare_dashboard',{
           method:'POST',body:'{}',headers:{Authorization:'Bearer '+token}
@@ -258,6 +268,54 @@
         view('dashboard');
         status('관리 이력을 불러오지 못했습니다. 다시 시도해 주세요.',true);
       }
+    } finally { setLoading(false); }
+  }
+  function redirectUrl() {
+    return location.origin + location.pathname.replace(/index\.html$/, '');
+  }
+  function startKakao() {
+    if (busy) return;
+    status('카카오 로그인 화면으로 이동합니다.');
+    location.href = PROJECT + '/auth/v1/authorize?provider=kakao&scopes=' +
+      encodeURIComponent('profile_nickname') + '&redirect_to=' + encodeURIComponent(redirectUrl());
+  }
+  function renderLink(link) {
+    const st = link && link.status;
+    const form = elem('memberLinkForm');
+    const actions = elem('memberLinkActions');
+    const intro = elem('memberLinkIntro');
+    const pending = st === 'pending';
+    show(form, !pending);
+    show(actions, pending);
+    if (pending) {
+      text(intro, '연결 요청을 접수했어요' + (link.phoneTail ? ' (번호 끝자리 ' + link.phoneTail + ')' : '') +
+        '. 사장님이 확인하면 내 일정이 표시됩니다. 확인 후 아래 버튼을 눌러 주세요.');
+    } else if (st === 'rejected') {
+      text(intro, '요청이 승인되지 않았어요. 예약에 사용한 번호가 맞는지 확인하고 다시 요청하거나, 전화·카카오톡으로 문의해 주세요.');
+    } else {
+      text(intro, '예약 또는 계약에 사용한 휴대폰 번호를 입력해 주세요. 사장님이 확인하면 내 일정이 표시됩니다. (보통 당일 처리)');
+    }
+  }
+  async function submitLink(event) {
+    event.preventDefault();
+    if (busy) return;
+    const phone = normalizePhone(elem('memberLinkPhone').value);
+    if (!phone) { status('010으로 시작하는 휴대폰 번호 11자리를 입력해 주세요.',true); return; }
+    const token = await activeToken();
+    if (!token) { view('login'); status('로그인이 만료되었습니다. 다시 로그인해 주세요.',true); return; }
+    setLoading(true);
+    status('연결 요청을 보내는 중입니다.');
+    try {
+      const result = await fetchJson('/rest/v1/rpc/request_phone_link',{
+        method:'POST',body:JSON.stringify({p_phone:phone}),headers:{Authorization:'Bearer '+token}
+      });
+      setLoading(false);
+      if (result && result.status === 'approved') { await loadDashboard(); return; }
+      renderLink(result || {status:'pending'});
+      status('연결 요청을 접수했습니다. 사장님 확인 후 내 일정이 표시됩니다.');
+    } catch (e) {
+      status(e.status === 401 ? '로그인이 만료되었습니다. 다시 로그인해 주세요.'
+        : '요청을 보내지 못했습니다. 번호를 확인하고 잠시 후 다시 시도해 주세요.',true);
     } finally { setLoading(false); }
   }
   async function sendCode(event) {
@@ -310,22 +368,48 @@
     view('login');
     if (elem('memberCode')) elem('memberCode').value = '';
     text(elem('homeMemberHeader'),'정기회원 내 관리 일정');
-    text(elem('homeMemberSummary'),'휴대폰 본인인증 후 다음 세차 예정일과 관리 이력을 간편하게 확인하세요.');
+    text(elem('homeMemberSummary'),'카카오 로그인 후 다음 세차 예정일과 관리 이력을 간편하게 확인하세요.');
     status('로그아웃했습니다. 이 기기에서는 다시 본인인증이 필요합니다.');
     if (s) {
       try { await fetchJson('/auth/v1/logout',{method:'POST',headers:{Authorization:'Bearer ' + s.access_token},body:'{}'}); }
       catch (_) { /* Local session already cleared; remote invalidation is best-effort. */ }
     }
   }
+  // 카카오 로그인 후 돌아오면 주소 뒤 #access_token=... 으로 세션이 전달됩니다.
+  function captureOAuthReturn() {
+    const raw = (location.hash || '').replace(/^#/, '');
+    const query = new URLSearchParams(location.search);
+    if (!/(^|&)(access_token|error)=/.test(raw) && !query.get('error')) return '';
+    const q = new URLSearchParams(raw);
+    try { history.replaceState(null, '', location.pathname); } catch (_) {}
+    if (q.get('access_token') && q.get('refresh_token')) {
+      saveSession({access_token:q.get('access_token'), refresh_token:q.get('refresh_token'), expires_in:q.get('expires_in')});
+      return 'ok';
+    }
+    return 'error';
+  }
+  const oauthResult = captureOAuthReturn();
   function init() {
     if (!elem('memberLoginForm')) return;
     elem('memberLoginForm').addEventListener('submit', sendCode);
+    if (elem('memberKakaoLogin')) elem('memberKakaoLogin').addEventListener('click', startKakao);
+    if (elem('memberLinkForm')) elem('memberLinkForm').addEventListener('submit', submitLink);
+    if (elem('memberLinkRefresh')) elem('memberLinkRefresh').addEventListener('click', loadDashboard);
+    if (elem('memberLinkLogout')) elem('memberLinkLogout').addEventListener('click', signOut);
     elem('memberCodeForm').addEventListener('submit',verifyCode);
     elem('memberBack').addEventListener('click',function(){phoneAwaitingCode='';view('login');status('');});
     elem('memberReload').addEventListener('click',loadDashboard);
     elem('memberLogout').addEventListener('click',signOut);
     view('login');
+    if (oauthResult === 'error') status('카카오 로그인을 완료하지 못했습니다. 다시 시도해 주세요.', true);
     if (readSession()) loadDashboard();
+    if (oauthResult) window.addEventListener('load', function () {
+      setTimeout(function () {
+        const go = document.querySelector('[data-go="mypage"]');
+        if (go && oauthResult === 'ok') go.click();
+        else if (typeof window.go === 'function') window.go('mypage');
+      }, 120);
+    });
     document.addEventListener('click',function(e) {
       const go = e.target.closest('[data-go="mypage"]');
       if (go && readSession()) loadDashboard();
