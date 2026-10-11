@@ -83,12 +83,12 @@
       const [c,l,r]=await Promise.all([
         api('vip_contracts?select=*&order=created_at.desc&limit=200'),
         api('vip_visit_links?select=contract_id,reservation_id&limit=1000'),
-        api('reservations?select=id,phone,status,done_at,service_type,car_model,customer_name&status=eq.%EC%99%84%EB%A3%8C&order=done_at.desc&limit=250')
+        api('reservations?select=id,phone,status,done_at,scheduled_at,service_type,car_model,customer_name&status=in.(%ED%99%95%EC%A0%95,%EC%99%84%EB%A3%8C)&order=created_at.desc&limit=400')
       ]);
       contracts=c||[];links=l||[];jobs=r||[];
       if(!contracts.some(v=>v.id===selectedId))selectedId=contracts[0]?.id||null;
       choose(selectedId);
-      note('기록 연결은 완료된 예약만 가능하며, 자동 차감되지 않습니다.');
+      note('세차 일정을 등록하고, 세차 후 \'완료 · 1회 차감\'을 누르면 잔여 횟수가 줄어듭니다.');
     }catch(e){note(e.message,true);}
     finally{busy=false;}
   }
@@ -120,10 +120,13 @@
         stat.textContent=st+' · 현재 이용주기 '+d.cycleStart+' ~ '+d.cycleEnd+
           ' · '+d.usedVisits+'/'+d.monthlyVisits+'회 사용, 잔여 '+d.remainingVisits+
           '회 · 만료 '+d.expiresOn+' · 권장 관리일 '+(d.nextRecommendedOn||'없음');
+        const dateInput=$('vipSchedDate');
+        if(dateInput && !dateInput.dataset.touched && d.nextRecommendedOn) dateInput.value=d.nextRecommendedOn;
       })
       .catch(e=>{stat.textContent=e.message;});
-    const title=node('h4','','완료된 세차 연결');
-    const caption=node('p','vip-ledger-help','이 계약에 연결된 완료 기록만 월 이용 횟수에서 차감됩니다.');
+    out.append(...scheduleSection(c));
+    const title=node('h4','','완료된 세차 직접 연결');
+    const caption=node('p','vip-ledger-help','고객이 앱으로 예약해 이미 완료 처리된 세차가 있을 때만 사용하세요. 위 일정에서 완료를 누르면 자동으로 연결됩니다.');
     const wrap=node('div','vip-ledger-link-row');
     const sel=node('select');sel.id='vipCompletedJob';
     const occupied=new Set(links.map(v=>v.reservation_id));
@@ -143,13 +146,99 @@
     const attached=links.filter(l=>l.contract_id===c.id);
     if(!attached.length)ul.append(node('li','','연결된 세차 기록이 없습니다.'));
     for (const l of attached){
-      const j=jobs.find(r=>r.id===l.reservation_id);
+      const j=jobs.find(r=>r.id===l.reservation_id && r.done_at);
       const li=node('li','',j?new Date(j.done_at).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul'})+' · '+(j.car_model||'차량'):(l.reservation_id.slice(0,8)+'…'));
       const remove=node('button','','연결 해제');remove.type='button';
       remove.addEventListener('click',()=>unlinkVisit(l.reservation_id));
       li.append(remove);ul.append(li);
     }
     out.append(title,caption,wrap,linkTitle,ul);
+  }
+  const KST_DAY = ['일','월','화','수','목','금','토'];
+  function kstLabel(iso) {
+    const d=new Date(iso);
+    const p=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(d);
+    const g=k=>p.find(x=>x.type===k)?.value||'';
+    const wd=KST_DAY[new Date(seoulDay(iso)+'T12:00:00+09:00').getUTCDay()];
+    return g('month')+'월 '+g('day')+'일 ('+wd+') '+g('hour')+':'+g('minute');
+  }
+  function hyphen(p){return p.length===11?p.slice(0,3)+'-'+p.slice(3,7)+'-'+p.slice(7):p;}
+  function scheduleSection(c) {
+    const title=node('h4','','세차 일정');
+    const caption=node('p','vip-ledger-help','세차할 날을 지정해 두세요. 고객 \'내 예약\'에 다음 방문일로 표시되고, 세차 후 \'완료 · 1회 차감\'을 누르면 잔여 횟수가 자동으로 줄어듭니다.');
+    const row=node('div','vip-ledger-link-row vip-sched-row');
+    const date=node('input');date.type='date';date.id='vipSchedDate';
+    date.min=c.starts_on;date.max=c.expires_on;
+    const today=seoulDay(Date.now());
+    date.value=today<c.starts_on?c.starts_on:(today>c.expires_on?c.expires_on:today);
+    date.addEventListener('input',()=>{date.dataset.touched='1';});
+    const time=node('select');time.id='vipSchedTime';
+    for(let h=9;h<=23;h++){const v=String(h).padStart(2,'0')+':00';const o=node('option','',v);o.value=v;time.append(o);}
+    time.value='14:00';
+    const add=node('button','','일정 등록');add.type='button';
+    add.disabled=c.status!=='active';
+    add.addEventListener('click',()=>scheduleVisit(c,date.value,time.value));
+    row.append(date,time,add);
+    const ul=node('ul','vip-ledger-connected vip-sched-list');
+    const planned=jobs.filter(j=>phone(j.phone)===c.phone && j.status==='확정' && j.scheduled_at)
+      .sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
+    if(!planned.length)ul.append(node('li','','등록된 세차 일정이 없습니다.'));
+    for(const j of planned){
+      const li=node('li','');
+      li.append(node('span','vip-sched-when',kstLabel(j.scheduled_at)+' · '+(j.car_model||'차량')));
+      const done=node('button','vip-sched-done','완료 · 1회 차감');done.type='button';
+      done.addEventListener('click',()=>completeVisit(c,j));
+      const cancel=node('button','vip-sched-cancel','일정 취소');cancel.type='button';
+      cancel.addEventListener('click',()=>cancelVisit(j));
+      li.append(done,cancel);ul.append(li);
+    }
+    return [title,caption,row,ul];
+  }
+  async function scheduleVisit(c,day,hm) {
+    if(!day)return note('세차 날짜를 선택해 주세요.',true);
+    if(day<c.starts_on||day>c.expires_on)return note('계약 기간('+c.starts_on+' ~ '+c.expires_on+') 안의 날짜를 선택해 주세요.',true);
+    if(busy)return;busy=true;note('세차 일정을 등록하는 중입니다.');
+    try{
+      const ph=hyphen(c.phone);
+      let apt='월세차 정기관리', addr=null, plate=null;
+      try{
+        const last=await api('reservations?select=apartment,address,plate&or=(phone.eq.'+c.phone+',phone.eq.'+ph+')&order=created_at.desc&limit=1');
+        if(last&&last[0]){apt=last[0].apartment||apt;addr=last[0].address||null;plate=last[0].plate||null;}
+      }catch(_){}
+      const payload={customer_name:c.customer_name,phone:ph,apartment:apt,address:addr,plate:plate,
+        car_model:c.car_model||'',service_type:c.monthly_visits===4?'월4회':'월2회',
+        status:'확정',scheduled_at:day+'T'+hm+':00+09:00',preferred_date:day,preferred_time:hm,
+        memo:'[월세차 계약 일정 · 관리자 등록]'};
+      const made=await api('reservations',{method:'POST',body:JSON.stringify(payload),headers:{Prefer:'return=representation'}});
+      const row=Array.isArray(made)?made[0]:null;
+      if(row && row.status!=='확정'){
+        await api('reservations?id=eq.'+encodeURIComponent(row.id),{method:'PATCH',body:JSON.stringify({status:'확정',scheduled_at:payload.scheduled_at}),headers:{Prefer:'return=minimal'}});
+      }
+      busy=false;await load();note(day+' '+hm+' 세차 일정을 등록했습니다. 고객 \'내 예약\'에 다음 방문일로 표시됩니다.');
+    }catch(e){busy=false;note('일정 등록 실패: '+e.message,true);}
+  }
+  async function completeVisit(c,j) {
+    const when=new Date(j.scheduled_at);
+    const doneAt=(when.getTime()<=Date.now()?when:new Date()).toISOString();
+    const day=seoulDay(doneAt);
+    if(day<c.starts_on||day>c.expires_on)return note('완료일('+day+')이 계약 기간 밖이라 차감할 수 없습니다. 계약 기간을 확인해 주세요.',true);
+    if(!confirm(kstLabel(j.scheduled_at)+' 세차를 완료 처리하고 이용 횟수 1회를 차감할까요?'))return;
+    if(busy)return;busy=true;note('완료 처리 중입니다.');
+    try{
+      await api('reservations?id=eq.'+encodeURIComponent(j.id),{method:'PATCH',body:JSON.stringify({status:'완료',done_at:doneAt}),headers:{Prefer:'return=minimal'}});
+      try{
+        await api('vip_visit_links',{method:'POST',body:JSON.stringify({contract_id:c.id,reservation_id:j.id}),headers:{Prefer:'return=minimal'}});
+      }catch(linkErr){busy=false;await load();return note('완료는 처리됐지만 차감 연결에 실패했습니다: '+linkErr.message+' · 아래 \'완료된 세차 직접 연결\'에서 다시 연결해 주세요.',true);}
+      busy=false;await load();note('완료 처리하고 1회 차감했습니다. 고객 화면 잔여 횟수에도 반영됩니다.');
+    }catch(e){busy=false;note('완료 처리 실패: '+e.message,true);}
+  }
+  async function cancelVisit(j) {
+    if(!confirm(kstLabel(j.scheduled_at)+' 세차 일정을 취소할까요? (횟수는 차감되지 않습니다)'))return;
+    if(busy)return;busy=true;
+    try{
+      await api('reservations?id=eq.'+encodeURIComponent(j.id),{method:'PATCH',body:JSON.stringify({status:'취소'}),headers:{Prefer:'return=minimal'}});
+      busy=false;await load();note('세차 일정을 취소했습니다.');
+    }catch(e){busy=false;note('취소 실패: '+e.message,true);}
   }
   async function linkVisit(contractId,reservationId) {
     if(!reservationId)return note('완료된 세차를 선택해 주세요.',true);

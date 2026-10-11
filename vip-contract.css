@@ -66,3 +66,11 @@
 .link-admin-actions button{min-height:38px;padding:0 18px;border-radius:10px;border:1px solid #C9D6D1;background:#fff;font-weight:800;cursor:pointer;}
 .link-admin-actions .link-admin-ok{background:#0E7A63;border-color:#0E7A63;color:#fff;}
 .link-admin-actions .link-admin-no{color:#B3402C;}
+/* v60 세차 일정 */
+.vip-sched-row{display:grid;grid-template-columns:1fr 110px auto;gap:8px;align-items:center;}
+.vip-sched-row input,.vip-sched-row select{min-height:46px;border:1.5px solid #D5E2DA;border-radius:12px;padding:0 12px;font-size:15px;font-family:inherit;background:#fff;}
+.vip-sched-list li{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
+.vip-sched-when{flex:1 1 180px;font-weight:700;color:#14302B;}
+.vip-sched-list .vip-sched-done{background:#1F7A55;color:#fff;border:0;border-radius:10px;min-height:40px;padding:0 14px;font-weight:800;font-family:inherit;cursor:pointer;}
+.vip-sched-list .vip-sched-cancel{background:#fff;color:#8d2b2b;border:1.5px solid #e9c9c9;border-radius:10px;min-height:40px;padding:0 12px;font-weight:700;font-family:inherit;cursor:pointer;}
+@media(max-width:520px){.vip-sched-row{grid-template-columns:1fr 1fr;}.vip-sched-row button{grid-column:1/-1;}}
