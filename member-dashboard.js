@@ -260,10 +260,13 @@
       view('dashboard');
       status('');
     } catch (e) {
-      if (e.status === 401 || e.status === 403) {
+      if (e.status === 401) {
         clearSession();
         view('login');
-        status('인증을 다시 진행해 주세요.', true);
+        status('로그인이 만료되었습니다. 카카오로 다시 로그인해 주세요.', true);
+      } else if (e.status === 403) {
+        view('dashboard');
+        status('회원 정보를 불러올 권한 확인에 실패했습니다. 잠시 후 다시 시도하거나 카카오채널로 문의해 주세요.', true);
       } else {
         view('dashboard');
         status('관리 이력을 불러오지 못했습니다. 다시 시도해 주세요.',true);
