@@ -76,3 +76,14 @@
 @media(max-width:520px){.vip-sched-row{grid-template-columns:1fr 1fr;}.vip-sched-row button{grid-column:1/-1;}}
 .vip-sched-quota{margin:4px 0 8px;padding:9px 12px;border-radius:10px;background:#EEF7F1;color:#1F5B43;font-size:13px;font-weight:700;}
 .vip-sched-quota.full{background:#FDEDED;color:#8d2b2b;}
+/* v66 미리보기·연장 */
+.vip-ledger-tools{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+.vip-ledger-tools button{min-height:40px;padding:0 14px;border:1.5px solid #AFCFC0;background:#fff;color:#176E57;border-radius:10px;font-weight:800;font-family:inherit;cursor:pointer;}
+.vip-ledger-panel{border:1.5px dashed #AFCFC0;border-radius:14px;padding:12px;margin:0 0 14px;background:#FAFCFB;}
+.vip-ledger-panel[hidden]{display:none;}
+.vip-preview{max-width:420px;}
+.vip-extend-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.vip-extend-grid label{display:grid;gap:4px;font-size:12.5px;font-weight:700;color:#4F6B5D;}
+.vip-extend-grid input,.vip-extend-grid select{min-height:42px;border:1.5px solid #D5E2DA;border-radius:10px;padding:0 10px;font-size:14px;font-family:inherit;background:#fff;}
+.vip-extend-sum{margin:10px 0;font-weight:800;color:#14302B;}
+@media(max-width:520px){.vip-extend-grid{grid-template-columns:1fr 1fr;}.vip-extend-grid label:first-child{grid-column:1/-1;}}

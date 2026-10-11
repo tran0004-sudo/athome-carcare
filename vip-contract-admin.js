@@ -112,7 +112,14 @@
     const c=contracts.find(x=>x.id===selectedId);
     if(!c){out.append(node('p','vip-ledger-empty','계약 등록 후 완료된 세차와 연결할 수 있습니다.'));return;}
     const stat=node('div','vip-ledger-stats','계약 현황 계산 중…');
-    out.append(stat);
+    const tools=node('div','vip-ledger-tools');
+    const pv=node('button','','👀 고객 화면 미리보기');pv.type='button';
+    const ext=node('button','','➕ 연장 (새 계약 만들기)');ext.type='button';
+    tools.append(pv,ext);
+    const panel=node('div','vip-ledger-panel');panel.hidden=true;
+    pv.addEventListener('click',()=>togglePanel(panel,'preview',()=>renderPreview(panel,c)));
+    ext.addEventListener('click',()=>togglePanel(panel,'extend',()=>renderExtend(panel,c)));
+    out.append(stat,tools,panel);
     api('rpc/vip_contract_snapshot',{method:'POST',body:JSON.stringify({p_contract_id:c.id})})
       .then(d=>{
         if(selectedId!==c.id)return;
@@ -188,6 +195,86 @@
     const used=jobs.filter(j=>linked.has(j.id)&&j.status==='완료'&&j.done_at&&inCy(seoulDay(j.done_at))).length;
     const planned=jobs.filter(j=>phone(j.phone)===c.phone&&j.status==='확정'&&j.scheduled_at&&inCy(seoulDay(j.scheduled_at))).length;
     return {...cy,used,planned,left:Math.max(0,c.monthly_visits-used-planned)};
+  }
+  function korDate(day,withTime){
+    if(!day)return '';
+    const iso=String(day).length<=10?String(day)+'T12:00:00+09:00':String(day);
+    const d=new Date(iso);
+    const p=new Intl.DateTimeFormat('ko-KR',{timeZone:'Asia/Seoul',year:'numeric',month:'long',day:'numeric',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(d);
+    const g=k=>p.find(x=>x.type===k)?.value||'';
+    return g('year')+'년 '+g('month')+' '+g('day')+'일 '+g('weekday')+(withTime?' '+g('hour')+':'+g('minute'):'');
+  }
+  function togglePanel(panel,kind,build){
+    if(!panel.hidden && panel.dataset.kind===kind){panel.hidden=true;return;}
+    panel.dataset.kind=kind;panel.hidden=false;panel.replaceChildren();build();
+  }
+  /* 고객 '내 예약' 카드와 같은 모양으로 미리보기 */
+  async function renderPreview(panel,c){
+    panel.append(node('p','vip-ledger-help','이 고객이 \'내 예약\'에서 보는 화면입니다. (관리자 화면에서만 보이는 미리보기)'));
+    const box=node('div','vip-preview');panel.append(box);
+    box.textContent='불러오는 중…';
+    try{
+      const d=await api('rpc/vip_contract_snapshot',{method:'POST',body:JSON.stringify({p_contract_id:c.id})});
+      box.replaceChildren();
+      const card=node('article','member-contract-card');card.dataset.status=d.status;
+      const head=node('div','member-contract-head');
+      head.append(node('strong','',(d.carModel||'내 차량')+' · 월 '+d.monthlyVisits+'회'),
+        node('span','',({active:'이용 중',upcoming:'시작 예정',paused:'일시중지',cancelled:'계약 종료',expired:'계약 만료'})[d.status]||d.status));
+      card.append(head);
+      const m=node('div','member-contract-metrics');
+      const metric=(label,value,sub)=>{const b=node('div');b.append(node('small','',label),node('b','',value));if(sub)b.append(node('small','member-metric-sub',sub));return b;};
+      const closed=d.status==='expired'||d.status==='cancelled';
+      const full=d.status==='active'&&Number(d.remainingVisits)<=0;
+      m.append(metric('이번 달 사용',closed?'이용 불가':d.usedVisits+' / '+d.monthlyVisits+'회',closed?'':(full?'모두 사용':'남은 '+d.remainingVisits+'회')));
+      const upcoming=jobs.filter(j=>phone(j.phone)===c.phone&&j.status==='확정'&&j.scheduled_at&&new Date(j.scheduled_at)>=new Date())
+        .sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at));
+      if(upcoming[0])m.append(metric('다음 방문',korDate(upcoming[0].scheduled_at,true),'확정'));
+      else if(!full&&!closed)m.append(metric('다음 권장일',d.nextRecommendedOn?korDate(d.nextRecommendedOn):'미정','확정 일정 아님'));
+      m.append(metric('만료일',korDate(d.expiresOn)));
+      card.append(m,node('p','member-contract-cycle','이용주기 '+korDate(d.cycleStart)+' ~ '+korDate(d.cycleEnd)));
+      box.append(card);
+      if(full){
+        const nx=nextDay(d.cycleEnd);
+        box.append(node('p','member-quota-note','이번 이용주기 월 '+d.monthlyVisits+'회를 모두 사용했어요.'+(nx<=d.expiresOn?' '+korDate(nx)+'부터 다시 예약할 수 있어요.':'')+' 추가 세차는 다시 예약을 해 주세요.'));
+      }
+      if(upcoming.length>1)box.append(node('p','vip-ledger-help','다가오는 세차 일정 '+upcoming.length+'건이 목록으로 함께 보입니다.'));
+    }catch(e){box.textContent='미리보기를 불러오지 못했습니다: '+e.message;}
+  }
+  function overlaps(phoneNo,start,end,exceptId){
+    return contracts.find(x=>x.phone===phoneNo&&x.id!==exceptId&&x.status!=='cancelled'&&!(end<x.starts_on||start>x.expires_on));
+  }
+  /* 연장 = 기존 계약 다음 날부터 새 계약 */
+  function renderExtend(panel,c){
+    panel.append(node('p','vip-ledger-help','기존 계약은 그대로 두고, 만료일 다음 날부터 새 계약을 만듭니다. 지난 차감 기록과 섞이지 않습니다.'));
+    const grid=node('div','vip-extend-grid');
+    const mk=(label,el)=>{const w=node('label','',label);w.append(el);grid.append(w);return el;};
+    const start=mk('새 계약 시작일',node('input'));start.type='date';start.value=nextDay(c.expires_on);
+    const months=mk('기간',node('select'));
+    for(const n of [1,2,3,6,12]){const o=node('option','',n+'개월');o.value=String(n);months.append(o);}
+    months.value='2';
+    const visits=mk('월 이용 횟수',node('select'));
+    for(const n of [2,4]){const o=node('option','','월 '+n+'회');o.value=String(n);visits.append(o);}
+    visits.value=String(c.monthly_visits);
+    panel.append(grid);
+    const sum=node('p','vip-extend-sum');panel.append(sum);
+    const calc=()=>{const e=prevDay(addMonths(start.value,Number(months.value)));sum.textContent=start.value?('새 계약: '+start.value+' ~ '+e+' · 월 '+visits.value+'회'):'시작일을 선택해 주세요.';return e;};
+    [start,months,visits].forEach(el=>el.addEventListener('input',calc));calc();
+    const go=node('button','vip-ledger-save','새 계약 만들기');go.type='button';panel.append(go);
+    go.addEventListener('click',async()=>{
+      const s0=start.value,e0=calc();
+      if(!s0)return note('시작일을 선택해 주세요.',true);
+      const hit=overlaps(c.phone,s0,e0,null);
+      if(hit)return note('기간이 겹치는 계약이 있습니다 ('+hit.starts_on+' ~ '+hit.expires_on+'). 시작일을 '+nextDay(hit.expires_on)+' 이후로 해 주세요.',true);
+      if(!confirm(c.customer_name+' 님 새 계약을 만들까요?\n'+s0+' ~ '+e0+' · 월 '+visits.value+'회'))return;
+      if(busy)return;busy=true;
+      try{
+        const saved=await api('vip_contracts',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({
+          phone:c.phone,customer_name:c.customer_name,car_model:c.car_model||'',monthly_visits:Number(visits.value),
+          starts_on:s0,expires_on:e0,anchor_on:s0,status:'active',note:'연장 계약 (이전: '+c.starts_on+' ~ '+c.expires_on+')'})});
+        if(Array.isArray(saved)&&saved[0]?.id)selectedId=saved[0].id;
+        busy=false;await load();note('새 계약을 만들었습니다: '+s0+' ~ '+e0+'. 이전 계약은 만료일까지 그대로 유지됩니다.');
+      }catch(err){busy=false;note('연장 실패: '+err.message,true);}
+    });
   }
   function hyphen(p){return p.length===11?p.slice(0,3)+'-'+p.slice(3,7)+'-'+p.slice(7):p;}
   function scheduleSection(c) {
@@ -308,6 +395,8 @@
       status:data.status,note:(data.note||'').trim()
     };
     if(!/^010\d{8}$/.test(payload.phone))return note('010 휴대폰 11자리를 확인해 주세요.',true);
+    const clash=payload.status!=='cancelled'&&overlaps(payload.phone,payload.starts_on,payload.expires_on,id||null);
+    if(clash)return note('같은 번호의 다른 계약('+clash.starts_on+' ~ '+clash.expires_on+')과 기간이 겹칩니다. 연장은 \'연장 (새 계약 만들기)\'를 이용해 주세요.',true);
     if(!payload.starts_on||!payload.expires_on||!payload.anchor_on||
       payload.starts_on>payload.expires_on || payload.anchor_on<payload.starts_on||
       payload.anchor_on>payload.expires_on)return note('시작·만료·관리 기준일을 확인해 주세요.',true);
