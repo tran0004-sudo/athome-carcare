@@ -379,6 +379,9 @@
   let oauthErrorText = '';
   function oauthErrorMessage(t) {
     const raw = String(t || '').replace(/\+/g, ' ');
+    if (/exchange|invalid_client|client.?secret|KOE010|unauthorized_client/i.test(raw)) return '카카오 로그인 설정 오류(비밀키 불일치)로 로그인할 수 없습니다. 사장님께 알려 주세요. (' + raw.slice(0, 80) + ')';
+    if (/bad_oauth_state|state parameter/i.test(raw)) return '로그인 시간이 지났거나 다른 창에서 진행되었습니다. 이 화면에서 카카오 로그인을 한 번 더 눌러 주세요.';
+    if (/redirect/i.test(raw)) return '카카오 로그인 주소 설정 오류입니다. 사장님께 알려 주세요. (' + raw.slice(0, 80) + ')';
     if (/email/i.test(raw)) return '카카오 계정의 이메일 제공에 동의해 주셔야 로그인할 수 있어요. 다시 로그인하면서 이메일 항목에 체크해 주세요.';
     if (/provider is not enabled|Unsupported provider/i.test(raw)) return '카카오 로그인이 아직 켜져 있지 않습니다. 사장님께 문의해 주세요.';
     if (/access_denied|cancel/i.test(raw)) return '카카오 로그인이 취소되었습니다. 다시 시도해 주세요.';
@@ -394,7 +397,7 @@
       saveSession({access_token:q.get('access_token'), refresh_token:q.get('refresh_token'), expires_in:q.get('expires_in')});
       return 'ok';
     }
-    oauthErrorText = q.get('error_description') || query.get('error_description') || q.get('error') || query.get('error') || '';
+    oauthErrorText = [q.get('error') || query.get('error'), q.get('error_code') || query.get('error_code'), q.get('error_description') || query.get('error_description')].filter(Boolean).join(': ');
     return 'error';
   }
   const oauthResult = captureOAuthReturn();
