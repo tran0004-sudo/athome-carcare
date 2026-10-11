@@ -2238,6 +2238,7 @@ ${linkLines ? '\n' + linkLines : ''}
         <!-- 관리 섹션 탭 -->
         <div class="admin-section-tabs">
           <button class="admin-sec-tab active" data-sec="reservations">예약 관리</button>
+          <button class="admin-sec-tab" data-sec="calendar">일정 달력</button>
           <button class="admin-sec-tab" data-sec="members">월 회원</button>
           <button class="admin-sec-tab" data-sec="coupons">쿠폰</button>
           <button class="admin-sec-tab" data-sec="blog">블로그 초안</button>
@@ -2251,6 +2252,8 @@ ${linkLines ? '\n' + linkLines : ''}
           <div id="reservationTabs" class="res-tabs"></div>
           <div id="reservationList" class="reservation-list"><div class="reservation-empty">예약내역을 불러오는 중…</div></div>
         </div>
+        <!-- 일정 달력 (admin-calendar.js) -->
+        <div id="adminSecCalendar" class="hidden"></div>
         <!-- 월 회원 -->
         <div id="adminSecMembers" class="hidden">
           <div class="member-controls">
@@ -2812,6 +2815,8 @@ ${linkLines ? '\n' + linkLines : ''}
       card.querySelector('#adminSecGallery').classList.toggle('hidden', sec !== 'gallery');
       card.querySelector('#adminSecPartners')?.classList.toggle('hidden', sec !== 'partners');
       card.querySelector('#adminSecReviews')?.classList.toggle('hidden', sec !== 'reviews');
+      card.querySelector('#adminSecCalendar')?.classList.toggle('hidden', sec !== 'calendar');
+      if (sec === 'calendar' && typeof window.renderAdminCalendar === 'function') window.renderAdminCalendar();
       if (sec === 'gallery') renderGalleryAdmin();
       if (sec === 'reviews') { bindReviewsTab(card); await renderReviewsAdmin(card); }
       if (sec === 'stats') { bindStatsTab(card); loadStats(); }
