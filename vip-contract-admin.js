@@ -162,6 +162,33 @@
     const wd=KST_DAY[new Date(seoulDay(iso)+'T12:00:00+09:00').getUTCDay()];
     return g('month')+'월 '+g('day')+'일 ('+wd+') '+g('hour')+':'+g('minute');
   }
+  /* 이용주기 계산 (서버 vip_contract_snapshot 과 동일: 계약 시작일 기준 한 달) */
+  function addMonths(day,n){
+    const [y,m,d]=day.split('-').map(Number);
+    const t=new Date(Date.UTC(y,m-1+n,1));
+    const last=new Date(Date.UTC(t.getUTCFullYear(),t.getUTCMonth()+1,0)).getUTCDate();
+    t.setUTCDate(Math.min(d,last));
+    return t.toISOString().slice(0,10);
+  }
+  function prevDay(day){const t=new Date(day+'T00:00:00Z');t.setUTCDate(t.getUTCDate()-1);return t.toISOString().slice(0,10);}
+  function nextDay(day){const t=new Date(day+'T00:00:00Z');t.setUTCDate(t.getUTCDate()+1);return t.toISOString().slice(0,10);}
+  function cycleOf(c,day){
+    const [ay,am]=day.split('-').map(Number), [sy,sm]=c.starts_on.split('-').map(Number);
+    let months=(ay-sy)*12+(am-sm);
+    let start=addMonths(c.starts_on,months);
+    if(start>day){months-=1;start=addMonths(c.starts_on,months);}
+    let end=prevDay(addMonths(c.starts_on,months+1));
+    if(end>c.expires_on)end=c.expires_on;
+    return {start,end};
+  }
+  function usage(c,day){
+    const cy=cycleOf(c,day);
+    const inCy=d=>d>=cy.start&&d<=cy.end;
+    const linked=new Set(links.filter(l=>l.contract_id===c.id).map(l=>l.reservation_id));
+    const used=jobs.filter(j=>linked.has(j.id)&&j.status==='완료'&&j.done_at&&inCy(seoulDay(j.done_at))).length;
+    const planned=jobs.filter(j=>phone(j.phone)===c.phone&&j.status==='확정'&&j.scheduled_at&&inCy(seoulDay(j.scheduled_at))).length;
+    return {...cy,used,planned,left:Math.max(0,c.monthly_visits-used-planned)};
+  }
   function hyphen(p){return p.length===11?p.slice(0,3)+'-'+p.slice(3,7)+'-'+p.slice(7):p;}
   function scheduleSection(c) {
     const title=node('h4','','세차 일정');
@@ -172,6 +199,8 @@
     const today=seoulDay(Date.now());
     date.value=today<c.starts_on?c.starts_on:(today>c.expires_on?c.expires_on:today);
     date.addEventListener('input',()=>{date.dataset.touched='1';});
+    const nowU=usage(c,date.value);
+    if(nowU.left===0 && nextDay(nowU.end)<=c.expires_on){date.value=nextDay(nowU.end);date.dataset.touched='1';}
     const time=node('select');time.id='vipSchedTime';
     for(let h=9;h<=23;h++){const v=String(h).padStart(2,'0')+':00';const o=node('option','',v);o.value=v;time.append(o);}
     time.value='14:00';
@@ -192,11 +221,20 @@
       cancel.addEventListener('click',()=>cancelVisit(j));
       li.append(done,cancel);ul.append(li);
     }
-    return [title,caption,row,ul];
+    const u=usage(c,seoulDay(Date.now())<c.starts_on?c.starts_on:seoulDay(Date.now()));
+    const quota=node('p','vip-sched-quota'+(u.left===0?' full':''),
+      '이번 이용주기('+u.start+' ~ '+u.end+') · 완료 '+u.used+'회 · 예약 '+u.planned+'회 · '+
+      (u.left===0?'월 '+c.monthly_visits+'회를 모두 사용·예약해 더 등록할 수 없습니다':'남은 등록 가능 '+u.left+'회'));
+    return [title,caption,quota,row,ul];
   }
   async function scheduleVisit(c,day,hm) {
     if(!day)return note('세차 날짜를 선택해 주세요.',true);
     if(day<c.starts_on||day>c.expires_on)return note('계약 기간('+c.starts_on+' ~ '+c.expires_on+') 안의 날짜를 선택해 주세요.',true);
+    const u=usage(c,day);
+    if(u.left===0){
+      return note('이 이용주기('+u.start+' ~ '+u.end+')는 월 '+c.monthly_visits+'회를 모두 사용·예약했습니다 (완료 '+u.used+'회, 예약 '+u.planned+'회). '+
+        (nextDay(u.end)<=c.expires_on?nextDay(u.end)+' 이후 날짜로 등록해 주세요.':'계약 만료 전 마지막 주기입니다.'),true);
+    }
     if(busy)return;busy=true;note('세차 일정을 등록하는 중입니다.');
     try{
       const ph=hyphen(c.phone);
@@ -222,6 +260,8 @@
     const doneAt=(when.getTime()<=Date.now()?when:new Date()).toISOString();
     const day=seoulDay(doneAt);
     if(day<c.starts_on||day>c.expires_on)return note('완료일('+day+')이 계약 기간 밖이라 차감할 수 없습니다. 계약 기간을 확인해 주세요.',true);
+    const u=usage(c,day);
+    if(u.used>=c.monthly_visits)return note('이 이용주기('+u.start+' ~ '+u.end+')는 이미 월 '+c.monthly_visits+'회를 모두 차감했습니다. 추가 세차는 일반 예약(유료)으로 처리해 주세요.',true);
     if(!confirm(kstLabel(j.scheduled_at)+' 세차를 완료 처리하고 이용 횟수 1회를 차감할까요?'))return;
     if(busy)return;busy=true;note('완료 처리 중입니다.');
     try{

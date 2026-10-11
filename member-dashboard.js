@@ -171,31 +171,36 @@
       : '본인 확인 완료 · 예약 및 관리 이력을 내 예약에서 확인하세요.');
   }
 
-  function makeContractCard(c) {
+  function nextCycleStart(c) {
+    if (!c || !c.cycleEnd) return '';
+    const d=new Date(String(c.cycleEnd)+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()+1);
+    const v=d.toISOString().slice(0,10);
+    return v<=String(c.expiresOn||'') ? v : '';
+  }
+  function isExhausted(c) { return c && c.status==='active' && Number(c.remainingVisits)<=0; }
+  function makeContractCard(c,nextVisit) {
     const article=make('article','member-contract-card');
     article.dataset.status=c.status;
     const top=make('div','member-contract-head');
-    const title=make('strong','',((c.carModel||'내 차량')+' · 월 '+c.monthlyVisits+'회'));
-    const statusLabel=({'active':'정기관리 중',upcoming:'시작 예정',paused:'일시중지',cancelled:'계약 종료',expired:'계약 만료'})[c.status]||c.status;
-    top.append(title,make('span','',statusLabel));
+    top.append(make('strong','',((c.carModel||'내 차량')+' · 월 '+c.monthlyVisits+'회')),
+      make('span','',({'active':'이용 중',upcoming:'시작 예정',paused:'일시중지',cancelled:'계약 종료',expired:'계약 만료'})[c.status]||c.status));
     article.append(top);
     const metrics=make('div','member-contract-metrics');
-    function metric(label,value) {
+    function metric(label,value,sub) {
       const box=make('div');
       box.append(make('small','',label),make('b','',value));
+      if (sub) box.append(make('small','member-metric-sub',sub));
       return box;
     }
-    metrics.append(
-      metric('이번 이용주기 잔여',c.status==='expired'||c.status==='cancelled' ? '이용 불가' : c.remainingVisits+' / '+c.monthlyVisits+'회'),
-      metric('멤버십 만료일',formatDate(c.expiresOn,false)),
-      metric('다음 정기관리 권장일',c.nextRecommendedOn?formatDate(c.nextRecommendedOn,false):'미정')
-    );
+    const closed=c.status==='expired'||c.status==='cancelled';
+    metrics.append(metric('이번 달 사용', closed ? '이용 불가' : c.usedVisits+' / '+c.monthlyVisits+'회',
+        closed ? '' : (isExhausted(c) ? '모두 사용' : '남은 '+c.remainingVisits+'회')));
+    // 다 쓴 경우에는 다음 날짜 칸을 표시하지 않음 (확정된 방문이 있으면 그것만 표시)
+    if (nextVisit && nextVisit.date) metrics.append(metric('다음 방문',formatDate(nextVisit.date,true),'확정'));
+    else if (!isExhausted(c) && !closed) metrics.append(metric('다음 권장일',c.nextRecommendedOn?formatDate(c.nextRecommendedOn,false):'미정','확정 일정 아님'));
+    metrics.append(metric('만료일',formatDate(c.expiresOn,false)));
     article.append(metrics);
-    article.append(make('p','',
-      '월 이용주기: '+formatDate(c.cycleStart,false)+' ~ '+formatDate(c.cycleEnd,false)+
-      ' · 완료된 연결 작업: '+c.usedVisits+'회'+
-      (c.intervalDays?' · 권장 간격: '+c.intervalDays+'일':'')+
-      ' · 권장 관리일은 예약 확정일이 아닙니다.'));
+    article.append(make('p','member-contract-cycle','이용주기 '+formatDate(c.cycleStart,false)+' ~ '+formatDate(c.cycleEnd,false)));
     return article;
   }
   function renderContracts(payload,existing) {
@@ -204,12 +209,34 @@
     list.replaceChildren();
     const records=Array.isArray(payload?.contracts)?payload.contracts:[];
     show(elem('memberExistingVisit'),records.some(c=>c && c.status==='active' && Number(c.remainingVisits)>0));
+    const btn=elem('memberExistingVisit');
+    let quota=document.getElementById('memberQuotaNote');
+    const full=records.find(c=>c && c.status==='active' && Number(c.remainingVisits)<=0);
+    const hasLeft=records.some(c=>c && c.status==='active' && Number(c.remainingVisits)>0);
+    if (btn && full && !hasLeft) {
+      if (!quota) { quota=document.createElement('p'); quota.id='memberQuotaNote'; quota.className='member-quota-note'; btn.insertAdjacentElement('afterend',quota); }
+      const d=new Date(String(full.cycleEnd)+'T00:00:00Z'); d.setUTCDate(d.getUTCDate()+1);
+      const next=d.toISOString().slice(0,10);
+      quota.textContent='이번 이용주기 월 '+full.monthlyVisits+'회를 모두 사용했어요.'+(next<=full.expiresOn?' '+formatDate(next,false)+'부터 다시 예약할 수 있어요.':'')+' 추가 세차는 다시 예약을 해 주세요.';
+      quota.hidden=false;
+    } else if (quota) { quota.hidden=true; }
     if (!records.length) {
       list.append(make('div','member-contract-empty',
         '등록된 월세차 계약이 없습니다. 관리자에게 계약 등록을 요청해 주세요. 예약 신청 기록과 유효한 월세차 계약은 별개입니다.'));
       return;
     }
-    records.forEach(c=>{if(c)list.append(makeContractCard(c));});
+    records.forEach(c=>{if(c)list.append(makeContractCard(c,existing&&existing.nextVisit));});
+    // 계약 회원: 겹치는 요약 카드·설명·빈 목록 숨김
+    const dash=elem('memberDashboard');
+    const hasContract=records.some(c=>c&&(c.status==='active'||c.status==='upcoming'||c.status==='paused'));
+    if (dash) dash.classList.toggle('has-contract',hasContract);
+    if (hasContract) {
+      const hideIfEmpty=(id,arr)=>{const sec=elem(id)&&elem(id).closest('section'); if(sec) sec.hidden=!(Array.isArray(arr)&&arr.length);};
+      hideIfEmpty('memberPending',existing&&existing.pending);
+      hideIfEmpty('memberHistory',existing&&existing.history);
+      // 다음 방문 1건은 카드에 이미 표시 → 2건 이상일 때만 목록 노출
+      const up=(existing&&existing.upcoming)||[]; const upSec=elem('memberUpcoming')&&elem('memberUpcoming').closest('section'); if(upSec) upSec.hidden=up.length<2;
+    }
     const preferred=records.find(c=>c && c.status==='active') || records.find(c=>c && c.status==='upcoming') || records[0];
     if (!preferred) return;
     text(elem('memberPlanLabel'),'실제 월세차 계약');
@@ -219,7 +246,22 @@
       ({active:'운영 중',upcoming:'시작 예정',paused:'일시중지',cancelled:'종료',expired:'만료'}[preferred.status]||'확인 중'));
     text(elem('memberPlanDate'),'만료일 '+formatDate(preferred.expiresOn,false));
     // Actual confirmed booking is always higher priority than a predicted cadence date.
-    if (!existing?.nextVisit && preferred.status==='active' && preferred.nextRecommendedOn) {
+    // 계약 회원은 '이번 달 완료' 대신 '이번 이용주기 사용'(실제 차감)을 보여 줌
+    const monthEl=elem('memberMonthCompleted');
+    if (monthEl && preferred.status==='active') {
+      const card=monthEl.closest('article');
+      const lab=card && card.querySelector('.member-kpi-label'); if (lab) lab.textContent='이번 이용주기 사용';
+      monthEl.textContent=preferred.usedVisits+' / '+preferred.monthlyVisits+'회';
+      const sm=card && card.querySelector('small'); if (sm) sm.textContent='월세차 계약에서 차감된 세차';
+    }
+    if (!existing?.nextVisit && isExhausted(preferred)) {
+      const next=nextCycleStart(preferred);
+      text(elem('memberNextLabel'),'다음 이용 가능일');
+      text(elem('memberNextDate'),next?formatDate(next,false):'계약 만료');
+      text(elem('memberNextService'),'이번 이용주기 월 '+preferred.monthlyVisits+'회를 모두 사용했어요.');
+      text(elem('homeMemberHeader'),next?'다음 이용 가능일: '+formatDate(next,false):'이번 이용주기 횟수를 모두 사용했어요');
+      text(elem('homeMemberSummary'),'추가 세차는 다시 예약을 해 주세요.');
+    } else if (!existing?.nextVisit && preferred.status==='active' && preferred.nextRecommendedOn) {
       text(elem('memberNextLabel'),'다음 정기관리 권장일');
       text(elem('memberNextDate'),formatDate(preferred.nextRecommendedOn,false));
       text(elem('memberNextService'),'권장 '+preferred.intervalDays+'일 간격 · 아직 확정된 방문 예약은 아닙니다.');
