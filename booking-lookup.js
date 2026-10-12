@@ -44,7 +44,7 @@
     box.id = 'guestLookup'; box.className = 'mypage-panel guest-lookup-card';
     box.innerHTML = '<h2>비회원 예약 확인</h2>' +
       '<form class="gl-form" novalidate><p>예약할 때 입력한 휴대폰 번호와 차량번호를 넣어 주세요. 로그인은 필요 없어요.</p>' +
-      '<input name="glPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="휴대폰 번호 010-0000-0000" required>' +
+      '<input name="glPhone" type="tel" inputmode="tel" autocomplete="off" placeholder="휴대폰 번호 010-0000-0000" required>' +
       '<input name="glPlate" autocomplete="off" placeholder="차량번호 예: 12가 3456" required>' +
       '<button type="submit" class="primary-btn">예약 확인하기</button><div class="gl-result" role="status" aria-live="polite"></div></form>';
     slot.appendChild(box);
