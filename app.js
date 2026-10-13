@@ -853,6 +853,10 @@ document.addEventListener('click', (e) => {
   }
 });
 document.addEventListener('click', (e) => { if (e.target.closest('[data-go="vip"]')) setTimeout(renderVip, 0); });
+/* 어떤 경로로 들어와도 바로 금액이 보이도록 — 앱이 열릴 때 중형 SUV 기준으로 미리 계산 */
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderVip);
+else renderVip();
+window.addEventListener('hashchange', () => { if (/vip/.test(location.hash)) renderVip(); });
 
 /* 예약 화면 — 일일세차를 고르면 월세차 절약 금액 안내 */
 function renderVipNudge() {
