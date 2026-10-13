@@ -1057,4 +1057,6 @@ try {
 /* ===== 주소로 화면 이동 (index.html #hash-go) ===== */
 try {
 window.addEventListener('load',function(){try{var h=(location.hash||'').replace(/^#\/?/,'');if(h&&h!=='home'&&document.getElementById(h)&&typeof go==='function'){setTimeout(function(){go(h)},50)}}catch(e){}});
+/* 앱이 열린 상태에서 주소(#/booking 등)만 바뀌어도 그 화면으로 이동 */
+window.addEventListener('hashchange',function(){try{var h=(location.hash||'').replace(/^#\/?/,'');var el=h&&document.getElementById(h);if(el&&el.classList.contains('page')&&!el.classList.contains('active')&&typeof go==='function'){go(h)}}catch(e){}});
 } catch (e) { console.error('[주소로 화면 이동 (index.html #hash-go)]', e); }
