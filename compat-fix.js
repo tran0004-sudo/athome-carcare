@@ -63,9 +63,9 @@
     };
 
     ensure('#adminReviewForm', 'form', { id: 'adminReviewForm' });
-    ensure('#exportBtn', 'button', { id: 'exportBtn', type: 'button' });
-    ensure('#importInput', 'input', { id: 'importInput', type: 'file' });
-    ensure('#resetBtn', 'button', { id: 'resetBtn', type: 'button' });
+    ensure('#exportBtn', 'button', { id: 'exportBtn', type: 'button', 'aria-label': '데이터 내보내기', 'aria-hidden': 'true', tabindex: '-1' });
+    ensure('#importInput', 'input', { id: 'importInput', type: 'file', 'aria-label': '데이터 가져오기', 'aria-hidden': 'true', tabindex: '-1' });
+    ensure('#resetBtn', 'button', { id: 'resetBtn', type: 'button', 'aria-label': '초기화', 'aria-hidden': 'true', tabindex: '-1' });
   } catch (error) {
     console.warn('호환성 보정 중 오류', error);
   }

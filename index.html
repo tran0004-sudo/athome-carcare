@@ -806,7 +806,7 @@
             <p class="member-newbie">처음 이용하시나요? 회원가입 없이 바로 예약할 수 있어요. <button type="button" data-go="booking">방문세차 예약하기 →</button></p>
             <button type="button" class="member-kakao" id="memberKakaoLogin"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="#191919" d="M12 3C6.5 3 2 6.6 2 11c0 2.8 1.8 5.3 4.6 6.7l-1 3.6c-.1.3.3.6.6.4l4.2-2.8c.5.1 1.1.1 1.6.1 5.5 0 10-3.6 10-8S17.5 3 12 3z"/></svg><span>카카오로 로그인</span></button>
             <form id="memberLoginForm" class="member-form" hidden style="display:none">
-              <input id="memberPhone" type="tel" tabindex="-1" autocomplete="off">
+              <input id="memberPhone" type="tel" tabindex="-1" autocomplete="off" aria-label="휴대폰 번호">
               <button class="member-submit" id="memberSendCode" type="submit">문자로 인증번호 받기</button>
             </form>
             <p class="member-privacy-hint">카카오 닉네임만 연결 확인에 사용하며, 이메일·전화번호는 가져오지 않습니다. 공용 기기에서는 확인 후 로그아웃해 주세요.</p>
@@ -1022,7 +1022,7 @@
               <span class="opt-title">혜택 적용 <small class="field-hint">예약 1건당 1개만 적용됩니다 (중복 불가)</small></span>
               <div class="opt-grid" id="promoGrid"></div>
               <div class="coupon-row">
-                <input id="couponCode" placeholder="쿠폰 번호 (예: AHC-3F7K2Q)" autocomplete="off">
+                <input id="couponCode" aria-label="쿠폰 번호" placeholder="쿠폰 번호 (예: AHC-3F7K2Q)" autocomplete="off">
                 <button type="button" class="secondary-btn" id="couponCheck">쿠폰 확인</button>
               </div>
               <p class="coupon-msg" id="couponMsg"></p>
@@ -1130,14 +1130,14 @@
     }, true);
   })();
   </script>
-  <script src="compat-fix.js?v=20260929-area1"></script>
+  <script src="compat-fix.js?v=20261013-a11y1"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
   <script src="prices.js?v=20261013a"></script>
   <script src="app.js?v=20261013-vipcalc1"></script>
-  <script src="supabase-integration.js?v=20261013-privacy1"></script>
+  <script src="supabase-integration.js?v=20261013-a11y1"></script>
   <script src="vip-refresh.js?v=20261010-vip4" defer></script>
   <script src="booking-simple.js?v=20261010-simple1" defer></script>
-  <script src="booking-lookup.js?v=20261010-lookup4" defer></script>
+  <script src="booking-lookup.js?v=20261013-a11y1" defer></script>
   <script src="member-dashboard.js?v=20261011-simple2" defer></script>
   <script src="vip-contract-admin.js?v=20261011-ext1" defer></script>
   <script src="admin-calendar.js?v=20261011-cal1" defer></script>

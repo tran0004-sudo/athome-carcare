@@ -2257,7 +2257,7 @@ ${linkLines ? '\n' + linkLines : ''}
         <!-- 월 회원 -->
         <div id="adminSecMembers" class="hidden">
           <div class="member-controls">
-            <input id="memberSearch" type="search" placeholder="이름·전화·아파트·차량번호 검색" autocomplete="off">
+            <input id="memberSearch" type="search" aria-label="고객 검색" placeholder="이름·전화·아파트·차량번호 검색" autocomplete="off">
             <button id="memberRefresh" class="secondary-btn">새로고침</button>
           </div>
           <div id="memberList" class="member-list"><div class="reservation-empty">회원 목록을 불러오는 중…</div></div>
