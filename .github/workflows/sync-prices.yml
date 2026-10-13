@@ -1,6 +1,7 @@
-name: 요금 동기화
+name: 요금·오프라인 목록 동기화
 
-# prices.js(요금 원본)를 고치면 index.html·price.html의 기본 글자를 자동으로 맞춥니다.
+# prices.js(요금 원본)를 고치면 index.html·price.html의 기본 글자를 자동으로 맞추고,
+# index.html이 부르는 파일 버전에 맞춰 service-worker.js 미리 저장 목록도 맞춥니다.
 on:
   push:
     branches: [main]
@@ -9,6 +10,8 @@ on:
       - 'index.html'
       - 'price.html'
       - 'scripts/sync-prices.js'
+      - 'scripts/sync-sw.js'
+      - 'service-worker.js'
   workflow_dispatch:
 
 permissions:
@@ -24,13 +27,15 @@ jobs:
           node-version: "20"
       - name: prices.js 값으로 HTML 맞추기
         run: node scripts/sync-prices.js
+      - name: 서비스워커 미리 저장 목록 맞추기
+        run: node scripts/sync-sw.js
       - name: 변경 사항 커밋
         run: |
-          if git diff --quiet -- index.html price.html; then
-            echo "요금 일치 — 바꿀 곳 없음"; exit 0
+          if git diff --quiet -- index.html price.html service-worker.js; then
+            echo "모두 일치 — 바꿀 곳 없음"; exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add index.html price.html
-          git commit -m "요금 동기화 (prices.js 기준)"
+          git add index.html price.html service-worker.js
+          git commit -m "요금·서비스워커 목록 동기화"
           git push
