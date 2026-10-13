@@ -16,3 +16,7 @@
 .biz-footer a{color:inherit}
 .biz-footer a b{color:#087C68}
 #admin.active ~ .biz-footer{display:none}
+
+/* 예약 화면 하단 문의 버튼 — 카드와 같은 좌우 여백 (2026-10-13) */
+.booking-contact-strip{margin:20px 32px 22px!important}
+@media(max-width:760px){.booking-contact-strip{margin:16px 16px 22px!important}}
