@@ -2712,8 +2712,8 @@ ${linkLines ? '\n' + linkLines : ''}
     const hiddenItems = pubGallery().filter(g => hidden.has(g.id) && !shownIds.has(g.id));
     const row = (g, isHidden) => `
       <div class="reservation-card" style="display:flex;gap:12px;align-items:center;padding:12px;margin-bottom:10px${isHidden ? ';opacity:.6' : ''}">
-        <img src="${imgSrc(g.before)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px;flex:none">
-        <img src="${imgSrc(g.after)}" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:10px;flex:none">
+        <img src="${imgSrc(g.before)}" alt="" loading="lazy" decoding="async" style="width:64px;height:64px;object-fit:cover;border-radius:10px;flex:none">
+        <img src="${imgSrc(g.after)}" alt="" loading="lazy" decoding="async" style="width:64px;height:64px;object-fit:cover;border-radius:10px;flex:none">
         <div style="flex:1;min-width:0"><b style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(g.title || '전후 사진')}</b><small>${esc(g.note || '')}</small></div>
         ${isHidden
           ? `<button class="secondary-btn gallery-restore-btn" data-id="${esc(g.id)}">복구</button>`

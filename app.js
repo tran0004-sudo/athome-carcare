@@ -241,8 +241,8 @@ function comparisonMarkup(item) {
   return `<article class="comparison-card" data-id="${esc(item.id)}">
     <h3>${esc(item.title)}</h3>
     <div class="compare">
-      <img src="${esc(item.before)}" alt="${esc(item.title)} 세차 전">
-      <img class="after" src="${esc(item.after)}" alt="${esc(item.title)} 세차 후">
+      <img src="${esc(item.before)}" alt="${esc(item.title)} 세차 전" loading="lazy" decoding="async">
+      <img class="after" src="${esc(item.after)}" alt="${esc(item.title)} 세차 후" loading="lazy" decoding="async">
       <div class="divider"></div>
       <span class="compare-label before">세차 전</span>
       <span class="compare-label after-label">세차 후</span>
