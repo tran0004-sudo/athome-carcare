@@ -18,8 +18,8 @@
    - Client ID = REST API 키 / Client Secret = 카카오 Client Secret
    - **Allow users without an email** 를 켠다 (닉네임만 받으므로)
 2. Authentication → URL Configuration
-   - Site URL: `https://tran0004-sudo.github.io/athome-carcare/`
-   - Redirect URLs 에 같은 주소와 `https://tran0004-sudo.github.io/athome-carcare/**` 추가
+   - Site URL: `https://athomecarcare.kr/`
+   - Redirect URLs 에 같은 주소와 `https://athomecarcare.kr/**` 추가
 
 ## 4. 운영 방법
 - 고객: 내 관리 → 카카오로 로그인 → 처음 한 번 휴대폰 번호 입력(연결 요청)

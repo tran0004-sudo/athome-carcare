@@ -1886,7 +1886,7 @@ ${linkLines ? '\n' + linkLines : ''}
   /* ── 방문 분석 ─────────────────────────────────────────────── */
 
   let statsDays = 7;
-  const APP_URL = 'https://tran0004-sudo.github.io/athome-carcare/';
+  const APP_URL = 'https://athomecarcare.kr/';
   const TRACK_LINKS = [
     ['당근', 'daangn'], ['네이버 플레이스', 'place'], ['네이버 블로그', 'blog'],
     ['숨고', 'soomgo'], ['카카오채널', 'kakaoch'], ['문자 발송', 'sms'],

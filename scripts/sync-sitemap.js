@@ -11,7 +11,7 @@ const ROOT = path.join(__dirname, '..');
 const CHECK = process.argv.includes('--check');
 const fp = path.join(ROOT, 'sitemap.xml');
 const xml = fs.readFileSync(fp, 'utf8');
-const BASE = 'https://tran0004-sudo.github.io/athome-carcare/';
+const BASE = 'https://athomecarcare.kr/';
 
 const changes = [];
 const out = xml.replace(/<url><loc>([^<]+)<\/loc><lastmod>([^<]+)<\/lastmod>/g, (all, loc, old) => {
