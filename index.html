@@ -24,14 +24,8 @@
   <link rel="manifest" href="manifest.webmanifest?v=20261001-icon7" />
   <link rel="icon" href="icons/icon-192.png?v=20261001-icon7" />
   <link rel="apple-touch-icon" href="icons/icon-192.png?v=20261001-icon7" />
-  <link rel="stylesheet" href="styles.css?v=20260929-seo" />
-  <link rel="stylesheet" href="home-polish.css?v=20260916-nohero1" />
-  <link rel="stylesheet" href="vip-refresh.css?v=20261010-vip29" />
-  <link rel="stylesheet" href="service-luxury.css?v=20261010-lux5" />
-  <link rel="stylesheet" href="member-dashboard.css?v=20261013-h2" />
-  <link rel="stylesheet" href="vip-contract.css?v=20261011-ext1" />
-  <link rel="stylesheet" href="dual-access.css?v=20261010-both4" />
-  <link rel="stylesheet" href="legal.css?v=20261013d" />
+  <link rel="stylesheet" href="core.css?v=20261013m" />
+  <link rel="stylesheet" href="features.css?v=20261013m" />
   <title>대구·경산 월세차 정기관리 | 집앞세차 앳홈카케어</title>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"AutoWash","name":"집앞세차 앳홈카케어","alternateName":["앳홈카케어","At Home Car Care"],
@@ -42,15 +36,6 @@
    "areaServed":[{"@type":"City","name":"대구광역시"},{"@type":"City","name":"경산시"}],
    "sameAs":["https://pf.kakao.com/_xbwxaaX"]}
   </script>
-<style id="hide-call">
-[data-call]{display:none!important}
-.booking-contact-strip{grid-template-columns:repeat(2,1fr)!important}
-@media(max-width:640px){.booking-contact-strip{grid-template-columns:1fr!important}}
-@media(max-width:430px){#home .hero-buttons [data-go="booking"]{grid-column:1/-1}}
-.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.topbar .icon-btn[data-go="admin"]{display:none}
-html.ahc-admin .topbar .icon-btn[data-go="admin"]{display:inline-flex}
-</style>
 <script>
 /* 콘텐츠 관리(⚙️)는 고객에게 숨기고, 관리자만 보이게 합니다.
    · 주소 끝에 #/admin 을 붙여 들어오면 관리자 화면이 열립니다.
@@ -276,186 +261,6 @@ html.ahc-admin .topbar .icon-btn[data-go="admin"]{display:inline-flex}
         </div>
 
         <!-- ▼▼▼ 차종별 요금 아코디언 (style + section + script 한 세트) ▼▼▼ -->
-        <style>
-        .pw{
-          --pw-green:#087C68;
-          --pw-deep:#05594B;
-          --pw-mist:#E8F3F0;
-          --pw-paper:#ffffff;
-          --pw-text:#132C27;
-          --pw-muted:#6B8983;
-          --pw-line:#DCE9E5;
-          margin:0 auto;
-          padding:0;
-          color:var(--pw-text);
-          -webkit-text-size-adjust:100%;
-        }
-        @media (prefers-color-scheme:dark){
-          .pw:not([data-theme="light"]){
-            --pw-mist:rgba(8,124,104,.14);
-            --pw-paper:#11221F;
-            --pw-text:#E9F4F1;
-            --pw-muted:#9BB8B1;
-            --pw-line:#203934;
-          }
-        }
-        .pw *{box-sizing:border-box}
-
-        .pw-list{
-          background:var(--pw-paper);
-          border:1px solid var(--pw-line);
-          border-radius:18px;
-          overflow:hidden;
-        }
-        .pw-item + .pw-item{border-top:1px solid var(--pw-line)}
-
-        .pw-row{
-          display:flex;
-          align-items:center;
-          gap:12px;
-          width:100%;
-          padding:17px 18px;
-          margin:0;
-          border:0;
-          border-radius:0;
-          box-shadow:none;
-          background:transparent;
-          color:inherit;
-          font-family:inherit;
-          font-size:1rem;
-          font-weight:400;
-          text-align:left;
-          cursor:pointer;
-        }
-        .pw-row:focus-visible{outline:3px solid var(--pw-green);outline-offset:-3px}
-        .pw-name{flex:1 1 auto;font-size:1.02rem;font-weight:700;letter-spacing:-.02em;line-height:1.35}
-        .pw-models{display:block;margin-top:3px;font-size:.78rem;font-weight:400;line-height:1.45;color:var(--pw-muted);word-break:keep-all}
-        .pw-from{font-size:.88rem;font-weight:700;color:var(--pw-green);white-space:nowrap}
-        .pw-chev{
-          flex:0 0 auto;width:10px;height:10px;margin-left:2px;
-          border-right:2px solid var(--pw-muted);border-bottom:2px solid var(--pw-muted);
-          transform:rotate(45deg) translate(-2px,-2px);
-          transition:transform .2s ease;
-        }
-        .pw-item.is-open .pw-chev{transform:rotate(-135deg) translate(-3px,-3px)}
-        .pw-item.is-open .pw-row{background:var(--pw-mist)}
-        .pw-item.is-open .pw-from{opacity:0}
-
-        .pw-panel{display:none;padding:2px 18px 20px;background:var(--pw-mist)}
-        .pw-item.is-open .pw-panel{display:block}
-
-        .pw-group + .pw-group{margin-top:16px}
-        .pw-gtitle{
-          display:flex;align-items:baseline;gap:8px;
-          margin:0 0 8px;font-size:.84rem;font-weight:700;color:var(--pw-deep);
-        }
-        .pw-gtitle span{font-weight:400;font-size:.76rem;color:var(--pw-muted)}
-        .pw-lines{margin:0;padding:0;list-style:none;background:var(--pw-paper);border-radius:12px;overflow:hidden}
-        .option-list .opt-size{display:block;margin-top:3px;font-size:12px;font-weight:600;color:#6b7f7a}
-        .option-list>div{align-items:flex-start;gap:14px}
-        .option-list>div>span{flex:1 1 auto;min-width:0;word-break:keep-all}
-        .option-list>div>b{flex:0 0 auto;white-space:nowrap;text-align:right}
-        @media(max-width:420px){.option-list>div>b{font-size:15px}.option-list>div{gap:10px}}
-        .option-list .opt-size2{display:block;margin-top:2px;font-size:12px;font-weight:600;color:#9a7b20}
-        .opt-size-note{margin:-4px 0 10px;font-size:13px;font-weight:600;color:#6b7f7a;line-height:1.55}
-        .blog-posts{display:grid;gap:12px}
-        .blog-post{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center;padding:12px;border:1px solid #dfe8e6;border-radius:16px;background:#fff;text-decoration:none;color:inherit}
-        .blog-post:hover{border-color:#0b7d68}
-        .blog-post.no-thumb{grid-template-columns:1fr}
-        .blog-thumb{width:96px;height:72px;border-radius:11px;object-fit:cover;background:#e7f6f1}
-        .blog-meta{font-size:12px;font-weight:700;color:#6b7f7a;margin:0 0 4px}
-        .blog-title{font-size:15px;font-weight:800;color:#10283a;margin:0 0 4px;line-height:1.4}
-        .blog-sum{font-size:13px;color:#5c6b68;margin:0;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-        .worklog-more{display:block;text-align:center;margin:18px 0 8px}
-        .blog-empty{font-size:14px;color:#6b7f7a;padding:14px;border:1px dashed #cfdcda;border-radius:14px;text-align:center}
-        .process-img{display:block;width:100%;max-width:560px;height:auto;margin:0 auto;border-radius:18px;box-shadow:0 6px 22px rgba(16,40,58,.10)}
-        .option-notice{grid-column:1/-1;display:grid;gap:6px;background:#f4fbf8;border:1px solid #cfe9e1;border-radius:12px;padding:10px 12px}
-        .option-notice p{margin:0;font-size:13px;line-height:1.55;color:#2f4d47;font-weight:600}
-        .opt-detail{margin-top:16px;border-top:1px dashed #d5e2df;padding-top:14px}
-        .opt-detail h3{font-size:16px;font-weight:900;margin:12px 0 8px;color:#10283a}
-        .opt-detail p{font-size:13px;line-height:1.65;color:#4a5f5b;margin:6px 0}
-        .opt-step{width:100%;border-collapse:collapse;font-size:13px}
-        .opt-step th{width:58px;text-align:left;color:#085041;font-weight:900;padding:8px 6px;border-bottom:1px solid #edf2f0;vertical-align:top}
-        .opt-step td{padding:8px 6px;border-bottom:1px solid #edf2f0;color:#2f4d47;vertical-align:top}
-        .opt-step td:last-child{text-align:right;font-weight:900;color:#0b7d68;white-space:nowrap}
-        .opt-warn{background:#fff6dc;border:1px solid #f2dca0;border-radius:10px;padding:10px 12px;color:#6a5200 !important}
-        .kakao-add-btn{display:flex;align-items:center;justify-content:center;gap:6px;margin:4px 0 22px;padding:14px;border-radius:14px;background:#fee500;color:#3c1e1e;font-weight:900;font-size:15px;text-decoration:none;box-shadow:0 4px 14px rgba(254,229,0,.35)}
-        .promo .kakao-add-btn{margin:14px 0 0}
-        .care-list{display:grid;gap:10px}
-        .care-card{background:#fff;border:1px solid #dfe8e6;border-radius:18px;padding:0 16px}
-        .care-card[open]{border-color:#9fd6c6;box-shadow:0 6px 18px rgba(8,80,65,.08)}
-        .care-card summary{list-style:none;display:flex;align-items:center;gap:12px;padding:14px 0;cursor:pointer}
-        .care-card summary::-webkit-details-marker{display:none}
-        .care-ic{flex:0 0 44px;height:44px;border-radius:14px;background:#eef7f4;display:flex;align-items:center;justify-content:center;font-size:24px}
-        .care-head{flex:1;display:grid;gap:2px;word-break:keep-all}
-        .care-head b{font-size:16px;font-weight:900;color:#10283a}
-        .care-head small{font-size:13px;color:#6b7f7a;font-weight:600}
-        .care-arrow{font-size:20px;color:#9aa8a5;transition:transform .2s}
-        .care-card[open] .care-arrow{transform:rotate(180deg)}
-        .care-card ul{margin:0 0 10px;padding-left:18px;display:grid;gap:6px;font-size:14px;line-height:1.6;color:#2f4d47;word-break:keep-all}
-        .care-meta{margin:4px 0;font-size:13px;font-weight:800;color:#085041}
-        .care-book{width:100%;margin:10px 0 16px}
-        .care-gallery-title{margin-top:18px}
-        .vip-hero-chip{display:flex;align-items:center;gap:8px;width:100%;margin-top:12px;padding:12px 14px;border:0;border-radius:14px;background:#ffd34d;color:#3a2a00;font:inherit;font-size:14px;cursor:pointer;text-align:left;box-shadow:0 6px 16px rgba(255,180,0,.35);animation:vipPulse 2.4s ease-in-out infinite}
-        .vip-hero-chip b{flex:1;font-weight:900}
-        .vip-hero-chip span{font-weight:800;font-size:13px;white-space:nowrap}
-        @keyframes vipPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
-        @media (prefers-reduced-motion:reduce){.vip-hero-chip{animation:none}}
-        .vip-link{cursor:pointer}
-        .vip-card-more{display:inline-block;margin-top:10px;font-size:13px;font-weight:900;color:#085041;background:#fff;padding:6px 12px;border-radius:999px}
-        .vip-nudge{border:2px solid #ffd34d;background:#fffaf0;border-radius:16px;padding:14px;display:grid;gap:8px}
-        .vip-nudge p{margin:0;font-size:14px;line-height:1.6;color:#3a2a00;font-weight:700}
-        .vip-nudge b{color:#d64545}
-        .vip-nudge-btns{display:flex;gap:8px;flex-wrap:wrap}
-        .vip-nudge-btns button{font-size:13px;padding:9px 12px}
-        .vip-banner-wrap{padding:0 16px}
-        .vip-banner{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;cursor:pointer;margin:6px 0 22px;padding:18px 20px;border-radius:20px;background:linear-gradient(135deg,#0b2a3a,#085041);color:#fff;box-shadow:0 8px 24px rgba(8,80,65,.22);font:inherit}
-        .vip-banner-ic{font-size:30px;flex:0 0 auto}
-        .vip-banner-txt{flex:1;display:grid;gap:3px;word-break:keep-all}
-        .vip-banner-txt b{font-size:18px;font-weight:900}
-        .vip-banner-txt small{font-size:13px;opacity:.85;font-weight:600;line-height:1.45}
-        .vip-banner-go{font-size:13px;font-weight:800;background:#ffd34d;color:#3a2a00;padding:7px 12px;border-radius:999px;white-space:nowrap}
-        .vip-hero{background:linear-gradient(135deg,#0b2a3a,#085041);color:#fff;border-radius:24px;padding:30px 24px;margin-bottom:18px}
-        .vip-kicker{font-size:12px;letter-spacing:3px;font-weight:800;color:#7fe0c8}
-        .vip-hero h1,.vip-hero h2{font-size:30px;font-weight:900;margin:8px 0 6px}
-        .vip-hero p{font-size:15px;opacity:.88;line-height:1.6;margin:0}
-        .vip-calc{background:#fff;border:1px solid #dfe8e6;border-radius:20px;padding:20px;margin-bottom:22px}
-        .vip-calc h3{font-size:18px;font-weight:900;margin:0 0 12px;color:#10283a}
-        .vip-select{display:grid;gap:6px;font-size:13px;font-weight:800;color:#5c6b68;margin-bottom:14px}
-        .vip-select select{border:1px solid #cfdcda;border-radius:12px;padding:11px 12px;font:inherit;font-size:15px;background:#fbfdfd}
-        .vip-calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
-        .vip-plan{border:1px solid #d5ece5;background:#f4fbf8;border-radius:16px;padding:14px}
-        .vip-plan h5{margin:0 0 8px;font-size:15px;font-weight:900;color:#085041}
-        .vip-plan .row{display:flex;justify-content:space-between;font-size:13px;font-weight:700;color:#5c6b68;margin:3px 0}
-        .vip-plan .row s{color:#9aa8a5}
-        .vip-plan .row b{color:#10283a}
-        .vip-plan .save{margin-top:8px;font-size:17px;font-weight:900;color:#d64545}
-        .vip-calc-note{margin:12px 0 0;font-size:12px;color:#6b7f7a;line-height:1.6}
-        .vip-badge{display:inline-block;background:#ffb020;color:#3a2a00;font-weight:900;font-size:13px;padding:6px 14px;border-radius:999px;margin:4px 0 8px}
-        .vip-title{font-size:22px;font-weight:900;margin:0 0 14px;color:#10283a;line-height:1.35}
-        .vip-benefits{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-        .vip-card{background:#fff;border:1px solid #dfe8e6;border-radius:18px;padding:18px}
-        .vip-ic{display:flex;width:48px;height:48px;align-items:center;justify-content:center;font-size:26px;background:#eef7f4;border-radius:14px;margin-bottom:10px}
-        .vip-card h4{margin:0 0 6px;font-size:17px;font-weight:900;color:#10283a}
-        .vip-card p{margin:0;font-size:14px;line-height:1.6;color:#4a5f5b}
-        .vip-card b{color:#085041}
-        .vip-worth{display:block;margin-top:6px;font-size:12px;color:#6b7f7a;font-weight:700}
-        .vip-note{margin:14px 0 18px;font-size:12px;color:#6b7f7a}
-        .vip-cta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
-        @media(max-width:420px){.vip-cta{grid-template-columns:1fr}.vip-banner{gap:10px;padding:16px 14px}.vip-banner-ic{font-size:26px}.vip-banner-txt b{font-size:16px}.vip-banner-txt small{font-size:12px}.vip-banner-go{font-size:12px;padding:6px 10px}}
-        .pw-note{margin:10px 2px 0;font-size:13px;font-weight:600;color:#6b7f7a;line-height:1.55}
-        .pw-lines li{
-          display:flex;align-items:center;justify-content:space-between;gap:14px;
-          margin:0;padding:12px 14px;font-size:.92rem;
-        }
-        .pw-lines li + li{border-top:1px solid var(--pw-line)}
-        .pw-lines li::before{content:none}
-        .pw-lines dfn{font-style:normal;color:var(--pw-muted)}
-        .pw-lines dfn small{display:block;font-size:.72rem;opacity:.85}
-        .pw-lines b{font-size:1.02rem;font-weight:900;letter-spacing:-.02em;white-space:nowrap}
-
-        @media (prefers-reduced-motion:reduce){.pw *{transition:none!important}}
-        </style>
 
         <section class="pw" id="priceAccordion" aria-label="차종별 요금">
           <div class="pw-list">
@@ -698,27 +503,6 @@ html.ahc-admin .topbar .icon-btn[data-go="admin"]{display:inline-flex}
           </div>
         </section>
 
-        <script>
-        (function(){
-          var root = document.getElementById('priceAccordion');
-          if(!root) return;
-          root.addEventListener('click', function(e){
-            var btn = e.target && e.target.closest ? e.target.closest('.pw-row') : null;
-            if(!btn || !root.contains(btn)) return;
-            var item = btn.parentNode;
-            var open = item.classList.contains('is-open');
-            var items = root.querySelectorAll('.pw-item');
-            for(var i=0;i<items.length;i++){
-              items[i].classList.remove('is-open');
-              items[i].querySelector('.pw-row').setAttribute('aria-expanded','false');
-            }
-            if(!open){
-              item.classList.add('is-open');
-              btn.setAttribute('aria-expanded','true');
-            }
-          });
-        })();
-        </script>
         <!-- ▲▲▲ 차종별 요금 아코디언 끝 ▲▲▲ -->
 
         <div class="two-col">
@@ -1130,38 +914,9 @@ html.ahc-admin .topbar .icon-btn[data-go="admin"]{display:inline-flex}
     </nav>
   </div>
   <div id="toast" class="toast"></div>
-  <script>
-  /* 세차팁 기능 제거 (2026-09-20)
-     - 이미 저장된 #/tips 주소나 남아 있는 data-go="tips" 링크로 들어오면 홈으로 되돌립니다. */
-  (function(){
-    function killTips(){
-      if(location.hash && location.hash.replace('#/','').replace('#','') === 'tips'){
-        location.hash = '#/home';
-      }
-    }
-    killTips();
-    window.addEventListener('hashchange', killTips);
-    document.addEventListener('click', function(e){
-      var t = e.target && e.target.closest ? e.target.closest('[data-go="tips"]') : null;
-      if(t){ e.preventDefault(); e.stopPropagation(); }
-    }, true);
-  })();
-  </script>
-  <script src="compat-fix.js?v=20261013-a11y1"></script>
-  <script src="restore-classic.js?v=20260916-2"></script>
   <script src="prices.js?v=20261013a"></script>
-  <script src="app.js?v=20261013-vipcalc1"></script>
+  <script src="app.js?v=20261013m"></script>
   <script src="supabase-integration.js?v=20261013-a11y1"></script>
-  <script src="vip-refresh.js?v=20261010-vip4" defer></script>
-  <script src="booking-simple.js?v=20261010-simple1" defer></script>
-  <script src="booking-lookup.js?v=20261013-a11y1" defer></script>
-  <script src="member-dashboard.js?v=20261011-simple2" defer></script>
-  <script src="vip-contract-admin.js?v=20261011-ext1" defer></script>
-  <script src="admin-calendar.js?v=20261011-cal1" defer></script>
-  <script src="member-link-admin.js?v=20261010-link2" defer></script>
-  <script src="dual-access.js?v=20261010-both3" defer></script>
-<script id="hash-go">
-window.addEventListener('load',function(){try{var h=(location.hash||'').replace(/^#\/?/,'');if(h&&h!=='home'&&document.getElementById(h)&&typeof go==='function'){setTimeout(function(){go(h)},50)}}catch(e){}});
-</script>
+  <script src="features.js?v=20261013m" defer></script>
 </body>
 </html>

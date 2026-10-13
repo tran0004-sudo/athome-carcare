@@ -1,3 +1,129 @@
+/* 앳홈카케어 화면 기능 — prices.js 다음, supabase-integration.js 앞에 불러옵니다.
+   원래 파일 순서: (세차팁 제거) → compat-fix.js → restore-classic.js → app.js → (요금표 펼침) → (주소 이동) */
+
+/* ===== 세차팁 제거 (index.html) ===== */
+try {
+/* 세차팁 기능 제거 (2026-09-20)
+     - 이미 저장된 #/tips 주소나 남아 있는 data-go="tips" 링크로 들어오면 홈으로 되돌립니다. */
+  (function(){
+    function killTips(){
+      if(location.hash && location.hash.replace('#/','').replace('#','') === 'tips'){
+        location.hash = '#/home';
+      }
+    }
+    killTips();
+    window.addEventListener('hashchange', killTips);
+    document.addEventListener('click', function(e){
+      var t = e.target && e.target.closest ? e.target.closest('[data-go="tips"]') : null;
+      if(t){ e.preventDefault(); e.stopPropagation(); }
+    }, true);
+  })();
+} catch (e) { console.error('[세차팁 제거 (index.html)]', e); }
+
+/* ===== compat-fix.js ===== */
+try {
+(() => {
+  try {
+    const heroImage = document.querySelector('#home .hero-image');
+    if (heroImage) {
+      heroImage.src = 'assets/gv80-hero-final.jpg?v=20260916-6';
+      heroImage.removeAttribute('srcset');
+      heroImage.decoding = 'async';
+      heroImage.addEventListener('error', () => { heroImage.src = 'assets/hero.svg?v=20260916-fallback'; }, { once: true });
+    }
+
+    const marker = 'athomeCompatRestore20260916v3';
+    const storageKey = 'athomeCarCareDataV2';
+
+    if (localStorage.getItem(marker) !== '1') {
+      try {
+        const previous = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        const keep = {
+          settings: previous.settings || undefined,
+          inquiries: Array.isArray(previous.inquiries) ? previous.inquiries : []
+        };
+        Object.keys(keep).forEach((key) => keep[key] === undefined && delete keep[key]);
+        localStorage.setItem(storageKey, JSON.stringify(keep));
+        localStorage.removeItem('athomeClassicSectionsRestore20260916');
+      } catch (_) {
+        localStorage.removeItem(storageKey);
+        localStorage.removeItem('athomeClassicSectionsRestore20260916');
+      }
+      localStorage.setItem(marker, '1');
+    }
+
+    const settingsForm = document.querySelector('#settingsForm');
+    if (settingsForm && !settingsForm.querySelector('[name="area"]')) {
+      const area = document.createElement('input');
+      area.type = 'hidden';
+      area.name = 'area';
+      area.value = '대구·경산 전지역';
+      settingsForm.appendChild(area);
+    }
+
+    const galleryForm = document.querySelector('#galleryForm');
+    if (galleryForm && !galleryForm.querySelector('[name="note"]')) {
+      const note = document.createElement('input');
+      note.type = 'hidden';
+      note.name = 'note';
+      galleryForm.appendChild(note);
+      const description = galleryForm.querySelector('[name="description"]');
+      if (description) {
+        const sync = () => { note.value = description.value || ''; };
+        description.addEventListener('input', sync);
+        galleryForm.addEventListener('submit', sync, true);
+      }
+    }
+
+    const ensure = (selector, tag, attrs = {}) => {
+      if (document.querySelector(selector)) return;
+      const el = document.createElement(tag);
+      Object.entries(attrs).forEach(([key, value]) => {
+        if (key === 'type') el.type = value;
+        else el.setAttribute(key, value);
+      });
+      el.style.display = 'none';
+      document.body.appendChild(el);
+    };
+
+    ensure('#adminReviewForm', 'form', { id: 'adminReviewForm' });
+    ensure('#exportBtn', 'button', { id: 'exportBtn', type: 'button', 'aria-label': '데이터 내보내기', 'aria-hidden': 'true', tabindex: '-1' });
+    ensure('#importInput', 'input', { id: 'importInput', type: 'file', 'aria-label': '데이터 가져오기', 'aria-hidden': 'true', tabindex: '-1' });
+    ensure('#resetBtn', 'button', { id: 'resetBtn', type: 'button', 'aria-label': '초기화', 'aria-hidden': 'true', tabindex: '-1' });
+  } catch (error) {
+    console.warn('호환성 보정 중 오류', error);
+  }
+})();
+} catch (e) { console.error('[compat-fix.js]', e); }
+
+/* ===== restore-classic.js ===== */
+try {
+(() => {
+  try {
+    const marker = 'athomeForceClassicSections20260916v2';
+    if (localStorage.getItem(marker) === '1') return;
+
+    const storageKey = 'athomeCarCareDataV2';
+    let keep = { inquiries: [] };
+
+    try {
+      const previous = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      if (previous.settings) keep.settings = previous.settings;
+      if (Array.isArray(previous.inquiries)) keep.inquiries = previous.inquiries;
+    } catch (_) {}
+
+    // Remove only locally edited gallery/review/tip data. app.js will refill
+    // those sections from the published data/content.json defaults.
+    localStorage.setItem(storageKey, JSON.stringify(keep));
+    localStorage.removeItem('athomeClassicSectionsRestore20260916');
+    localStorage.setItem(marker, '1');
+  } catch (error) {
+    console.warn('기존 홈 콘텐츠 초기화 중 오류', error);
+  }
+})();
+} catch (e) { console.error('[restore-classic.js]', e); }
+
+/* ===== app.js (본체 — 전역 함수 go 등을 만들기 때문에 감싸지 않음) ===== */
 const STORAGE_KEY = 'athomeCarCareDataV2';
 const CONTENT_URL = './data/content.json';
 const SECTION_RESTORE_KEY = 'athomeClassicSectionsRestore20260917-plate';
@@ -890,3 +1016,30 @@ document.addEventListener('click', (e) => {
   setTimeout(() => box?.closest('label')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
 });
 
+/* ===== 요금 탭 차종 펼침 (index.html) ===== */
+try {
+(function(){
+          var root = document.getElementById('priceAccordion');
+          if(!root) return;
+          root.addEventListener('click', function(e){
+            var btn = e.target && e.target.closest ? e.target.closest('.pw-row') : null;
+            if(!btn || !root.contains(btn)) return;
+            var item = btn.parentNode;
+            var open = item.classList.contains('is-open');
+            var items = root.querySelectorAll('.pw-item');
+            for(var i=0;i<items.length;i++){
+              items[i].classList.remove('is-open');
+              items[i].querySelector('.pw-row').setAttribute('aria-expanded','false');
+            }
+            if(!open){
+              item.classList.add('is-open');
+              btn.setAttribute('aria-expanded','true');
+            }
+          });
+        })();
+} catch (e) { console.error('[요금 탭 차종 펼침 (index.html)]', e); }
+
+/* ===== 주소로 화면 이동 (index.html #hash-go) ===== */
+try {
+window.addEventListener('load',function(){try{var h=(location.hash||'').replace(/^#\/?/,'');if(h&&h!=='home'&&document.getElementById(h)&&typeof go==='function'){setTimeout(function(){go(h)},50)}}catch(e){}});
+} catch (e) { console.error('[주소로 화면 이동 (index.html #hash-go)]', e); }

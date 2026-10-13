@@ -1,9 +1,10 @@
-const CACHE = 'athome-carcare-v187';
+const CACHE = 'athome-carcare-v200';
 const ASSETS = [
-  './', './index.html', './styles.css?v=20260916-1line', './home-polish.css?v=20260916-nohero1', './restore-classic.js?v=20260916-2', './compat-fix.js?v=20260916-3', './app.js?v=20261012-v69', './supabase-integration.js?v=20261006-kakaosplit', './manifest.webmanifest?v=20261001-icon7', './data/content.json',
-'./icons/icon-192.png?v=20261001-icon7', './icons/icon-512.png?v=20261001-icon7', './icons/icon-maskable-512.png?v=20261001-icon7',
-  './assets/partner-recruit.jpg?v=20260919', './assets/wheel-before.svg', './assets/wheel-after.svg', './assets/body-before.svg', './assets/body-after.svg',
-  './assets/interior-before.svg', './assets/interior-after.svg'
+  './', './index.html', './manifest.webmanifest?v=20261001-icon7', './data/content.json',
+  './core.css?v=20261013m', './features.css?v=20261013m',
+  './prices.js?v=20261013a', './app.js?v=20261013m', './supabase-integration.js?v=20261013-a11y1', './features.js?v=20261013m',
+  './icons/icon-192.png?v=20261001-icon7', './icons/icon-512.png?v=20261001-icon7', './icons/icon-maskable-512.png?v=20261001-icon7',
+  './privacy.html', './price.html'
 ];
 
 self.addEventListener('install', (event) => {
@@ -18,36 +19,6 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-async function withSupabaseIntegration(response) {
-  if (!response) return response;
-  let html = await response.text();
-
-  html = html
-    .replaceAll('manifest.webmanifest?v=20260915-7', 'manifest.webmanifest?v=20261001-icon7')
-    .replaceAll('icons/icon.svg?v=20260915-7', 'icons/icon-192.png?v=20261001-icon7')
-    .replaceAll('manifest.webmanifest?v=20260919-icon5', 'manifest.webmanifest?v=20261001-icon7')
-    .replaceAll('icons/icon-192.png?v=20260919-icon5', 'icons/icon-192.png?v=20261001-icon7');
-
-  if (!html.includes('compat-fix.js')) {
-    if (html.includes('<script src="restore-classic.js')) {
-      html = html.replace('<script src="restore-classic.js', '<script src="compat-fix.js?v=20260916-3"></script>\n  <script src="restore-classic.js');
-    } else if (html.includes('<script src="app.js')) {
-      html = html.replace('<script src="app.js', '<script src="compat-fix.js?v=20260916-3"></script>\n  <script src="app.js');
-    } else {
-      html = html.replace('</body>', '  <script src="compat-fix.js?v=20260916-3"></script>\n</body>');
-    }
-  }
-
-  if (!html.includes('supabase-integration.js')) {
-    html = html.replace('</body>', '  <script src="supabase-integration.js"></script>\n</body>');
-  }
-
-  const headers = new Headers(response.headers);
-  headers.delete('content-length');
-  headers.delete('content-encoding');
-  return new Response(html, { status: response.status, statusText: response.statusText, headers });
-}
-
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
@@ -59,10 +30,10 @@ self.addEventListener('fetch', (event) => {
       fetch(event.request, { cache: 'no-store' })
         .then((response) => {
           const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put('./index.html', copy));
-          return withSupabaseIntegration(response);
+          if (response.ok) caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+          return response;
         })
-        .catch(async () => withSupabaseIntegration(await caches.match('./index.html')))
+        .catch(async () => (await caches.match(event.request, { ignoreSearch: true })) || caches.match('./index.html'))
     );
     return;
   }
