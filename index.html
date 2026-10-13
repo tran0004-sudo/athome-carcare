@@ -48,7 +48,24 @@
 @media(max-width:640px){.booking-contact-strip{grid-template-columns:1fr!important}}
 @media(max-width:430px){#home .hero-buttons [data-go="booking"]{grid-column:1/-1}}
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.topbar .icon-btn[data-go="admin"]{display:none}
+html.ahc-admin .topbar .icon-btn[data-go="admin"]{display:inline-flex}
 </style>
+<script>
+/* 콘텐츠 관리(⚙️)는 고객에게 숨기고, 관리자만 보이게 합니다.
+   · 주소 끝에 #/admin 을 붙여 들어오면 관리자 화면이 열립니다.
+   · 이 기기에서 관리자 로그인을 한 번 하면 그 뒤로는 ⚙️ 버튼이 보입니다. */
+(function(){
+  function mark(){try{if(localStorage.getItem('athomeCarcareAdminSession')||/^#\/?admin/.test(location.hash))document.documentElement.classList.add('ahc-admin');}catch(e){}}
+  mark();
+  window.addEventListener('hashchange',function(){
+    mark();
+    if(/^#\/?admin/.test(location.hash)&&typeof go==='function')go('admin');
+  });
+  window.addEventListener('storage',mark);
+  document.addEventListener('submit',function(){setTimeout(mark,1500)},true);
+})();
+</script>
 </head>
 <body>
   <div class="app-shell">
