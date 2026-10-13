@@ -208,6 +208,20 @@ function mergePublishedGallery() {
   }
 }
 
+/* 새로 게시한 후기가 기존 방문자 화면에도 나타나도록 병합 (id 기준, 새 후기는 앞에) */
+function mergePublishedReviews() {
+  try {
+    const published = (publishedState && publishedState.reviews) || [];
+    const have = new Set((state.reviews || []).map((r) => r.id));
+    const fresh = published.filter((r) => r.id && !have.has(r.id));
+    if (!fresh.length) return;
+    state.reviews = [...deepClone(fresh), ...(state.reviews || [])];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (error) {
+    console.warn('후기 병합 중 오류가 발생했습니다.', error);
+  }
+}
+
 function restorePublishedSectionsOnce() {
   try {
     if (localStorage.getItem(SECTION_RESTORE_KEY) === '1') return;
@@ -894,6 +908,7 @@ async function init() {
   state = loadLocal();
   restorePublishedSectionsOnce();
   mergePublishedGallery();
+  mergePublishedReviews();
   if (publishedState && Array.isArray(publishedState.promos) && publishedState.promos.length) {
     state.promos = deepClone(publishedState.promos);
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
