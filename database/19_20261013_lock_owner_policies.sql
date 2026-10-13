@@ -1,7 +1,7 @@
 -- ============================================================
 -- 로그인 회원 권한 정리 (2026-10-13)
 -- Supabase → SQL Editor 에서 "전체 선택 후 한 번에" 실행하세요.
--- 실행 전 조건: 20261010_kakao_member_link.sql 이 적용되어 있어야 합니다
+-- 실행 전 조건: 14_20261010_kakao_member_link.sql 이 적용되어 있어야 합니다
 --   (사장님 계정이 staff_profiles 에 role='owner' 로 등록되어 있어야 함).
 --
 -- 바뀌는 것
@@ -18,7 +18,7 @@ begin;
 do $$
 begin
   if not exists (select 1 from public.staff_profiles where role = 'owner' and active) then
-    raise exception 'owner 계정이 없습니다. 20261010_kakao_member_link.sql 1단계를 먼저 실행하세요. (전체 취소됨)';
+    raise exception 'owner 계정이 없습니다. 14_20261010_kakao_member_link.sql 1단계를 먼저 실행하세요. (전체 취소됨)';
   end if;
 end $$;
 

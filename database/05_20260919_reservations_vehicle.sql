@@ -1,5 +1,5 @@
 -- 집앞세차-앳홈 카케어 | 차량번호·주소 저장
--- Supabase SQL Editor에서 실행하세요. (reservations-upgrade.sql 이후)
+-- Supabase SQL Editor에서 실행하세요. (01_20260917_reservations_upgrade.sql 이후)
 
 alter table public.reservations add column if not exists plate   text;  -- 차량 번호
 alter table public.reservations add column if not exists address text;  -- 상세 주소(동·호수·주차 위치)

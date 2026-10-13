@@ -33,6 +33,7 @@
 | `features.js` | 예약 단계 안내, 비회원 예약 조회, 월회원 화면, 관리자 계약·달력·번호 연결 (나중에 실행) |
 
 `features.js`와 `app.js` 앞부분은 원래 따로 있던 파일을 같은 순서로 합친 것이라, 각 부분이 `/* ===== 원래파일명 ===== */`으로 표시되어 있고 한 부분에서 오류가 나도 나머지는 계속 동작하도록 감싸 두었습니다.
+DB SQL은 `database/` 폴더에 실행 순서 번호를 붙여 모아 두었습니다. 순서와 설명은 `database/README.md`를 보세요.
 GitHub Actions는 `blog-sync`(블로그 작업 일지)와 `sync-prices`(요금·오프라인 목록 동기화) 두 개만 사용합니다.
 `index.html`에서 파일 버전(`?v=`)을 올리면 `service-worker.js`의 미리 저장 목록과 캐시 번호는 Actions가 자동으로 맞춥니다. 직접 확인: `node scripts/sync-sw.js --check`
 

@@ -1,7 +1,7 @@
 # 카카오 로그인 설정 순서 (사장님용)
 
 ## 1. Supabase SQL 실행 (먼저!)
-1. `database/20261010_kakao_member_link.sql` 파일을 연다.
+1. `database/14_20261010_kakao_member_link.sql` 파일을 연다.
 2. 맨 위 `여기에_관리자_이메일@example.com` 을 **사장님 관리자 로그인 이메일**로 바꾼다.
 3. Supabase → SQL Editor 에 전체를 붙여넣고 **한 번에 Run**. (오류가 나면 전체가 취소되어 안전하다.)
 

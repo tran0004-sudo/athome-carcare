@@ -9,7 +9,7 @@
 
 Supabase 대시보드 → **SQL Editor** → **New query**
 
-저장소의 `push-subscriptions.sql` 내용을 붙여넣고 **Run**.
+저장소의 `07_20260920_push_subscriptions.sql` 내용을 붙여넣고 **Run**.
 
 `push_subscriptions` 테이블이 만들어집니다. 관리자 기기 정보만 저장되며,
 로그인한 관리자 외에는 접근할 수 없습니다.

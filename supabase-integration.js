@@ -884,7 +884,7 @@ ${linkLines ? '\n' + linkLines : ''}
       renderReservations();
     } catch (err) {
       console.error(err);
-      toast('상태 변경에 실패했습니다. SQL 업그레이드(reservations-upgrade.sql)가 완료됐는지 확인해주세요.');
+      toast('상태 변경에 실패했습니다. SQL 업그레이드(01_20260917_reservations_upgrade.sql)가 완료됐는지 확인해주세요.');
       button.disabled = false; button.textContent = orig;
     }
   }
@@ -1393,7 +1393,7 @@ ${linkLines ? '\n' + linkLines : ''}
         loadCoupons();
       } catch (err) {
         console.error('쿠폰 발급 실패', err);
-        toast('쿠폰 발급에 실패했습니다. coupons-newmonthly.sql 실행 여부를 확인해주세요.');
+        toast('쿠폰 발급에 실패했습니다. 04_20260919_coupons_newmonthly.sql 실행 여부를 확인해주세요.');
       } finally {
         btn.disabled = false;
       }
@@ -1414,7 +1414,7 @@ ${linkLines ? '\n' + linkLines : ''}
       renderCoupons(await r.json());
     } catch (err) {
       console.error('쿠폰 조회 실패', err);
-      box.innerHTML = '<div class="reservation-empty">쿠폰 테이블이 아직 없거나 조회에 실패했습니다. coupons.sql을 실행했는지 확인해주세요.</div>';
+      box.innerHTML = '<div class="reservation-empty">쿠폰 테이블이 아직 없거나 조회에 실패했습니다. 03_20260919_coupons.sql을 실행했는지 확인해주세요.</div>';
     }
   }
 
@@ -1918,7 +1918,7 @@ ${linkLines ? '\n' + linkLines : ''}
       renderStats(await r.json(), since);
     } catch (err) {
       console.error('방문 기록 조회 실패', err);
-      box.innerHTML = '<div class="reservation-empty">방문 기록 테이블이 아직 없거나 조회에 실패했습니다. visits.sql을 실행했는지 확인해주세요.</div>';
+      box.innerHTML = '<div class="reservation-empty">방문 기록 테이블이 아직 없거나 조회에 실패했습니다. 08_20260921_visits.sql을 실행했는지 확인해주세요.</div>';
     }
   }
 
@@ -2045,7 +2045,7 @@ ${linkLines ? '\n' + linkLines : ''}
         : '<div class="reservation-empty">등록된 후기가 없습니다. 위 폼으로 첫 후기를 추가해보세요.</div>';
     } catch (err) {
       console.error('후기 목록 조회 실패', err);
-      listEl.innerHTML = '<div class="reservation-empty">후기 목록을 불러오지 못했습니다. reviews.sql을 실행했는지 확인해주세요.</div>';
+      listEl.innerHTML = '<div class="reservation-empty">후기 목록을 불러오지 못했습니다. 11_20260927_reviews.sql을 실행했는지 확인해주세요.</div>';
     }
   }
 
@@ -2543,7 +2543,7 @@ ${linkLines ? '\n' + linkLines : ''}
     }
   }
 
-  // reservations-upgrade.sql 미실행 시 대비 — allRows 에서 직접 집계
+  // 01_20260917_reservations_upgrade.sql 미실행 시 대비 — allRows 에서 직접 집계
   function buildSummaryFromRows() {
     const map = {};
     allRows.forEach(r => {
@@ -2738,7 +2738,7 @@ ${linkLines ? '\n' + linkLines : ''}
         body: JSON.stringify({ id }),
       }).catch(() => null);
       if (!r || !r.ok) {
-        toast('삭제 저장에 실패했습니다. Supabase에 gallery-hidden.sql을 먼저 실행해 주세요.');
+        toast('삭제 저장에 실패했습니다. Supabase에 09_20260924_gallery_hidden.sql을 먼저 실행해 주세요.');
         if (btn) btn.disabled = false;
         return;
       }
@@ -2789,7 +2789,7 @@ ${linkLines ? '\n' + linkLines : ''}
         `${SUPABASE_URL}/rest/v1/reviews?select=id,author,car,rating,text&visible=eq.true&order=created_at.desc&limit=30`,
         { headers: api(null) }
       );
-      if (!r.ok) return;   // reviews.sql을 아직 안 돌렸으면 조용히 무시
+      if (!r.ok) return;   // 11_20260927_reviews.sql을 아직 안 돌렸으면 조용히 무시
       extraReviews = await r.json();
       if (extraReviews.length && typeof state !== 'undefined' && state) {
         const staticIds = new Set((state.reviews || []).map(x => x.id));

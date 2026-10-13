@@ -34,7 +34,7 @@
 - [ ] 모바일 브라우저에서 예약 버튼 및 목록 반응형 점검
 
 ## 파일
-- `database/20261010_vip_contract_ledger.sql`: 재적용 가능한 데이터베이스 DDL 및 RPC
+- `database/13_20261010_vip_contract_ledger.sql`: 재적용 가능한 데이터베이스 DDL 및 RPC
 - `vip-contract-admin.js`: 관리자 원장/기록 연결 UI
 - `vip-contract.css`: 계약 UI 반응형 스타일
 - `member-dashboard.js`: 본인인증 후 계약 현황 UI

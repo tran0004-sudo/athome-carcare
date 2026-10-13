@@ -39,4 +39,4 @@
 - `index.html`: 회원 화면, 홈·VIP 접근점, 하단 '내 관리'
 - `member-dashboard.css`: 반응형 대시보드
 - `member-dashboard.js`: Supabase Phone OTP, 토큰 갱신 및 안전한 조회
-- `database/20261010_verified_member_dashboard.sql`: 서버 RPC 및 권한 설정
+- `database/12_20261010_verified_member_dashboard.sql`: 서버 RPC 및 권한 설정
