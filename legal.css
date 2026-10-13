@@ -1,0 +1,18 @@
+/* 개인정보 동의 · 사업자 정보 (2026-10-13) */
+.privacy-consent{border:1px solid var(--line,#e3ebe8);border-radius:14px;background:#f7fbfa;padding:12px 14px}
+.privacy-consent .pc-check{display:flex!important;flex-direction:row!important;align-items:flex-start;gap:10px;margin:0;font-size:15px;font-weight:600;color:#17201d;cursor:pointer}
+.privacy-consent .pc-check input{width:20px!important;height:20px;min-height:0;margin:2px 0 0;padding:0;flex:0 0 auto;accent-color:#087C68}
+.privacy-consent .pc-check b{color:#087C68}
+.privacy-consent .pc-detail{margin-top:8px;font-size:13px;color:#5f6b67}
+.privacy-consent .pc-detail summary{cursor:pointer;font-weight:700;color:#087C68;list-style-position:inside}
+.privacy-consent .pc-detail dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:10px 0 8px}
+.privacy-consent .pc-detail dt{font-weight:700;color:#17201d;white-space:nowrap}
+.privacy-consent .pc-detail dd{margin:0}
+.privacy-consent .pc-detail p{margin:0;line-height:1.6}
+.form-privacy-note{margin:0;font-size:12px;color:#5f6b67;line-height:1.6}
+.biz-footer{max-width:1100px;margin:28px auto 0;padding:20px 16px 8px;border-top:1px solid var(--line,#e3ebe8);text-align:center;font-size:12px;line-height:1.8;color:#6b7774;word-break:keep-all}
+.biz-footer p{margin:0}
+.biz-footer b{color:#33413d}
+.biz-footer a{color:inherit}
+.biz-footer a b{color:#087C68}
+#admin.active ~ .biz-footer{display:none}

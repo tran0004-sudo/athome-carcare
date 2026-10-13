@@ -1270,7 +1270,7 @@ ${linkLines ? '\n' + linkLines : ''}
       service_type:   normalizeService(exactSvc),
       preferred_date: fd.get('preferredDate') || null,
       preferred_time: fd.get('preferredTime') || null,
-      memo: `${bookingIntentNote}\n[희망 서비스: ${exactSvc}]${options.length ? `\n[추가 옵션: ${options.join(', ')}]` : ''}${promoLabels.length ? `\n[적용 혜택: ${promoLabels.join(', ')}]` : ''}${referrer ? `\n[추천인: ${referrer}]` : ''}${quoteTotal && quoteTotal !== '-' ? `\n[예상 금액: ${quoteTotal}]` : ''}${memo ? `\n${memo}` : ''}`,
+      memo: `${bookingIntentNote}${fd.get('privacyConsent') ? `\n[개인정보 수집·이용 동의: ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}]` : ''}\n[희망 서비스: ${exactSvc}]${options.length ? `\n[추가 옵션: ${options.join(', ')}]` : ''}${promoLabels.length ? `\n[적용 혜택: ${promoLabels.join(', ')}]` : ''}${referrer ? `\n[추천인: ${referrer}]` : ''}${quoteTotal && quoteTotal !== '-' ? `\n[예상 금액: ${quoteTotal}]` : ''}${memo ? `\n${memo}` : ''}`,
       status: '접수',
     };
 

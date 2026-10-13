@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="member-dashboard.css?v=20261011-simple1" />
   <link rel="stylesheet" href="vip-contract.css?v=20261011-ext1" />
   <link rel="stylesheet" href="dual-access.css?v=20261010-both4" />
+  <link rel="stylesheet" href="legal.css?v=20261013b" />
   <title>대구·경산 월세차 정기관리 | 집앞세차 앳홈카케어</title>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"AutoWash","name":"집앞세차 앳홈카케어","alternateName":["앳홈카케어","At Home Car Care"],
@@ -938,6 +939,7 @@
             </select></label>
             <label>별점<select name="rating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
             <label class="span-2">후기<textarea name="text" rows="4" placeholder="이용후기를 적어주세요." required></textarea></label>
+            <p class="span-2 form-privacy-note">연락처를 적으시면 쿠폰 발급·사용 확인에만 쓰고 1년 뒤 삭제합니다. <a href="privacy.html" target="_blank" rel="noopener">개인정보처리방침</a></p>
             <button class="primary-btn span-2" type="submit">후기 등록</button>
           </form>
         </article>
@@ -1035,6 +1037,18 @@
             </div>
             <div class="span-2 vip-nudge hidden" id="vipNudge" data-vip-step="1"></div>
             <div class="span-2 booking-wizard-controls"><button type="button" class="secondary-btn" id="wizardPrev" hidden>← 이전 단계</button><button type="button" class="primary-btn" id="wizardNext">다음: 방문 정보 입력 →</button></div>
+            <div class="span-2 privacy-consent" data-vip-step="2">
+              <label class="pc-check"><input type="checkbox" name="privacyConsent" value="동의" required><span><b>[필수]</b> 개인정보 수집·이용에 동의합니다.</span></label>
+              <details class="pc-detail">
+                <summary>수집 항목·목적·보관기간 보기</summary>
+                <dl>
+                  <dt>수집 항목</dt><dd>이름, 휴대폰 번호, 아파트명, 상세 주소, 차종, 차량 번호 (선택: 희망 일시, 요청사항, 추천인 번호, 쿠폰 번호)</dd>
+                  <dt>이용 목적</dt><dd>예약 확인 연락, 방문 위치·차량 확인, 요금 안내, 작업 이력 관리, 쿠폰·추천 혜택 지급</dd>
+                  <dt>보관 기간</dt><dd>마지막 서비스 완료일로부터 1년 (월세차는 계약 종료 후 1년, 법령상 보존 의무가 있으면 그 기간)</dd>
+                </dl>
+                <p>동의하지 않으실 수 있으며, 이 경우 앱 예약 대신 전화·문자·카카오톡으로 예약하실 수 있습니다. 예약 정보는 데이터 보관을 위해 Supabase Inc.(미국) 서버로 전송됩니다. <a href="privacy.html" target="_blank" rel="noopener">개인정보처리방침 전체 보기</a></p>
+              </details>
+            </div>
             <button type="submit" class="primary-btn span-2">예약 접수하기</button>
             <p class="span-2 customer-guest-notice">접수 후 확인 연락을 드립니다. 월세차 등록·이용권 차감은 관리자 확인 후 반영됩니다.</p>
           </form>
@@ -1087,6 +1101,11 @@
           <article class="panel"><h2>세차 전·후 사진 추가</h2><form id="galleryForm" class="form-grid"><label>제목<input name="title" required></label><label>설명<input name="note"></label><label>Before 이미지<input type="file" accept="image/*" name="before" required></label><label>After 이미지<input type="file" accept="image/*" name="after" required></label><button class="primary-btn span-2" type="submit">사진 추가</button></form></article>
         </div>
       </section>
+      <footer class="biz-footer" aria-label="사업자 정보">
+        <p><b>앳홈 카케어</b> · 대표 조미연 · 사업자등록번호 601-50-01132</p>
+        <p>대구광역시 수성구 · <a href="tel:01083918999">010-8391-8999</a> · <a href="https://pf.kakao.com/_xbwxaaX" target="_blank" rel="noopener">카카오톡 @앳홈카케어</a></p>
+        <p><a href="privacy.html"><b>개인정보처리방침</b></a> · <a href="price.html">요금표</a></p>
+      </footer>
     </main>
 
     <nav class="bottom-nav" aria-label="하단 메뉴">
@@ -1114,7 +1133,7 @@
   <script src="compat-fix.js?v=20260929-area1"></script>
   <script src="restore-classic.js?v=20260916-2"></script>
   <script src="app.js?v=20261012-v69"></script>
-  <script src="supabase-integration.js?v=20261011-cal1"></script>
+  <script src="supabase-integration.js?v=20261013-privacy1"></script>
   <script src="vip-refresh.js?v=20261010-vip4" defer></script>
   <script src="booking-simple.js?v=20261010-simple1" defer></script>
   <script src="booking-lookup.js?v=20261010-lookup4" defer></script>
