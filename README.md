@@ -19,6 +19,16 @@
 - 공개용 `content.json` 내보내기
 - PWA 설치 및 오프라인 캐시
 
+## 요금 바꾸는 법
+
+요금은 **`prices.js` 한 파일**에서만 고칩니다. 숫자를 바꿔 main에 올리면 끝입니다.
+
+- 예약 화면 예상 금액, 옵션 칩, 월세차 절약 계산, 요금 탭 목록·옵션·관리 안내, 요금 페이지(`price.html`)가 모두 그 값을 읽어 그립니다.
+- GitHub Actions **요금 동기화**가 HTML의 기본 글자(검색엔진용)와 "외부세차 ○○원부터" 문구도 자동으로 맞춥니다.
+- 직접 확인: `node scripts/sync-prices.js --check` → "요금 일치"가 나오면 정상입니다.
+- 예외: 차종별 전체 요금표 **이미지**(`assets/info/price-table.jpg`)는 새로 만들어 올리고, `index.html`의 `price-table.jpg?v=` 숫자를 바꿔야 합니다.
+- 첫 달 할인·같은 아파트 할인 같은 **혜택 금액**은 요금이 아니라 `app.js` 맨 위 `DEFAULT_PROMOS`에 있습니다.
+
 ## GitHub Pages 배포
 
 저장소의 **Settings → Pages**에서 `Deploy from a branch`를 선택하고 `main / root`를 지정하면 됩니다.

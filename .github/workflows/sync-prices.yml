@@ -1,0 +1,36 @@
+name: 요금 동기화
+
+# prices.js(요금 원본)를 고치면 index.html·price.html의 기본 글자를 자동으로 맞춥니다.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'prices.js'
+      - 'index.html'
+      - 'price.html'
+      - 'scripts/sync-prices.js'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: prices.js 값으로 HTML 맞추기
+        run: node scripts/sync-prices.js
+      - name: 변경 사항 커밋
+        run: |
+          if git diff --quiet -- index.html price.html; then
+            echo "요금 일치 — 바꿀 곳 없음"; exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html price.html
+          git commit -m "요금 동기화 (prices.js 기준)"
+          git push
