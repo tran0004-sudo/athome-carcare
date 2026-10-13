@@ -2244,10 +2244,10 @@ ${linkLines ? '\n' + linkLines : ''}
           <button class="admin-sec-tab" data-sec="calendar">일정 달력</button>
           <button class="admin-sec-tab" data-sec="members">월 회원</button>
           <button class="admin-sec-tab" data-sec="coupons">쿠폰</button>
-          <button class="admin-sec-tab" data-sec="blog">블로그 초안</button>
+          <button class="admin-sec-tab" data-sec="blog" hidden>블로그 초안</button><!-- 숨김: 다시 쓰려면 hidden 제거 -->
           <button class="admin-sec-tab" data-sec="stats">방문 분석</button>
           <button class="admin-sec-tab" data-sec="gallery">전후 사진</button>
-          <button class="admin-sec-tab" data-sec="reviews">후기</button>
+          <button class="admin-sec-tab" data-sec="reviews" hidden>후기</button><!-- 숨김: 다시 쓰려면 hidden 제거 -->
           <button class="admin-sec-tab owner-only" data-sec="partners">협력점</button>
         </div>
         <!-- 예약 관리 -->
