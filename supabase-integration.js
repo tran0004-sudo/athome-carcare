@@ -1004,7 +1004,10 @@ ${linkLines ? '\n' + linkLines : ''}
     const s = await getSession();
     if (!s) return false;
     try {
-      const reg = await navigator.serviceWorker.ready;
+      // 등록이 아직 없으면 여기서 직접 등록 (ready가 영원히 기다리는 일 방지)
+      const reg = (await navigator.serviceWorker.getRegistration())
+        || await navigator.serviceWorker.register('./service-worker.js');
+      if (!reg.active) await navigator.serviceWorker.ready;
       const wantedKey = urlBase64ToUint8Array(VAPID_PUBLIC_KEY);
       let sub = await reg.pushManager.getSubscription();
 

@@ -920,9 +920,10 @@ async function init() {
   bindBookingExtras();
 
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () =>
-      navigator.serviceWorker.register('./service-worker.js').catch(console.warn)
-    );
+    // init은 content.json을 기다린 뒤 실행되므로 load가 이미 지났을 수 있음 → 그땐 바로 등록
+    const regSW = () => navigator.serviceWorker.register('./service-worker.js').catch(console.warn);
+    if (document.readyState === 'complete') regSW();
+    else window.addEventListener('load', regSW);
   }
 }
 
