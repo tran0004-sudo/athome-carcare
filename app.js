@@ -949,7 +949,7 @@ function renderVip() {
   const out = document.querySelector('#vipCalcResult');
   if (!sel || !out || typeof PRICE_TABLE === 'undefined') return;
   if (!sel.options.length) {
-    sel.innerHTML = Object.keys(PRICE_TABLE).map((c) => `<option${c === '중형 SUV' ? ' selected' : ''}>${c}</option>`).join('');
+    sel.innerHTML = Object.keys(PRICE_TABLE).map((c) => `<option${c === '대형 SUV' ? ' selected' : ''}>${c}</option>`).join('');
     sel.addEventListener('change', renderVip);
   }
   const p = PRICE_TABLE[sel.value];
