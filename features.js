@@ -210,87 +210,112 @@ try {
     });
     syncClass();
 
-    /* 3) 희망 일정 빠른 선택 */
+    /* 3) 희망 일정: 날짜 카드(2주) + 시간 버튼으로 한 번에 고르기 */
     var date = $('[name="preferredDate"]');
     var time = $('[name="preferredTime"]');
     if (date && time) {
-      date.min = ymd(new Date());
       var dateLabel = date.closest('label');
       var timeLabel = time.closest('label');
+      var WD = ['일', '월', '화', '수', '목', '금', '토'];
+      var HOURS = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
+      var today0 = new Date(); today0.setHours(0, 0, 0, 0);
+      var dayBtns = '';
+      for (var i = 0; i < 14; i++) {
+        var d = new Date(today0); d.setDate(d.getDate() + i);
+        var tag = i === 0 ? '오늘' : i === 1 ? '내일' : (d.getDate() === 1 ? (d.getMonth() + 1) + '월' : '');
+        dayBtns += '<button type="button" data-date="' + ymd(d) + '" class="' + (d.getDay() === 0 ? 'is-sun' : d.getDay() === 6 ? 'is-sat' : '') + '">' +
+          '<em>' + tag + '</em><b>' + d.getDate() + '</b><small>' + WD[d.getDay()] + '</small></button>';
+      }
+      function hourText(h) { return (h > 12 ? h - 12 : h) + '시'; }
+      function timeBtns(list) {
+        return list.map(function (h) { return '<button type="button" data-time="' + pad(h) + ':00">' + hourText(h) + '</button>'; }).join('');
+      }
       var wrap = document.createElement('div');
       wrap.className = 'span-2 bk-when';
       wrap.setAttribute('data-vip-step', '2');
       wrap.innerHTML =
-        '<span class="opt-title">희망 일정 <small class="field-hint">정하지 않으셔도 됩니다 (선택)</small></span>' +
-        '<div class="bk-chips" data-group="date" role="group" aria-label="희망 날짜">' +
-        '<button type="button" data-d="today">오늘</button><button type="button" data-d="tomorrow">내일</button>' +
-        '<button type="button" data-d="weekend">주말</button><button type="button" data-d="custom">직접</button></div>' +
-        '<div class="bk-chips" data-group="time" role="group" aria-label="희망 시간대">' +
-        '<button type="button" data-t="10:00">오전</button><button type="button" data-t="14:00">오후</button>' +
-        '<button type="button" data-t="18:00">저녁</button><button type="button" data-t="custom">직접</button></div>' +
-        '<div class="bk-custom"></div>';
+        '<span class="opt-title">희망 일정 <small class="field-hint">고르지 않으셔도 연락드려 정해요 (선택)</small></span>' +
+        '<div class="bk-sub"><b>날짜</b><span class="bk-month">' + (today0.getMonth() + 1) + '월</span></div>' +
+        '<div class="bk-days" role="group" aria-label="희망 날짜">' + dayBtns + '</div>' +
+        '<div class="bk-sub"><b>시간</b></div>' +
+        '<div class="bk-times" role="group" aria-label="희망 시간">' +
+          '<div class="bk-tgroup"><span>오전</span><div>' + timeBtns(HOURS.filter(function (h) { return h < 12; })) + '</div></div>' +
+          '<div class="bk-tgroup"><span>오후</span><div>' + timeBtns(HOURS.filter(function (h) { return h >= 12; })) + '</div></div>' +
+        '</div>' +
+        '<p class="bk-when-sum" aria-live="polite"></p>';
       dateLabel.parentNode.insertBefore(wrap, dateLabel);
-      var custom = wrap.querySelector('.bk-custom');
-      custom.appendChild(dateLabel);
-      custom.appendChild(timeLabel);
-      dateLabel.removeAttribute('data-vip-step');
-      timeLabel.removeAttribute('data-vip-step');
-      custom.hidden = true;
+      /* 원래 입력칸은 값 저장용으로만 남겨 둠 */
+      var store_ = document.createElement('div'); store_.hidden = true;
+      store_.appendChild(dateLabel); store_.appendChild(timeLabel); wrap.appendChild(store_);
+      dateLabel.removeAttribute('data-vip-step'); timeLabel.removeAttribute('data-vip-step');
 
-      var dChips = wrap.querySelector('[data-group="date"]');
-      var tChips = wrap.querySelector('[data-group="time"]');
-      function mark(group, btn) {
-        Array.prototype.forEach.call(group.children, function (b) { b.setAttribute('aria-pressed', b === btn ? 'true' : 'false'); });
+      var days = wrap.querySelector('.bk-days');
+      var times = wrap.querySelector('.bk-times');
+      var sum = wrap.querySelector('.bk-when-sum');
+      var monthEl = wrap.querySelector('.bk-month');
+
+      function sync() {
+        var dv = date.value, tv = time.value;
+        Array.prototype.forEach.call(days.children, function (b) { b.setAttribute('aria-pressed', b.dataset.date === dv ? 'true' : 'false'); });
+        /* 오늘을 고르면 이미 지난 시간(지금+1시간 이내)은 막음 */
+        var isToday = dv === ymd(new Date());
+        var limit = new Date().getHours() + 1;
+        Array.prototype.forEach.call(times.querySelectorAll('button'), function (b) {
+          var h = parseInt(b.dataset.time, 10);
+          b.disabled = isToday && h <= limit;
+          b.setAttribute('aria-pressed', b.dataset.time === (tv || '').slice(0, 5) ? 'true' : 'false');
+        });
+        if (dv) {
+          var p = dv.split('-'), dd = new Date(+p[0], +p[1] - 1, +p[2]);
+          monthEl.textContent = (dd.getMonth() + 1) + '월';
+          var t = '';
+          if (tv) { var h = parseInt(tv, 10); t = ' ' + (h < 12 ? '오전 ' : '오후 ') + (h > 12 ? h - 12 : h) + '시'; }
+          sum.innerHTML = '📅 <b>' + (dd.getMonth() + 1) + '월 ' + dd.getDate() + '일 (' + WD[dd.getDay()] + ')' + t + '</b> 방문 희망' + (tv ? '' : ' · 시간은 협의');
+        } else if (tv) {
+          var h2 = parseInt(tv, 10);
+          sum.innerHTML = '🕑 <b>' + (h2 < 12 ? '오전 ' : '오후 ') + (h2 > 12 ? h2 - 12 : h2) + '시</b> 희망 · 날짜를 골라 주세요';
+        } else {
+          sum.textContent = '날짜를 누르고 원하는 시간을 골라 주세요. 다시 누르면 취소돼요.';
+        }
       }
-      function resetChips() {
-        mark(dChips, null); mark(tChips, null); custom.hidden = true;
-      }
-      dChips.addEventListener('click', function (e) {
+      days.addEventListener('click', function (e) {
         var b = e.target.closest('button'); if (!b) return;
-        var now = new Date(), d = new Date(now), kind = b.dataset.d;
-        if (b.getAttribute('aria-pressed') === 'true') { date.value = ''; mark(dChips, null); fire(date, 'change'); return; }
-        if (kind === 'custom') { custom.hidden = false; mark(dChips, b); date.focus(); return; }
-        if (kind === 'tomorrow') d.setDate(d.getDate() + 1);
-        if (kind === 'weekend') { var w = now.getDay(); if (w >= 1 && w <= 5) d.setDate(d.getDate() + (6 - w)); }
-        date.value = ymd(d); mark(dChips, b); fire(date, 'change');
+        date.value = date.value === b.dataset.date ? '' : b.dataset.date;
+        var isToday = date.value === ymd(new Date());
+        if (isToday && time.value && parseInt(time.value, 10) <= new Date().getHours() + 1) { time.value = ''; fire(time, 'change'); }
+        fire(date, 'change'); sync();
       });
-      tChips.addEventListener('click', function (e) {
-        var b = e.target.closest('button'); if (!b) return;
-        if (b.getAttribute('aria-pressed') === 'true') { time.value = ''; mark(tChips, null); fire(time, 'change'); return; }
-        if (b.dataset.t === 'custom') { custom.hidden = false; mark(tChips, b); time.focus(); return; }
-        time.value = b.dataset.t; mark(tChips, b); fire(time, 'change');
+      times.addEventListener('click', function (e) {
+        var b = e.target.closest('button'); if (!b || b.disabled) return;
+        time.value = time.value.slice(0, 5) === b.dataset.time ? '' : b.dataset.time;
+        fire(time, 'change'); sync();
       });
-      form.addEventListener('reset', function () { setTimeout(resetChips, 0); });
+      date.addEventListener('change', sync); time.addEventListener('change', sync);
+      form.addEventListener('reset', function () { setTimeout(sync, 0); });
+      sync();
     }
 
-    /* 4) 옵션·쿠폰·추천인은 접어 둠 */
+    /* 4) 추가 옵션은 바로 보이게, 쿠폰·추천인만 접어 둠 */
     var opt = $('.opt-field:not(#promoField)');
     var promo = $('#promoField');
     var refInput = $('[name="referrer"]');
     var refLabel = refInput && refInput.closest('label');
-    if (opt && promo && refLabel) {
+    if (opt) opt.classList.add('bk-opts');
+    if (promo && refLabel) {
       var more = document.createElement('details');
       more.className = 'span-2 bk-more';
       more.setAttribute('data-vip-step', '2');
-      more.innerHTML = '<summary><span>추가 옵션 · 쿠폰 · 추천인 <em>(선택)</em></span><b id="bkMoreCount"></b></summary><div class="bk-more-body"></div>';
+      more.innerHTML = '<summary><span>쿠폰 · 추천인 <em>(선택)</em></span><b id="bkMoreCount"></b></summary><div class="bk-more-body"></div>';
       var body = more.querySelector('.bk-more-body');
-      opt.parentNode.insertBefore(more, opt);
-      body.appendChild(opt); body.appendChild(promo); body.appendChild(refLabel);
+      promo.parentNode.insertBefore(more, promo);
+      body.appendChild(promo); body.appendChild(refLabel);
       var count = more.querySelector('#bkMoreCount');
       function updateCount() {
-        var n = form.querySelectorAll('[name="options"]:checked').length;
         var p = form.querySelector('[name="promo"]:checked');
-        var parts = [];
-        if (n) parts.push('옵션 ' + n);
-        if (p && p.value) parts.push('혜택 1');
-        count.textContent = parts.join(' · ');
+        count.textContent = (p && p.value) ? '혜택 1' : '';
       }
-      form.addEventListener('change', function (e) {
-        if (e.target.name === 'options' && e.target.checked) more.open = true;
-        updateCount();
-      });
+      form.addEventListener('change', updateCount);
       form.addEventListener('reset', function () { setTimeout(function () { updateCount(); more.open = false; }, 0); });
-      /* 쿠폰 번호를 바로 입력하는 경우 대비: 쿠폰 확인 결과가 보이면 펼침 */
       updateCount();
     }
 
