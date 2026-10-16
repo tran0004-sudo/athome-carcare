@@ -1050,13 +1050,42 @@ ${linkLines ? '\n' + linkLines : ''}
     }
   }
 
+  /* 카카오톡·네이버 앱 등 앱 내부 브라우저(WebView)는 알림 기능이 없습니다 */
+  const UA = navigator.userAgent || '';
+  const IS_ANDROID = /Android/i.test(UA);
+  const IS_IOS = /iPhone|iPad|iPod/i.test(UA) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const IS_STANDALONE = window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone === true;
+  const IN_APP = /KAKAOTALK|NAVER\(inapp|NAVER|DaumApps|Instagram|FBAN|FBAV|Line\/|; wv\)|everytimeApp/i.test(UA);
+
+  function openInChrome() {
+    const url = location.href.replace(/^https?:\/\//, '');
+    location.href = `intent://${url}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(location.href)};end`;
+  }
+
+  function explainNoNotify() {
+    if (IS_ANDROID) {
+      const msg = IN_APP
+        ? '지금 화면은 카카오톡·네이버 같은 앱 안의 브라우저라 알림을 받을 수 없어요.\n\n크롬으로 열까요? 크롬에서 관리자 로그인 후 "알림 켜기"를 눌러 주세요.'
+        : '이 화면에서는 알림을 받을 수 없어요.\n\n크롬으로 열까요? 크롬에서 관리자 로그인 후 "알림 켜기"를 눌러 주세요.';
+      if (confirm(msg)) openInChrome();
+      return;
+    }
+    if (IS_IOS && !IS_STANDALONE) {
+      alert('아이폰은 홈 화면에 추가한 앱에서만 알림을 받을 수 있어요.\n\nSafari에서 열고 공유 버튼 → "홈 화면에 추가" → 추가된 앱 아이콘으로 열어 관리자 로그인 후 "알림 켜기"를 눌러 주세요.');
+      return;
+    }
+    toast('이 브라우저는 알림을 지원하지 않습니다. 크롬이나 사파리에서 열어 주세요.');
+  }
+
   async function enableNotify(btn) {
-    if (!('Notification' in window)) {
-      toast('이 브라우저는 알림을 지원하지 않습니다.');
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      explainNoNotify();
       return;
     }
     if (Notification.permission === 'denied') {
-      toast('브라우저 설정에서 이 사이트의 알림을 허용해주세요.');
+      alert(IS_ANDROID
+        ? '알림이 차단되어 있어요.\n\n크롬 주소창 왼쪽 자물쇠(또는 ⋮ → 설정 → 사이트 설정 → 알림)에서 athomecarcare.kr 알림을 "허용"으로 바꾼 뒤 다시 눌러 주세요.\n홈 화면 앱이라면 휴대폰 설정 → 애플리케이션 → 집앞세차 → 알림도 켜 주세요.'
+        : '알림이 차단되어 있어요. 브라우저(또는 휴대폰) 설정에서 이 사이트의 알림을 허용해 주세요.');
       return;
     }
     const perm = Notification.permission === 'granted'
@@ -2391,7 +2420,7 @@ ${linkLines ? '\n' + linkLines : ''}
     card.querySelector('#reloadReservations').addEventListener('click', () => loadReservations(false));
     const notifyBtn = card.querySelector('#notifyToggle');
     notifyBtn.addEventListener('click', () => {
-      if (notifyOn() && Notification.permission === 'granted') disableNotify(notifyBtn);
+      if (notifyOn() && ('Notification' in window) && Notification.permission === 'granted') disableNotify(notifyBtn);
       else enableNotify(notifyBtn);
     });
     updateNotifyButton(notifyBtn);
