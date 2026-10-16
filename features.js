@@ -17,56 +17,15 @@ try {
     var prev = document.getElementById('wizardPrev');
     if (!label || !title || !next || !prev) return;
 
-    function setStep(step, focusHeading) {
-      var n = step === 2 ? 2 : 1;
-      form.dataset.vipStep = String(n);
-      form.querySelectorAll('[data-vip-step]').forEach(function (el) {
-        var current = el.getAttribute('data-vip-step');
-        el.classList.toggle('wizard-hidden', current !== 'both' && current !== String(n));
-      });
-      label.textContent = 'STEP ' + n + ' / 2';
-      title.textContent = n === 1 ? '차량과 관리 주기를 선택해 주세요' : '방문 위치와 연락처를 알려주세요';
-      prev.hidden = n === 1;
-      next.hidden = n === 2;
-      if (focusHeading && title) {
-        title.setAttribute('tabindex', '-1');
-        title.focus({ preventScroll:true });
-        document.getElementById('booking').scrollIntoView({ behavior:'smooth', block:'start' });
-      }
-    }
-
-    function checkFirstStep() {
-      // 폼 자신도 data-vip-step 속성을 가지므로, 폼 전체가 1단계로 잡히지 않게 자기 자신은 제외합니다.
-      var inputs = [];
-      Array.prototype.forEach.call(form.querySelectorAll('[data-vip-step="1"]'), function (box) {
-        if (box === form) return;
-        if (box.matches('input,select,textarea')) inputs.push(box);
-        Array.prototype.forEach.call(box.querySelectorAll('input,select,textarea'), function (el) { inputs.push(el); });
-      });
-      for (var i = 0; i < inputs.length; i++) {
-        var input = inputs[i];
-        if (input.disabled || input.closest('.hidden') || input.classList.contains('hidden')) continue;
-        if (!input.checkValidity()) {
-          input.reportValidity();
-          input.focus();
-          return false;
-        }
-      }
-      return true;
-    }
-
+    /* v2: 2단계 → 한 화면 예약. 모든 칸을 처음부터 보여 주고 '다음' 버튼은 없앱니다. */
+    form.dataset.vipStep = '2';
+    form.querySelectorAll('.wizard-hidden').forEach(function (el) { el.classList.remove('wizard-hidden'); });
+    label.textContent = '간편 예약';
+    title.textContent = '한 화면에서 바로 접수하세요';
+    next.hidden = true; prev.hidden = true;
+    var ctrls = next.closest('.booking-wizard-controls'); if (ctrls) ctrls.hidden = true;
+    var bar = form.querySelector('.wizard-progress'); if (bar) bar.hidden = true;
     form.classList.add('booking-wizard-ready');
-    next.addEventListener('click', function () {
-      if (checkFirstStep()) setStep(2, true);
-    });
-    prev.addEventListener('click', function () { setStep(1, true); });
-    form.addEventListener('keydown', function (event) {
-      if (event.key === 'Enter' && form.dataset.vipStep === '1' && event.target.tagName !== 'TEXTAREA') {
-        event.preventDefault();
-        if (checkFirstStep()) setStep(2, true);
-      }
-    });
-    setStep(1, false);
   }
 
   if (document.readyState === 'loading') {
@@ -210,86 +169,109 @@ try {
     });
     syncClass();
 
-    /* 3) 희망 일정: 날짜 카드(2주) + 시간 버튼으로 한 번에 고르기 */
+    /* 3) 희망 일정: 한 달 달력 카드 + 전자시계식 시간 입력 */
     var date = $('[name="preferredDate"]');
     var time = $('[name="preferredTime"]');
     if (date && time) {
       var dateLabel = date.closest('label');
       var timeLabel = time.closest('label');
       var WD = ['일', '월', '화', '수', '목', '금', '토'];
-      var HOURS = [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19];
+      var RANGE = 30;
       var today0 = new Date(); today0.setHours(0, 0, 0, 0);
-      var dayBtns = '';
-      for (var i = 0; i < 14; i++) {
-        var d = new Date(today0); d.setDate(d.getDate() + i);
-        var tag = i === 0 ? '오늘' : i === 1 ? '내일' : (d.getDate() === 1 ? (d.getMonth() + 1) + '월' : '');
-        dayBtns += '<button type="button" data-date="' + ymd(d) + '" class="' + (d.getDay() === 0 ? 'is-sun' : d.getDay() === 6 ? 'is-sat' : '') + '">' +
-          '<em>' + tag + '</em><b>' + d.getDate() + '</b><small>' + WD[d.getDay()] + '</small></button>';
+      var last = new Date(today0); last.setDate(last.getDate() + RANGE);
+      var start = new Date(today0); start.setDate(start.getDate() - start.getDay());
+      var end = new Date(last); end.setDate(end.getDate() + (6 - end.getDay()));
+      var cells = WD.map(function (w, i) { return '<span class="bk-wd' + (i === 0 ? ' is-sun' : i === 6 ? ' is-sat' : '') + '">' + w + '</span>'; }).join('');
+      for (var d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        var off = d < today0 || d > last;
+        var diff = Math.round((d - today0) / 864e5);
+        var tag = diff === 0 ? '오늘' : diff === 1 ? '내일' : (d.getDate() === 1 ? (d.getMonth() + 1) + '월' : '');
+        cells += '<button type="button" data-date="' + ymd(d) + '"' + (off ? ' disabled' : '') +
+          ' class="' + (d.getDay() === 0 ? 'is-sun' : d.getDay() === 6 ? 'is-sat' : '') + '"' +
+          ' aria-label="' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일 ' + WD[d.getDay()] + '요일">' +
+          '<b>' + d.getDate() + '</b><em>' + tag + '</em></button>';
       }
-      function hourText(h) { return (h > 12 ? h - 12 : h) + '시'; }
-      function timeBtns(list) {
-        return list.map(function (h) { return '<button type="button" data-time="' + pad(h) + ':00">' + hourText(h) + '</button>'; }).join('');
-      }
+      var m1 = today0.getMonth() + 1, m2 = last.getMonth() + 1;
       var wrap = document.createElement('div');
       wrap.className = 'span-2 bk-when';
       wrap.setAttribute('data-vip-step', '2');
       wrap.innerHTML =
-        '<span class="opt-title">희망 일정 <small class="field-hint">고르지 않으셔도 연락드려 정해요 (선택)</small></span>' +
-        '<div class="bk-sub"><b>날짜</b><span class="bk-month">' + (today0.getMonth() + 1) + '월</span></div>' +
-        '<div class="bk-days" role="group" aria-label="희망 날짜">' + dayBtns + '</div>' +
-        '<div class="bk-sub"><b>시간</b></div>' +
-        '<div class="bk-times" role="group" aria-label="희망 시간">' +
-          '<div class="bk-tgroup"><span>오전</span><div>' + timeBtns(HOURS.filter(function (h) { return h < 12; })) + '</div></div>' +
-          '<div class="bk-tgroup"><span>오후</span><div>' + timeBtns(HOURS.filter(function (h) { return h >= 12; })) + '</div></div>' +
+        '<span class="opt-title">희망 일정 <small class="field-hint">비워 두시면 연락드려 정해요 (선택)</small></span>' +
+        '<div class="bk-sub"><b>날짜</b><span class="bk-month">' + today0.getFullYear() + '년 ' + m1 + '월' + (m2 !== m1 ? ' ~ ' + m2 + '월' : '') + '</span></div>' +
+        '<div class="bk-cal" role="group" aria-label="희망 날짜">' + cells + '</div>' +
+        '<div class="bk-sub"><b>시간</b><button type="button" class="bk-clear">시간 지우기</button></div>' +
+        '<div class="bk-clock" role="group" aria-label="희망 시간">' +
+          '<button type="button" class="bk-ampm" data-k="ampm" aria-label="오전/오후 바꾸기">오전</button>' +
+          '<div class="bk-unit"><button type="button" data-k="h" data-v="1" aria-label="시 올리기">▲</button><output class="bk-dig" data-u="h">--</output><button type="button" data-k="h" data-v="-1" aria-label="시 내리기">▼</button></div>' +
+          '<span class="bk-colon">:</span>' +
+          '<div class="bk-unit"><button type="button" data-k="m" data-v="10" aria-label="분 올리기">▲</button><output class="bk-dig" data-u="m">--</output><button type="button" data-k="m" data-v="-10" aria-label="분 내리기">▼</button></div>' +
         '</div>' +
         '<p class="bk-when-sum" aria-live="polite"></p>';
       dateLabel.parentNode.insertBefore(wrap, dateLabel);
-      /* 원래 입력칸은 값 저장용으로만 남겨 둠 */
-      var store_ = document.createElement('div'); store_.hidden = true;
-      store_.appendChild(dateLabel); store_.appendChild(timeLabel); wrap.appendChild(store_);
+      var keep = document.createElement('div'); keep.hidden = true;
+      keep.appendChild(dateLabel); keep.appendChild(timeLabel); wrap.appendChild(keep);
       dateLabel.removeAttribute('data-vip-step'); timeLabel.removeAttribute('data-vip-step');
 
-      var days = wrap.querySelector('.bk-days');
-      var times = wrap.querySelector('.bk-times');
+      var cal = wrap.querySelector('.bk-cal');
+      var clock = wrap.querySelector('.bk-clock');
       var sum = wrap.querySelector('.bk-when-sum');
-      var monthEl = wrap.querySelector('.bk-month');
+      var hEl = clock.querySelector('[data-u="h"]'), mEl = clock.querySelector('[data-u="m"]'), apEl = clock.querySelector('.bk-ampm');
 
+      function getHM() { if (!time.value) return null; var p = time.value.split(':'); return [parseInt(p[0], 10), parseInt(p[1], 10)]; }
+      function setHM(h, m) { time.value = h == null ? '' : pad(h) + ':' + pad(m); fire(time, 'change'); }
+      function ko(h, m) { return (h < 12 ? '오전 ' : '오후 ') + ((h % 12) || 12) + '시' + (m ? ' ' + m + '분' : ''); }
+      function step(k, v) {
+        var hm = getHM();
+        if (!hm) { setHM(10, 0); return; }              /* 처음 누르면 오전 10:00부터 시작 */
+        var h = hm[0], m = hm[1];
+        if (k === 'h') h = (h + v + 24) % 24;
+        else if (k === 'm') m = (m + v + 60) % 60;
+        else if (k === 'ampm') h = (h + 12) % 24;
+        setHM(h, m);
+      }
       function sync() {
-        var dv = date.value, tv = time.value;
-        Array.prototype.forEach.call(days.children, function (b) { b.setAttribute('aria-pressed', b.dataset.date === dv ? 'true' : 'false'); });
-        /* 오늘을 고르면 이미 지난 시간(지금+1시간 이내)은 막음 */
-        var isToday = dv === ymd(new Date());
-        var limit = new Date().getHours() + 1;
-        Array.prototype.forEach.call(times.querySelectorAll('button'), function (b) {
-          var h = parseInt(b.dataset.time, 10);
-          b.disabled = isToday && h <= limit;
-          b.setAttribute('aria-pressed', b.dataset.time === (tv || '').slice(0, 5) ? 'true' : 'false');
-        });
+        var dv = date.value, hm = getHM();
+        Array.prototype.forEach.call(cal.querySelectorAll('button'), function (b) { b.setAttribute('aria-pressed', b.dataset.date === dv ? 'true' : 'false'); });
+        clock.classList.toggle('is-empty', !hm);
+        hEl.textContent = hm ? pad((hm[0] % 12) || 12) : '--';
+        mEl.textContent = hm ? pad(hm[1]) : '--';
+        apEl.textContent = hm ? (hm[0] < 12 ? '오전' : '오후') : '오전';
+        var warn = '';
+        if (dv && hm && dv === ymd(new Date())) {
+          var now = new Date(), want = new Date(); want.setHours(hm[0], hm[1], 0, 0);
+          if (want - now < 60 * 60 * 1000) warn = '<br><span class="bk-warn">⚠ 오늘은 지금부터 1시간 뒤 이후로 골라 주세요.</span>';
+        }
         if (dv) {
           var p = dv.split('-'), dd = new Date(+p[0], +p[1] - 1, +p[2]);
-          monthEl.textContent = (dd.getMonth() + 1) + '월';
-          var t = '';
-          if (tv) { var h = parseInt(tv, 10); t = ' ' + (h < 12 ? '오전 ' : '오후 ') + (h > 12 ? h - 12 : h) + '시'; }
-          sum.innerHTML = '📅 <b>' + (dd.getMonth() + 1) + '월 ' + dd.getDate() + '일 (' + WD[dd.getDay()] + ')' + t + '</b> 방문 희망' + (tv ? '' : ' · 시간은 협의');
-        } else if (tv) {
-          var h2 = parseInt(tv, 10);
-          sum.innerHTML = '🕑 <b>' + (h2 < 12 ? '오전 ' : '오후 ') + (h2 > 12 ? h2 - 12 : h2) + '시</b> 희망 · 날짜를 골라 주세요';
+          sum.innerHTML = '📅 <b>' + (dd.getMonth() + 1) + '월 ' + dd.getDate() + '일 (' + WD[dd.getDay()] + ')' + (hm ? ' ' + ko(hm[0], hm[1]) : '') + '</b> 방문 희망' + (hm ? '' : ' · 시간은 협의') + warn;
+        } else if (hm) {
+          sum.innerHTML = '🕑 <b>' + ko(hm[0], hm[1]) + '</b> 희망 · 달력에서 날짜를 골라 주세요';
         } else {
-          sum.textContent = '날짜를 누르고 원하는 시간을 골라 주세요. 다시 누르면 취소돼요.';
+          sum.textContent = '달력에서 날짜를 누르고, ▲▼로 시간을 맞춰 주세요.';
         }
       }
-      days.addEventListener('click', function (e) {
-        var b = e.target.closest('button'); if (!b) return;
-        date.value = date.value === b.dataset.date ? '' : b.dataset.date;
-        var isToday = date.value === ymd(new Date());
-        if (isToday && time.value && parseInt(time.value, 10) <= new Date().getHours() + 1) { time.value = ''; fire(time, 'change'); }
-        fire(date, 'change'); sync();
-      });
-      times.addEventListener('click', function (e) {
+      cal.addEventListener('click', function (e) {
         var b = e.target.closest('button'); if (!b || b.disabled) return;
-        time.value = time.value.slice(0, 5) === b.dataset.time ? '' : b.dataset.time;
-        fire(time, 'change'); sync();
+        date.value = date.value === b.dataset.date ? '' : b.dataset.date;
+        fire(date, 'change');
       });
+      /* ▲▼ 누르고 있으면 계속 바뀜 */
+      var holdT = null, holdI = null;
+      function stopHold() { clearTimeout(holdT); clearInterval(holdI); holdT = holdI = null; }
+      clock.addEventListener('pointerdown', function (e) {
+        var b = e.target.closest('button[data-k]'); if (!b) return;
+        e.preventDefault();
+        step(b.dataset.k, +b.dataset.v || 0);
+        if (b.dataset.k === 'ampm') return;
+        stopHold();
+        holdT = setTimeout(function () { holdI = setInterval(function () { step(b.dataset.k, +b.dataset.v); }, 110); }, 450);
+      });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (t) { clock.addEventListener(t, stopHold); });
+      clock.addEventListener('keydown', function (e) {   /* 키보드 사용자: Enter/Space */
+        var b = e.target.closest('button[data-k]');
+        if (b && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); step(b.dataset.k, +b.dataset.v || 0); }
+      });
+      wrap.querySelector('.bk-clear').addEventListener('click', function () { setHM(null); });
       date.addEventListener('change', sync); time.addEventListener('change', sync);
       form.addEventListener('reset', function () { setTimeout(sync, 0); });
       sync();
