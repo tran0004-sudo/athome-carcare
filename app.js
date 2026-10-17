@@ -643,7 +643,7 @@ function refreshOptionChips(form) {
     if (!small || !OPTION_PRICES[box.value]) return;
     if (box.value === '송진 제거') { small.textContent = `+${won(window.AHC_PRICES.RESIN['가벼움'])}~ (상태별)`; return; }
     small.textContent = known
-      ? `+${won(optionPrice(box.value, cls))} (${SIZE_LABEL[optionSize(box.value, cls)]})`
+      ? `+${won(optionPrice(box.value, cls))} (${cls} 기준)`
       : `+${won(OPTION_PRICES[box.value][0])}~`;
   });
   renderOptionNotice(form);
