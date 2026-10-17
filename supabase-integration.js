@@ -519,7 +519,18 @@
   // [개선점 4] 모바일 최적화 — 버튼 텍스트 압축, 날짜+버튼 한 줄
   // [개선점 3] 완료 시 금액 입력
   // [개선점 5] 취소 건 → 확정으로도 되돌리기
+  // 삭제 버튼: '전체'·'취소' 탭에서만, 사장님(owner) 계정에만 보임
+  function deleteMarkup(row) {
+    if (myRole !== 'owner') return '';
+    if (currentTab !== '전체' && currentTab !== '취소') return '';
+    return `<button class="res-danger" data-del="${esc(row.id)}">삭제</button>`;
+  }
+
   function actionsMarkup(row) {
+    return actionsMarkupBase(row) + deleteMarkup(row);
+  }
+
+  function actionsMarkupBase(row) {
     const whenInput = `
       <label class="res-when">방문 예정
         <input type="datetime-local" data-when="${esc(row.id)}" value="${esc(prefInput(row))}">
@@ -2454,6 +2465,15 @@ ${linkLines ? '\n' + linkLines : ''}
         if (row) openMessageModal(row);
         return;
       }
+      // 예약 삭제 ('전체'·'취소' 탭)
+      const delBtn = e.target.closest('[data-del]');
+      if (delBtn) {
+        const row = allRows.find(r => String(r.id) === String(delBtn.dataset.del));
+        const label = row ? `${row.customer_name || '고객'} · ${row.car_model || ''} (${row.status})` : '이 예약';
+        if (!confirm(`${label} 예약을 삭제할까요?\n\n삭제하면 되돌릴 수 없습니다.`)) return;
+        deleteReservation(delBtn.dataset.del, delBtn);
+        return;
+      }
       // 상태 변경
       const btn = e.target.closest('[data-act]');
       if (!btn) return;
@@ -2687,6 +2707,39 @@ ${linkLines ? '\n' + linkLines : ''}
       return;
     }
     listEl.innerHTML = rows.map(memberCardMarkup).join('');
+  }
+
+  // 예약 한 건 삭제 (예약 관리 '전체'·'취소' 탭의 삭제 버튼)
+  async function deleteReservation(id, btn) {
+    const s = await getSession();
+    if (!s) return;
+    const orig = btn.textContent;
+    btn.disabled = true; btn.textContent = '삭제 중…';
+    try {
+      const r = await fetch(
+        `${SUPABASE_URL}/rest/v1/reservations?id=eq.${encodeURIComponent(id)}`,
+        { method: 'DELETE', headers: api(s.access_token, { Prefer: 'return=representation' }) }
+      );
+      if (r.status === 401 || r.status === 403) return handleExpired();
+      if (!r.ok) {
+        const text = await r.text();
+        // 월세차 계약 방문 기록에 연결된 예약은 DB에서 삭제를 막음 (on delete restrict)
+        if (r.status === 409 || /23503|foreign key/i.test(text)) {
+          throw new Error('월세차 계약 방문 기록에 연결된 예약이라 삭제할 수 없습니다.');
+        }
+        throw new Error(text);
+      }
+      const deleted = await r.json().catch(() => []);
+      if (!Array.isArray(deleted) || !deleted.length) throw new Error('삭제 권한이 없거나 이미 삭제된 예약입니다.');
+      allRows = allRows.filter(x => String(x.id) !== String(id));
+      toast('예약을 삭제했습니다.');
+      renderReservations();
+      if (typeof renderMembers === 'function') renderMembers();
+    } catch (err) {
+      console.error(err);
+      toast('삭제에 실패했습니다: ' + (err.message || err));
+      btn.disabled = false; btn.textContent = orig;
+    }
   }
 
   async function deleteCustomerReservations(phone, btn) {
