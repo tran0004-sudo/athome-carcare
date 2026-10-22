@@ -636,7 +636,9 @@ function refreshOptionChips(form) {
     const monthlyNow = svcNow === '월 2회' || svcNow === '월 4회';
     const hide = (box.value === '엔진룸 클리닝' && isEvModel(currentModelName(form)))
       || (box.value === '월세차 고급 업그레이드' && !monthlyNow)
-      || (box.value === '고급 왁스코팅' && svcNow === '고급 세차');
+      || (box.value === '고급 왁스코팅' && (svcNow === '고급 세차' || svcNow === '프리미엄 세차'))
+      // 프리미엄 세차에 이미 포함된 옵션(유막제거·발수코팅)은 중복 선택 막기
+      || (svcNow === '프리미엄 세차' && (window.AHC_PRICES.PREMIUM_ADDS || []).includes(box.value));
     if (chip) chip.classList.toggle('hidden', hide);
     if (hide) box.checked = false;
     const small = chip?.querySelector('small');
@@ -668,6 +670,9 @@ function renderOptionNotice(form) {
   if (isEvModel(currentModelName(form))) msgs.push('🔌 전기차·수소차는 고전압 부품 보호를 위해 엔진룸 클리닝을 진행하지 않습니다.');
   if (form.querySelector('[name="options"][value="월세차 고급 업그레이드"]:checked')) {
     msgs.push('✨ 월세차 고급 업그레이드: 매달 1회 프리미엄 가죽시트 코팅과 프리미엄 왁스 시공이 포함된 고급 세차로 진행합니다.');
+  }
+  if ((form.querySelector('[name="service"]')?.value || '') === '프리미엄 세차') {
+    msgs.push('💎 프리미엄 세차: 고급 세차(프리미엄 가죽시트 코팅 + 프리미엄 왁스 시공)에 유리 유막제거와 발수코팅까지 포함돼 있어요.');
   }
   if (form.querySelector('[name="options"][value="송진 제거"]:checked')) {
     msgs.push(`🌲 송진 제거는 가벼움 ${won(window.AHC_PRICES.RESIN['가벼움'])} 기준이며, 현장에서 상태(가벼움·보통·심함)를 확인한 뒤 요금이 추가될 수 있어요. 보통 ${won(window.AHC_PRICES.RESIN['보통'])} · 심함은 현장 견적이며, 작업 전에 금액을 먼저 안내드립니다.`);
@@ -1061,3 +1066,25 @@ window.addEventListener('load',function(){try{var h=(location.hash||'').replace(
 /* 앱이 열린 상태에서 주소(#/booking 등)만 바뀌어도 그 화면으로 이동 */
 window.addEventListener('hashchange',function(){try{var h=(location.hash||'').replace(/^#\/?/,'');var el=h&&document.getElementById(h);if(el&&el.classList.contains('page')&&!el.classList.contains('active')&&typeof go==='function'){go(h)}}catch(e){}});
 } catch (e) { console.error('[주소로 화면 이동 (index.html #hash-go)]', e); }
+
+/* ===== 세차 3단계(계단식) — 요금 탭에 같은 블록 복사 · 계단 막대를 누르면 해당 카드로 이동 ===== */
+(function () {
+  function init() {
+    const src = document.querySelector('#washGuideSection [data-stairs]');
+    document.querySelectorAll('[data-stairs-slot]').forEach((slot) => {
+      if (!src) return;
+      const copy = src.cloneNode(true);
+      slot.replaceWith(copy);
+    });
+    document.addEventListener('click', (e) => {
+      const bar = e.target.closest('.st-bar[data-stair]');
+      if (!bar) return;
+      const card = bar.closest('[data-stairs]')?.querySelector('.' + bar.dataset.stair);
+      if (!card) return;
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      card.classList.remove('st-flash'); void card.offsetWidth; card.classList.add('st-flash');
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();

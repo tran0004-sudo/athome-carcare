@@ -1841,7 +1841,11 @@ try {
       const join=e.target.closest('[data-vip-start]');
       if(join){setMode('monthly',{keepService:true});return;}
       const plain=e.target.closest('[data-go="booking"]');
-      if(plain && !plain.closest('#memberDashboard')){setMode('guest');}
+      if(plain && !plain.closest('#memberDashboard')){
+        setMode('guest');
+        // 세차 3단계 카드의 "예약하기" 버튼: 고른 단계를 희망 서비스로 미리 선택
+        if(plain.dataset.pickService)serviceChange(plain.dataset.pickService);
+      }
     });
     f.querySelector('[name="service"]')?.addEventListener('change',function(e){
       if(f.dataset.bookingMode==='existing' && e.target.value!=='기타 상담'){

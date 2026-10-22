@@ -55,6 +55,11 @@
     '송진 제거':              [10000, 10000, 10000]    // 예상 금액은 가벼움 기준 — 단계별 요금은 아래 RESIN
   };
 
+  /* 프리미엄 세차 = 고급 세차 + 아래 옵션들 (차량 크기별 옵션 요금을 더해 자동 계산)
+     묶음 할인을 주려면 PREMIUM_DISCOUNT 에 차종 공통 할인 금액(원)을 넣으세요. 0 이면 합계 그대로. */
+  var PREMIUM_ADDS = ['유리 유막제거', '발수코팅'];
+  var PREMIUM_DISCOUNT = 0;
+
   /* 송진 제거 단계별 (원) — 심함은 현장 견적 */
   var RESIN = { '가벼움': 10000, '보통': 20000 };
 
@@ -65,6 +70,13 @@
     '대형 SUV': 2, '프리미엄 SUV': 2, '미니밴': 2
   };
   var SIZE_LABEL = ['소형', '중형', '대형'];
+
+  /* 프리미엄 세차 요금을 차종마다 채움 (고급 세차 + 유막제거 + 발수코팅 − 묶음 할인) */
+  Object.keys(TABLE).forEach(function (cls) {
+    var sz = SIZE_OF_CLASS[cls];
+    var adds = PREMIUM_ADDS.reduce(function (sum, name) { return sum + OPTIONS[name][sz]; }, 0);
+    TABLE[cls]['프리미엄 세차'] = TABLE[cls]['고급 세차'] + adds - PREMIUM_DISCOUNT;
+  });
 
   /* ── 계산 ─────────────────────────────────────────────── */
   function dailyFrom(cls) {
@@ -131,6 +143,7 @@
 
   var api = {
     TABLE: TABLE, OPTIONS: OPTIONS, RESIN: RESIN,
+    PREMIUM_ADDS: PREMIUM_ADDS, PREMIUM_DISCOUNT: PREMIUM_DISCOUNT,
     SIZE_OF_CLASS: SIZE_OF_CLASS, SIZE_LABEL: SIZE_LABEL,
     dailyFrom: dailyFrom, monthlySave: monthlySave, fmt: fmt, text: text, render: render
   };
