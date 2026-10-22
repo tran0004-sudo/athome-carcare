@@ -143,7 +143,7 @@ const DEFAULT_PROMOS = [
   { id: 'first2', auto: 'first', text: '첫 달 월 2회 ', highlight: '5,000원 할인', amount: 5000, services: ['월 2회'] },
   { id: 'refer', text: '가족·지인 소개 시 ', highlight: '외부세차 1회', amount: 0, gift: '외부세차 1회 제공', services: [] },
   { id: 'apt5', auto: 'apt5', text: '같은 아파트 5대 이상 ', highlight: '차량당 5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
-  { id: 'loyal', auto: 'loyal', text: '3개월 이용하실 때마다 ', highlight: '고급 왁스코팅 또는 유막제거+발수코팅 1회 무료', amount: 0, gift: '고급 왁스코팅 또는 유리 유막제거+발수코팅 중 택 1 무료', services: ['월 2회', '월 4회'] },
+  { id: 'loyal', auto: 'loyal', text: '3개월 이용하실 때마다 ', highlight: '고급 왁스코팅 또는 전면 유막제거 1회 무료', amount: 0, gift: '고급 왁스코팅 또는 전면 유리 유막제거 중 택 1 무료', services: ['월 2회', '월 4회'] },
   { id: 'review', text: '리뷰 작성 시 ', highlight: '3,000원 할인 · 트렁크 청소 중 택 1 쿠폰', amount: 3000, services: [] },
 ];
 
@@ -739,7 +739,7 @@ function renderOptionNotice(form) {
     if (up) msgs.push(`💡 고급 세차로 올리면 가죽시트 코팅·프리미엄 왁스가 더해지고, 고른 옵션도 ${up}% 할인돼요.`);
   }
   if ((svcSel === '월 2회' || svcSel === '월 4회') && form.querySelector('[name="options"][value="유리 유막제거"]:checked, [name="options"][value="발수코팅"]:checked')) {
-    msgs.push('💧 유막제거·발수코팅은 3개월에 한 번이면 충분해요. 월세차 3개월 이용 시 1회 무료로 받을 수 있어요.');
+    msgs.push('💧 유막제거·발수코팅은 3개월에 한 번이면 충분해요. 월세차는 3개월 이용 시 전면 유막제거 1회가 무료예요 (고급 왁스코팅과 택 1).');
   }
   const fullGlass = (window.AHC_PRICES.GLASS_FULL || []).filter((n) => form.querySelector(`[name="options"][value="${n}"]:checked`));
   const fullUpgrade = form.querySelector('[name="options"][value="프리미엄 전체 유리 업그레이드"]:checked');
