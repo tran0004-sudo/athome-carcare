@@ -143,7 +143,7 @@ const DEFAULT_PROMOS = [
   { id: 'first2', auto: 'first', text: '첫 달 월 2회 ', highlight: '5,000원 할인', amount: 5000, services: ['월 2회'] },
   { id: 'refer', text: '가족·지인 소개 시 ', highlight: '외부세차 1회', amount: 0, gift: '외부세차 1회 제공', services: [] },
   { id: 'apt5', auto: 'apt5', text: '같은 아파트 5대 이상 ', highlight: '차량당 5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
-  { id: 'loyal', auto: 'loyal', text: '3개월 이용하실 때마다 ', highlight: '고급 왁스코팅 1회 무료', amount: 0, gift: '고급 왁스코팅 1회 무료 (소형 2만·중형 2.5만·대형 3만 상당)', services: ['월 2회', '월 4회'] },
+  { id: 'loyal', auto: 'loyal', text: '3개월 이용하실 때마다 ', highlight: '고급 왁스코팅 또는 유막제거+발수코팅 1회 무료', amount: 0, gift: '고급 왁스코팅 또는 유리 유막제거+발수코팅 중 택 1 무료', services: ['월 2회', '월 4회'] },
   { id: 'review', text: '리뷰 작성 시 ', highlight: '3,000원 할인 · 트렁크 청소 중 택 1 쿠폰', amount: 3000, services: [] },
 ];
 
@@ -589,10 +589,16 @@ const SIZE_LABEL    = window.AHC_PRICES.SIZE_LABEL;
 function optionSize(name, cls) {
   return SIZE_OF_CLASS[cls] ?? 0;
 }
-function optionPrice(name, cls) {
+/* 옵션 요금 — 상품(svc)을 주면 상위 상품 할인까지 반영 (prices.js OPTION_DISCOUNT) */
+function optionPrice(name, cls, svc) {
   const tiers = OPTION_PRICES[name];
   if (!tiers) return 0;
+  if (svc && window.AHC_PRICES.optionFor) return window.AHC_PRICES.optionFor(name, cls, svc);
   return tiers[optionSize(name, cls)];
+}
+function optionRatePct(name, svc) {
+  const r = window.AHC_PRICES.optionRate ? window.AHC_PRICES.optionRate(name, svc) : 0;
+  return r ? Math.round(r * 100) : 0;
 }
 const won = (n) => `${n.toLocaleString('ko-KR')}원`;
 
@@ -616,7 +622,10 @@ function buildQuote(form) {
   const base = PRICE_TABLE[cls] ? PRICE_TABLE[cls][svc] : undefined;
   const lines = [];
   if (base) lines.push([`${svc} (${cls})`, base]);
-  options.forEach((name) => lines.push([name, optionPrice(name, cls)]));
+  options.forEach((name) => {
+    const pct = optionRatePct(name, svc);
+    lines.push([pct ? `${name} (${svc} ${pct}% 할인)` : name, optionPrice(name, cls, svc)]);
+  });
   promos.forEach((promo) => lines.push([promo.label, -(promo.amount || 0), promo.gift || (promo.amount ? '' : '혜택 제공')]));
 
   const monthly = svc === '월 2회' || svc === '월 4회';
@@ -644,9 +653,16 @@ function refreshOptionChips(form) {
     const small = chip?.querySelector('small');
     if (!small || !OPTION_PRICES[box.value]) return;
     if (box.value === '송진 제거') { small.textContent = `+${won(window.AHC_PRICES.RESIN['가벼움'])}~ (상태별)`; return; }
-    small.textContent = known
-      ? `+${won(optionPrice(box.value, cls))} (${cls} 기준)`
-      : `+${won(OPTION_PRICES[box.value][0])}~`;
+    const pct = optionRatePct(box.value, svcNow);
+    const regular = known ? optionPrice(box.value, cls) : OPTION_PRICES[box.value][0];
+    const now = known ? optionPrice(box.value, cls, svcNow) : optionPrice(box.value, '경차', svcNow);
+    if (pct) {
+      small.innerHTML = `<s class="opt-was">${won(regular)}</s> <b class="opt-now">+${won(now)}${known ? '' : '~'}</b> <em class="opt-off">${pct}%↓</em>`;
+      chip?.classList.add('opt-sale');
+    } else {
+      small.textContent = known ? `+${won(regular)} (${cls} 기준)` : `+${won(regular)}~`;
+      chip?.classList.remove('opt-sale');
+    }
   });
   renderOptionNotice(form);
 }
@@ -671,7 +687,18 @@ function renderOptionNotice(form) {
   if (form.querySelector('[name="options"][value="월세차 고급 업그레이드"]:checked')) {
     msgs.push('✨ 월세차 고급 업그레이드: 매달 1회 프리미엄 가죽시트 코팅과 프리미엄 왁스 시공이 포함된 고급 세차로 진행합니다.');
   }
-  if ((form.querySelector('[name="service"]')?.value || '') === '프리미엄 세차') {
+  const svcSel = form.querySelector('[name="service"]')?.value || '';
+  const salePct = Math.round(((window.AHC_PRICES.OPTION_DISCOUNT || {})[svcSel] || 0) * 100);
+  if (salePct) {
+    msgs.push(`🏷️ ${svcSel}를 고르셔서 추가 옵션이 ${salePct}% 할인돼요. (송진 제거 제외)`);
+  } else if ((svcSel === '외부+내부세차' || svcSel === '일일 외부세차') && form.querySelector('[name="options"]:checked:not([value="송진 제거"])')) {
+    const up = Math.round(((window.AHC_PRICES.OPTION_DISCOUNT || {})['고급 세차'] || 0) * 100);
+    if (up) msgs.push(`💡 고급 세차로 올리면 가죽시트 코팅·프리미엄 왁스가 더해지고, 고른 옵션도 ${up}% 할인돼요.`);
+  }
+  if ((svcSel === '월 2회' || svcSel === '월 4회') && form.querySelector('[name="options"][value="유리 유막제거"]:checked, [name="options"][value="발수코팅"]:checked')) {
+    msgs.push('💧 유막제거·발수코팅은 3개월에 한 번이면 충분해요. 월세차 3개월 이용 시 1회 무료로 받을 수 있어요.');
+  }
+  if (svcSel === '프리미엄 세차') {
     msgs.push('💎 프리미엄 세차: 고급 세차(프리미엄 가죽시트 코팅 + 프리미엄 왁스 시공)에 유리 유막제거와 발수코팅까지 포함돼 있어요.');
   }
   if (form.querySelector('[name="options"][value="송진 제거"]:checked')) {

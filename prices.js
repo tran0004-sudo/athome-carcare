@@ -18,6 +18,8 @@
      data-p="opt:발수코팅|1"              옵션 크기별 (0 소형 · 1 중형 · 2 대형)
      data-p="optc:월세차 고급 업그레이드|경차"  옵션을 그 차종 크기로
      data-p="resin:보통"                  송진 단계별 (resin = 전체 단계)
+     data-p="premreg:경차"               프리미엄을 따로 할 때 금액 (고급 + 유막·발수 정가)
+     data-p="rate:고급 세차"              그 상품의 옵션 할인율 (20%)
    data-pf: won(28,000원) · man(2.8만원) · mans(2.8만)
             앞에 + 를 붙이면 +, 뒤에 ~ 를 붙이면 ~ 가 붙습니다.
             opt 전용: sizes(소형 2만 · 중형 2.5만 · 대형 3만)
@@ -55,10 +57,14 @@
     '송진 제거':              [10000, 10000, 10000]    // 예상 금액은 가벼움 기준 — 단계별 요금은 아래 RESIN
   };
 
-  /* 프리미엄 세차 = 고급 세차 + 아래 옵션들 (차량 크기별 옵션 요금을 더해 자동 계산)
-     묶음 할인을 주려면 PREMIUM_DISCOUNT 에 차종 공통 할인 금액(원)을 넣으세요. 0 이면 합계 그대로. */
+  /* 상위 상품을 고르면 추가 옵션 할인 (할인한 금액은 1,000원 단위로 내림)
+     숫자만 바꾸면 예약 화면·카드 문구가 모두 따라 바뀝니다. 0 이면 할인 없음. */
+  var OPTION_DISCOUNT = { '고급 세차': 0.2, '프리미엄 세차': 0.3, '월 2회': 0.2, '월 4회': 0.2 };
+  /* 할인하지 않는 옵션 (현장 견적이거나 월세차 전용 업그레이드) */
+  var NO_DISCOUNT = ['송진 제거', '월세차 고급 업그레이드'];
+
+  /* 프리미엄 세차 = 고급 세차 + 아래 옵션들을 프리미엄 할인율로 묶은 요금 (자동 계산) */
   var PREMIUM_ADDS = ['유리 유막제거', '발수코팅'];
-  var PREMIUM_DISCOUNT = 0;
 
   /* 송진 제거 단계별 (원) — 심함은 현장 견적 */
   var RESIN = { '가벼움': 10000, '보통': 20000 };
@@ -71,11 +77,29 @@
   };
   var SIZE_LABEL = ['소형', '중형', '대형'];
 
-  /* 프리미엄 세차 요금을 차종마다 채움 (고급 세차 + 유막제거 + 발수코팅 − 묶음 할인) */
+  function floor1000(n) { return Math.floor(n / 1000) * 1000; }
+
+  /* 옵션 할인율 (상품 기준) */
+  function optionRate(name, svc) {
+    if (NO_DISCOUNT.indexOf(name) >= 0) return 0;
+    return OPTION_DISCOUNT[svc] || 0;
+  }
+  /* 차종·상품에 맞는 옵션 요금 (할인 적용) */
+  function optionFor(name, cls, svc) {
+    var t = OPTIONS[name]; if (!t) return NaN;
+    var base = t[SIZE_OF_CLASS[cls] != null ? SIZE_OF_CLASS[cls] : 0];
+    var rate = optionRate(name, svc);
+    return rate ? floor1000(base * (1 - rate)) : base;
+  }
+
+  /* 프리미엄 세차 요금을 차종마다 채움 (고급 세차 + 유막제거·발수코팅을 프리미엄 할인율로)
+     PREMIUM_REGULAR 는 "따로 하면" 비교용: 고급 세차 + 유막제거·발수코팅 정가 */
+  var PREMIUM_REGULAR = {};
   Object.keys(TABLE).forEach(function (cls) {
     var sz = SIZE_OF_CLASS[cls];
     var adds = PREMIUM_ADDS.reduce(function (sum, name) { return sum + OPTIONS[name][sz]; }, 0);
-    TABLE[cls]['프리미엄 세차'] = TABLE[cls]['고급 세차'] + adds - PREMIUM_DISCOUNT;
+    PREMIUM_REGULAR[cls] = TABLE[cls]['고급 세차'] + adds;
+    TABLE[cls]['프리미엄 세차'] = TABLE[cls]['고급 세차'] + floor1000(adds * (1 - (OPTION_DISCOUNT['프리미엄 세차'] || 0)));
   });
 
   /* ── 계산 ─────────────────────────────────────────────── */
@@ -106,6 +130,15 @@
     var i = key.indexOf(':'), kind = i < 0 ? 'cls' : key.slice(0, i), rest = i < 0 ? key : key.slice(i + 1);
     var parts = rest.split('|'), v;
     if (kind === 'cls') { v = TABLE[parts[0]] && TABLE[parts[0]][parts[1]]; return v == null ? null : fmt(v, pf); }
+    if (kind === 'optsum') {   /* data-p="optsum:유리 유막제거+발수코팅" — 여러 옵션 합계 (sizes 모양) */
+      var names2 = rest.split('+'), sums = [0, 1, 2].map(function (k) {
+        return names2.reduce(function (acc, n) { return acc + (OPTIONS[n] ? OPTIONS[n][k] : NaN); }, 0);
+      });
+      if (sums.some(isNaN)) return null;
+      return SIZE_LABEL.map(function (l, k) { return l + ' ' + fmt(sums[k], 'mans'); }).join(' · ');
+    }
+    if (kind === 'premreg') { v = PREMIUM_REGULAR[parts[0]]; return v == null ? null : fmt(v, pf); }
+    if (kind === 'rate') { v = OPTION_DISCOUNT[parts[0]]; return v == null ? null : Math.round(v * 100) + '%'; }
     if (kind === 'from') { v = dailyFrom(parts[0]); return isNaN(v) ? null : fmt(v, pf || 'man~'); }
     if (kind === 'save4' || kind === 'save2') { v = monthlySave(parts[0], kind === 'save4' ? 4 : 2); return isNaN(v) ? null : fmt(v, pf); }
     if (kind === 'opt') {
@@ -143,7 +176,8 @@
 
   var api = {
     TABLE: TABLE, OPTIONS: OPTIONS, RESIN: RESIN,
-    PREMIUM_ADDS: PREMIUM_ADDS, PREMIUM_DISCOUNT: PREMIUM_DISCOUNT,
+    PREMIUM_ADDS: PREMIUM_ADDS, PREMIUM_REGULAR: PREMIUM_REGULAR,
+    OPTION_DISCOUNT: OPTION_DISCOUNT, NO_DISCOUNT: NO_DISCOUNT, optionRate: optionRate, optionFor: optionFor,
     SIZE_OF_CLASS: SIZE_OF_CLASS, SIZE_LABEL: SIZE_LABEL,
     dailyFrom: dailyFrom, monthlySave: monthlySave, fmt: fmt, text: text, render: render
   };
