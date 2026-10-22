@@ -626,8 +626,7 @@ function buildQuote(form) {
   const glassFull = window.AHC_PRICES.GLASS_FULL || [];
   const bundled = glassFull.length && glassFull.every((n) => options.includes(n));
   if (bundled) {
-    const pctB = Math.round(((window.AHC_PRICES.OPTION_DISCOUNT || {})[svc] || 0) * 100);
-    lines.push([`전체 유리 유막제거+발수코팅 묶음${pctB ? ` (${svc} ${pctB}% 할인)` : ''}`, window.AHC_PRICES.glassBundleFor(cls, svc)]);
+    lines.push(['전체 유리 유막제거+발수코팅 묶음가', window.AHC_PRICES.glassBundleFor(cls, svc)]);
   }
   options.forEach((name) => {
     if (bundled && glassFull.includes(name)) return;
@@ -718,7 +717,7 @@ function renderOptionNotice(form) {
   const svcSel = form.querySelector('[name="service"]')?.value || '';
   const salePct = Math.round(((window.AHC_PRICES.OPTION_DISCOUNT || {})[svcSel] || 0) * 100);
   if (salePct) {
-    msgs.push(`🏷️ ${svcSel}를 고르셔서 추가 옵션이 ${salePct}% 할인돼요. (송진 제거 제외)`);
+    msgs.push(`🏷️ ${svcSel}를 고르셔서 추가 옵션이 ${salePct}% 할인돼요. (송진 제거·전체 유리 묶음가 제외)`);
   }
   // 기본 세차 + 왁스·가죽시트 코팅을 따로 고르면 고급 세차가 더 싼지 알려 줌
   const clsSel = form.querySelector('#carClassHidden')?.value || form.querySelector('#carClassSelect')?.value || '';

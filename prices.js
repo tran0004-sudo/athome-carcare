@@ -65,12 +65,15 @@
 
   /* 상위 상품을 고르면 추가 옵션 할인 (할인한 금액은 1,000원 단위로 내림)
      숫자만 바꾸면 예약 화면·카드 문구가 모두 따라 바뀝니다. 0 이면 할인 없음. */
-  var OPTION_DISCOUNT = { '고급 세차': 0.2, '프리미엄 세차': 0.3, '월 2회': 0.2, '월 4회': 0.2 };
+  var OPTION_DISCOUNT = { '고급 세차': 0.1, '프리미엄 세차': 0.15, '월 2회': 0.1, '월 4회': 0.1 };
+  /* 프리미엄에 포함된 전면 유막제거·발수코팅 할인율 — 고급 세차 할인율과 같게 둬야
+     "프리미엄 ≤ 고급 + 같은 옵션" 과 "프리미엄 > 기본 + 같은 옵션" 순서가 지켜집니다. */
+  var PREMIUM_GLASS_RATE = 0.1;
   /* 할인하지 않는 옵션 (현장 견적이거나 월세차 전용 업그레이드) */
   var NO_DISCOUNT = ['송진 제거', '월세차 고급 업그레이드', '프리미엄 전체 유리 업그레이드'];
 
   /* 전체 유리: 유막제거(전체) + 발수코팅(전체)를 함께 고르면 묶음가 [소형, 중형, 대형] (원)
-     상품 할인(고급·월세차 20%, 프리미엄 30%)은 묶음가에 다시 적용됩니다. */
+     묶음가에는 상품 할인(고급·월세차·프리미엄)을 중복 적용하지 않습니다. */
   var GLASS_FULL = ['유리 유막제거 (전체)', '발수코팅 (전체)'];
   var GLASS_FULL_BUNDLE = [70000, 85000, 100000];
   /* 전면 ↔ 전체 짝 (둘 중 하나만 고를 수 있음) */
@@ -95,10 +98,10 @@
 
   function floor1000(n) { return Math.floor(n / 1000) * 1000; }
 
-  /* 프리미엄 전체 유리 업그레이드 = (전체 묶음가 − 전면 유막·발수 정가) 에 프리미엄 할인율 적용 */
+  /* 프리미엄 전체 유리 업그레이드 = 전체 묶음가 − 전면 유막·발수 정가 */
   OPTIONS['프리미엄 전체 유리 업그레이드'] = [0, 1, 2].map(function (k) {
     var diff = GLASS_FULL_BUNDLE[k] - (OPTIONS['유리 유막제거'][k] + OPTIONS['발수코팅'][k]);
-    return floor1000(diff * (1 - (OPTION_DISCOUNT['프리미엄 세차'] || 0)));
+    return diff;   // 묶음가에서 이미 할인됐으므로 차액 그대로 (중복 할인 없음)
   });
 
   /* 옵션 할인율 (상품 기준) */
@@ -117,8 +120,7 @@
   /* 전체 유리 묶음가 (차종·상품 할인 반영) */
   function glassBundleFor(cls, svc) {
     var k = SIZE_OF_CLASS[cls] != null ? SIZE_OF_CLASS[cls] : 0;
-    var rate = OPTION_DISCOUNT[svc] || 0;
-    return rate ? floor1000(GLASS_FULL_BUNDLE[k] * (1 - rate)) : GLASS_FULL_BUNDLE[k];
+    return GLASS_FULL_BUNDLE[k];   // 묶음가 자체가 할인가 — 상품 할인은 중복 적용하지 않음
   }
 
   /* 프리미엄 세차 요금을 차종마다 채움 (고급 세차 + 유막제거·발수코팅을 프리미엄 할인율로)
@@ -132,7 +134,7 @@
     var adds = sumOpts(PREMIUM_ADDS, sz);
     PLUS_REGULAR[cls] = TABLE[cls]['외부+내부세차'] + sumOpts(PLUS_ADDS, sz);
     PREMIUM_REGULAR[cls] = PLUS_REGULAR[cls] + adds;
-    TABLE[cls]['프리미엄 세차'] = TABLE[cls]['고급 세차'] + floor1000(adds * (1 - (OPTION_DISCOUNT['프리미엄 세차'] || 0)));
+    TABLE[cls]['프리미엄 세차'] = TABLE[cls]['고급 세차'] + floor1000(adds * (1 - PREMIUM_GLASS_RATE));
   });
 
   /* ── 계산 ─────────────────────────────────────────────── */
@@ -178,7 +180,7 @@
     if (kind === 'plussave') { v = PLUS_REGULAR[parts[0]] - (TABLE[parts[0]] || {})['고급 세차']; return isNaN(v) ? null : fmt(v, pf); }
     if (kind === 'premsave') { v = PREMIUM_REGULAR[parts[0]] - (TABLE[parts[0]] || {})['프리미엄 세차']; return isNaN(v) ? null : fmt(v, pf); }
     if (kind === 'premreg') { v = PREMIUM_REGULAR[parts[0]]; return v == null ? null : fmt(v, pf); }
-    if (kind === 'rate') { v = OPTION_DISCOUNT[parts[0]]; return v == null ? null : Math.round(v * 100) + '%'; }
+    if (kind === 'rate') { v = parts[0] === '프리미엄 포함 유리' ? PREMIUM_GLASS_RATE : OPTION_DISCOUNT[parts[0]]; return v == null ? null : Math.round(v * 100) + '%'; }
     if (kind === 'from') { v = dailyFrom(parts[0]); return isNaN(v) ? null : fmt(v, pf || 'man~'); }
     if (kind === 'save4' || kind === 'save2') { v = monthlySave(parts[0], kind === 'save4' ? 4 : 2); return isNaN(v) ? null : fmt(v, pf); }
     if (kind === 'opt') {
@@ -218,7 +220,7 @@
     TABLE: TABLE, OPTIONS: OPTIONS, RESIN: RESIN,
     GLASS_FULL: GLASS_FULL, GLASS_FULL_BUNDLE: GLASS_FULL_BUNDLE, GLASS_PAIRS: GLASS_PAIRS, glassBundleFor: glassBundleFor,
     PREMIUM_ADDS: PREMIUM_ADDS, PREMIUM_REGULAR: PREMIUM_REGULAR, PLUS_ADDS: PLUS_ADDS, PLUS_REGULAR: PLUS_REGULAR,
-    OPTION_DISCOUNT: OPTION_DISCOUNT, NO_DISCOUNT: NO_DISCOUNT, optionRate: optionRate, optionFor: optionFor,
+    OPTION_DISCOUNT: OPTION_DISCOUNT, PREMIUM_GLASS_RATE: PREMIUM_GLASS_RATE, NO_DISCOUNT: NO_DISCOUNT, optionRate: optionRate, optionFor: optionFor,
     SIZE_OF_CLASS: SIZE_OF_CLASS, SIZE_LABEL: SIZE_LABEL,
     dailyFrom: dailyFrom, monthlySave: monthlySave, fmt: fmt, text: text, render: render
   };
