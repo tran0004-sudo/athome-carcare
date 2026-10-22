@@ -645,7 +645,7 @@ function refreshOptionChips(form) {
     const monthlyNow = svcNow === '월 2회' || svcNow === '월 4회';
     const hide = (box.value === '엔진룸 클리닝' && isEvModel(currentModelName(form)))
       || (box.value === '월세차 고급 업그레이드' && !monthlyNow)
-      || (box.value === '고급 왁스코팅' && (svcNow === '고급 세차' || svcNow === '프리미엄 세차'))
+      || ((window.AHC_PRICES.PLUS_ADDS || ['고급 왁스코팅']).includes(box.value) && (svcNow === '고급 세차' || svcNow === '프리미엄 세차'))
       // 프리미엄 세차에 이미 포함된 옵션(유막제거·발수코팅)은 중복 선택 막기
       || (svcNow === '프리미엄 세차' && (window.AHC_PRICES.PREMIUM_ADDS || []).includes(box.value));
     if (chip) chip.classList.toggle('hidden', hide);
@@ -691,6 +691,22 @@ function renderOptionNotice(form) {
   const salePct = Math.round(((window.AHC_PRICES.OPTION_DISCOUNT || {})[svcSel] || 0) * 100);
   if (salePct) {
     msgs.push(`🏷️ ${svcSel}를 고르셔서 추가 옵션이 ${salePct}% 할인돼요. (송진 제거 제외)`);
+  }
+  // 기본 세차 + 왁스·가죽시트 코팅을 따로 고르면 고급 세차가 더 싼지 알려 줌
+  const clsSel = form.querySelector('#carClassHidden')?.value || form.querySelector('#carClassSelect')?.value || '';
+  const plusAdds = window.AHC_PRICES.PLUS_ADDS || [];
+  const pickedPlus = plusAdds.filter((n) => form.querySelector(`[name="options"][value="${n}"]:checked`));
+  let toldUpgrade = false;
+  if (svcSel === '외부+내부세차' && pickedPlus.length && PRICE_TABLE[clsSel]) {
+    const now = PRICE_TABLE[clsSel]['외부+내부세차'] + pickedPlus.reduce((sum, n) => sum + optionPrice(n, clsSel), 0);
+    const plus = PRICE_TABLE[clsSel]['고급 세차'];
+    if (now >= plus) {
+      msgs.push(`💡 고급 세차로 바꾸면 ${now > plus ? won(now - plus) + ' 더 싸고' : '같은 금액에'} 고급 왁스와 가죽시트 코팅이 모두 들어가요. 다른 옵션도 할인돼요.`);
+      toldUpgrade = true;
+    }
+  }
+  if (salePct || toldUpgrade) {
+    /* 위에서 안내함 */
   } else if ((svcSel === '외부+내부세차' || svcSel === '일일 외부세차') && form.querySelector('[name="options"]:checked:not([value="송진 제거"])')) {
     const up = Math.round(((window.AHC_PRICES.OPTION_DISCOUNT || {})['고급 세차'] || 0) * 100);
     if (up) msgs.push(`💡 고급 세차로 올리면 가죽시트 코팅·프리미엄 왁스가 더해지고, 고른 옵션도 ${up}% 할인돼요.`);

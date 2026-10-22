@@ -18,7 +18,9 @@
      data-p="opt:발수코팅|1"              옵션 크기별 (0 소형 · 1 중형 · 2 대형)
      data-p="optc:월세차 고급 업그레이드|경차"  옵션을 그 차종 크기로
      data-p="resin:보통"                  송진 단계별 (resin = 전체 단계)
-     data-p="premreg:경차"               프리미엄을 따로 할 때 금액 (고급 + 유막·발수 정가)
+     data-p="plusreg:경차"                고급을 따로 할 때 금액 (기본 + 왁스 + 가죽시트 코팅 정가)
+     data-p="plussave:경차"               고급 세차로 아끼는 금액  (premsave: 프리미엄)
+     data-p="premreg:경차"               프리미엄을 따로 할 때 금액 (위 금액 + 유막·발수 정가)
      data-p="rate:고급 세차"              그 상품의 옵션 할인율 (20%)
    data-pf: won(28,000원) · man(2.8만원) · mans(2.8만)
             앞에 + 를 붙이면 +, 뒤에 ~ 를 붙이면 ~ 가 붙습니다.
@@ -47,6 +49,7 @@
   var OPTIONS = {
     '휠 철분·집중세정':       [10000, 12000, 15000],
     '고급 왁스코팅':          [20000, 25000, 30000],
+    '가죽시트 코팅':          [15000, 18000, 22000],   // 고급·프리미엄 세차에는 포함
     '월세차 고급 업그레이드': [20000, 25000, 30000],   // 월세차 매달 1회 고급 세차 업그레이드
     '실내 집중세차':          [15000, 18000, 22000],
     '트렁크 청소':            [10000, 10000, 15000],
@@ -62,6 +65,9 @@
   var OPTION_DISCOUNT = { '고급 세차': 0.2, '프리미엄 세차': 0.3, '월 2회': 0.2, '월 4회': 0.2 };
   /* 할인하지 않는 옵션 (현장 견적이거나 월세차 전용 업그레이드) */
   var NO_DISCOUNT = ['송진 제거', '월세차 고급 업그레이드'];
+
+  /* 고급 세차에 포함된 옵션 — "따로 하면" 비교용 (기본 세차 + 이 옵션들 정가) */
+  var PLUS_ADDS = ['고급 왁스코팅', '가죽시트 코팅'];
 
   /* 프리미엄 세차 = 고급 세차 + 아래 옵션들을 프리미엄 할인율로 묶은 요금 (자동 계산) */
   var PREMIUM_ADDS = ['유리 유막제거', '발수코팅'];
@@ -93,12 +99,16 @@
   }
 
   /* 프리미엄 세차 요금을 차종마다 채움 (고급 세차 + 유막제거·발수코팅을 프리미엄 할인율로)
-     PREMIUM_REGULAR 는 "따로 하면" 비교용: 고급 세차 + 유막제거·발수코팅 정가 */
-  var PREMIUM_REGULAR = {};
+     "따로 하면" 비교용 금액 (모두 정가):
+       PLUS_REGULAR    = 기본 세차(외부+내부) + 고급 왁스코팅 + 가죽시트 코팅
+       PREMIUM_REGULAR = PLUS_REGULAR + 유리 유막제거 + 발수코팅 */
+  var PLUS_REGULAR = {}, PREMIUM_REGULAR = {};
+  function sumOpts(names, sz) { return names.reduce(function (sum, name) { return sum + OPTIONS[name][sz]; }, 0); }
   Object.keys(TABLE).forEach(function (cls) {
     var sz = SIZE_OF_CLASS[cls];
-    var adds = PREMIUM_ADDS.reduce(function (sum, name) { return sum + OPTIONS[name][sz]; }, 0);
-    PREMIUM_REGULAR[cls] = TABLE[cls]['고급 세차'] + adds;
+    var adds = sumOpts(PREMIUM_ADDS, sz);
+    PLUS_REGULAR[cls] = TABLE[cls]['외부+내부세차'] + sumOpts(PLUS_ADDS, sz);
+    PREMIUM_REGULAR[cls] = PLUS_REGULAR[cls] + adds;
     TABLE[cls]['프리미엄 세차'] = TABLE[cls]['고급 세차'] + floor1000(adds * (1 - (OPTION_DISCOUNT['프리미엄 세차'] || 0)));
   });
 
@@ -137,6 +147,9 @@
       if (sums.some(isNaN)) return null;
       return SIZE_LABEL.map(function (l, k) { return l + ' ' + fmt(sums[k], 'mans'); }).join(' · ');
     }
+    if (kind === 'plusreg') { v = PLUS_REGULAR[parts[0]]; return v == null ? null : fmt(v, pf); }
+    if (kind === 'plussave') { v = PLUS_REGULAR[parts[0]] - (TABLE[parts[0]] || {})['고급 세차']; return isNaN(v) ? null : fmt(v, pf); }
+    if (kind === 'premsave') { v = PREMIUM_REGULAR[parts[0]] - (TABLE[parts[0]] || {})['프리미엄 세차']; return isNaN(v) ? null : fmt(v, pf); }
     if (kind === 'premreg') { v = PREMIUM_REGULAR[parts[0]]; return v == null ? null : fmt(v, pf); }
     if (kind === 'rate') { v = OPTION_DISCOUNT[parts[0]]; return v == null ? null : Math.round(v * 100) + '%'; }
     if (kind === 'from') { v = dailyFrom(parts[0]); return isNaN(v) ? null : fmt(v, pf || 'man~'); }
@@ -176,7 +189,7 @@
 
   var api = {
     TABLE: TABLE, OPTIONS: OPTIONS, RESIN: RESIN,
-    PREMIUM_ADDS: PREMIUM_ADDS, PREMIUM_REGULAR: PREMIUM_REGULAR,
+    PREMIUM_ADDS: PREMIUM_ADDS, PREMIUM_REGULAR: PREMIUM_REGULAR, PLUS_ADDS: PLUS_ADDS, PLUS_REGULAR: PLUS_REGULAR,
     OPTION_DISCOUNT: OPTION_DISCOUNT, NO_DISCOUNT: NO_DISCOUNT, optionRate: optionRate, optionFor: optionFor,
     SIZE_OF_CLASS: SIZE_OF_CLASS, SIZE_LABEL: SIZE_LABEL,
     dailyFrom: dailyFrom, monthlySave: monthlySave, fmt: fmt, text: text, render: render
