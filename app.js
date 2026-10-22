@@ -622,7 +622,15 @@ function buildQuote(form) {
   const base = PRICE_TABLE[cls] ? PRICE_TABLE[cls][svc] : undefined;
   const lines = [];
   if (base) lines.push([`${svc} (${cls})`, base]);
+  // 전체 유리 유막제거 + 발수코팅을 함께 고르면 묶음가 한 줄로
+  const glassFull = window.AHC_PRICES.GLASS_FULL || [];
+  const bundled = glassFull.length && glassFull.every((n) => options.includes(n));
+  if (bundled) {
+    const pctB = Math.round(((window.AHC_PRICES.OPTION_DISCOUNT || {})[svc] || 0) * 100);
+    lines.push([`전체 유리 유막제거+발수코팅 묶음${pctB ? ` (${svc} ${pctB}% 할인)` : ''}`, window.AHC_PRICES.glassBundleFor(cls, svc)]);
+  }
   options.forEach((name) => {
+    if (bundled && glassFull.includes(name)) return;
     const pct = optionRatePct(name, svc);
     const shown = (window.AHC_PRICES.PREMIUM_ADDS || []).includes(name) ? `${name}(전면)` : name;
     lines.push([pct ? `${shown} (${svc} ${pct}% 할인)` : shown, optionPrice(name, cls, svc)]);
@@ -636,7 +644,23 @@ function buildQuote(form) {
   return { car, cls, svc, lines, total, monthly, ready, options, promos, discount };
 }
 
+/* 전면 ↔ 전체 유리 옵션은 둘 중 하나만: 방금 체크한 쪽을 남기고 짝을 해제 */
+let lastOptionChanged = '';
+document.addEventListener('change', (e) => {
+  if (e.target && e.target.name === 'options') lastOptionChanged = e.target.value;
+}, true);
+function enforceGlassPairs(form) {
+  const pairs = window.AHC_PRICES.GLASS_PAIRS || {};
+  Object.keys(pairs).forEach((front) => {
+    const a = form.querySelector(`[name="options"][value="${front}"]`);
+    const b = form.querySelector(`[name="options"][value="${pairs[front]}"]`);
+    if (!a || !b || !a.checked || !b.checked) return;
+    if (lastOptionChanged === front) b.checked = false; else a.checked = false;
+  });
+}
+
 function refreshOptionChips(form) {
+  enforceGlassPairs(form);
   const cls = form.querySelector('#carClassHidden')?.value || form.querySelector('#carClassSelect')?.value || '';
   const known = cls in SIZE_OF_CLASS;
   form.querySelectorAll('[name="options"]').forEach((box) => {
@@ -648,7 +672,10 @@ function refreshOptionChips(form) {
       || (box.value === '월세차 고급 업그레이드' && !monthlyNow)
       || ((window.AHC_PRICES.PLUS_ADDS || ['고급 왁스코팅']).includes(box.value) && (svcNow === '고급 세차' || svcNow === '프리미엄 세차'))
       // 프리미엄 세차에 이미 포함된 옵션(유막제거·발수코팅)은 중복 선택 막기
-      || (svcNow === '프리미엄 세차' && (window.AHC_PRICES.PREMIUM_ADDS || []).includes(box.value));
+      || (svcNow === '프리미엄 세차' && (window.AHC_PRICES.PREMIUM_ADDS || []).includes(box.value))
+      // 프리미엄은 전체 유리를 '프리미엄 전체 유리 업그레이드'로만 받음
+      || (svcNow === '프리미엄 세차' && (window.AHC_PRICES.GLASS_FULL || []).includes(box.value))
+      || (box.value === '프리미엄 전체 유리 업그레이드' && svcNow !== '프리미엄 세차');
     if (chip) chip.classList.toggle('hidden', hide);
     if (hide) box.checked = false;
     const small = chip?.querySelector('small');
@@ -715,8 +742,16 @@ function renderOptionNotice(form) {
   if ((svcSel === '월 2회' || svcSel === '월 4회') && form.querySelector('[name="options"][value="유리 유막제거"]:checked, [name="options"][value="발수코팅"]:checked')) {
     msgs.push('💧 유막제거·발수코팅은 3개월에 한 번이면 충분해요. 월세차 3개월 이용 시 1회 무료로 받을 수 있어요.');
   }
+  const fullGlass = (window.AHC_PRICES.GLASS_FULL || []).filter((n) => form.querySelector(`[name="options"][value="${n}"]:checked`));
+  const fullUpgrade = form.querySelector('[name="options"][value="프리미엄 전체 유리 업그레이드"]:checked');
+  if (fullGlass.length === 2) {
+    msgs.push('💧 전체 유리 유막제거와 발수코팅을 함께 고르셔서 묶음가로 계산했어요.');
+  }
+  if (fullGlass.length || fullUpgrade) {
+    msgs.push('🚪 전체 유리는 앞·옆·뒷유리를 작업해요 (선루프 제외). 옆유리는 창문을 조금 내려야 윗부분까지 작업돼요. 비대면으로 창문을 내릴 수 없으면 문틀 안쪽 윗부분은 제외될 수 있어요.');
+  }
   if (svcSel === '프리미엄 세차') {
-    msgs.push('💎 프리미엄 세차: 고급 세차(프리미엄 가죽시트 코팅 + 프리미엄 왁스 시공)에 유리 유막제거와 발수코팅까지 포함돼 있어요.');
+    msgs.push(`💎 프리미엄 세차: 고급 세차(프리미엄 가죽시트 코팅 + 프리미엄 왁스 시공)에 전면 유리 유막제거와 발수코팅까지 포함돼 있어요.${fullUpgrade ? '' : " 옆·뒷유리까지 원하시면 '프리미엄 전체 유리 업그레이드'를 골라 주세요."}`);
   }
   if (form.querySelector('[name="options"][value="송진 제거"]:checked')) {
     msgs.push(`🌲 송진 제거는 가벼움 ${won(window.AHC_PRICES.RESIN['가벼움'])} 기준이며, 현장에서 상태(가벼움·보통·심함)를 확인한 뒤 요금이 추가될 수 있어요. 보통 ${won(window.AHC_PRICES.RESIN['보통'])} · 심함은 현장 견적이며, 작업 전에 금액을 먼저 안내드립니다.`);

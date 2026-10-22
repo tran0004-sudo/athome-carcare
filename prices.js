@@ -18,6 +18,7 @@
      data-p="opt:발수코팅|1"              옵션 크기별 (0 소형 · 1 중형 · 2 대형)
      data-p="optc:월세차 고급 업그레이드|경차"  옵션을 그 차종 크기로
      data-p="resin:보통"                  송진 단계별 (resin = 전체 단계)
+     data-p="glassbundle:"                전체 유리 유막+발수 묶음가 (sizes / sizeswon, 또는 glassbundle:0 크기별)
      data-p="plusreg:경차"                고급을 따로 할 때 금액 (기본 + 왁스 + 가죽시트 코팅 정가)
      data-p="plussave:경차"               고급 세차로 아끼는 금액  (premsave: 프리미엄)
      data-p="premreg:경차"               프리미엄을 따로 할 때 금액 (위 금액 + 유막·발수 정가)
@@ -56,6 +57,8 @@
     '벌레·타르·스티커 제거':  [10000, 12000, 15000],
     '유리 유막제거':          [15000, 18000, 22000],
     '발수코팅':               [20000, 25000, 30000],
+    '유리 유막제거 (전체)':   [35000, 45000, 55000],   // 전면·옆·뒷유리 (선루프 제외)
+    '발수코팅 (전체)':        [45000, 55000, 65000],   // 전면·옆·뒷유리 (선루프 제외)
     '엔진룸 클리닝':          [20000, 25000, 30000],
     '송진 제거':              [10000, 10000, 10000]    // 예상 금액은 가벼움 기준 — 단계별 요금은 아래 RESIN
   };
@@ -64,7 +67,14 @@
      숫자만 바꾸면 예약 화면·카드 문구가 모두 따라 바뀝니다. 0 이면 할인 없음. */
   var OPTION_DISCOUNT = { '고급 세차': 0.2, '프리미엄 세차': 0.3, '월 2회': 0.2, '월 4회': 0.2 };
   /* 할인하지 않는 옵션 (현장 견적이거나 월세차 전용 업그레이드) */
-  var NO_DISCOUNT = ['송진 제거', '월세차 고급 업그레이드'];
+  var NO_DISCOUNT = ['송진 제거', '월세차 고급 업그레이드', '프리미엄 전체 유리 업그레이드'];
+
+  /* 전체 유리: 유막제거(전체) + 발수코팅(전체)를 함께 고르면 묶음가 [소형, 중형, 대형] (원)
+     상품 할인(고급·월세차 20%, 프리미엄 30%)은 묶음가에 다시 적용됩니다. */
+  var GLASS_FULL = ['유리 유막제거 (전체)', '발수코팅 (전체)'];
+  var GLASS_FULL_BUNDLE = [70000, 85000, 100000];
+  /* 전면 ↔ 전체 짝 (둘 중 하나만 고를 수 있음) */
+  var GLASS_PAIRS = { '유리 유막제거': '유리 유막제거 (전체)', '발수코팅': '발수코팅 (전체)' };
 
   /* 고급 세차에 포함된 옵션 — "따로 하면" 비교용 (기본 세차 + 이 옵션들 정가) */
   var PLUS_ADDS = ['고급 왁스코팅', '가죽시트 코팅'];
@@ -85,6 +95,12 @@
 
   function floor1000(n) { return Math.floor(n / 1000) * 1000; }
 
+  /* 프리미엄 전체 유리 업그레이드 = (전체 묶음가 − 전면 유막·발수 정가) 에 프리미엄 할인율 적용 */
+  OPTIONS['프리미엄 전체 유리 업그레이드'] = [0, 1, 2].map(function (k) {
+    var diff = GLASS_FULL_BUNDLE[k] - (OPTIONS['유리 유막제거'][k] + OPTIONS['발수코팅'][k]);
+    return floor1000(diff * (1 - (OPTION_DISCOUNT['프리미엄 세차'] || 0)));
+  });
+
   /* 옵션 할인율 (상품 기준) */
   function optionRate(name, svc) {
     if (NO_DISCOUNT.indexOf(name) >= 0) return 0;
@@ -96,6 +112,13 @@
     var base = t[SIZE_OF_CLASS[cls] != null ? SIZE_OF_CLASS[cls] : 0];
     var rate = optionRate(name, svc);
     return rate ? floor1000(base * (1 - rate)) : base;
+  }
+
+  /* 전체 유리 묶음가 (차종·상품 할인 반영) */
+  function glassBundleFor(cls, svc) {
+    var k = SIZE_OF_CLASS[cls] != null ? SIZE_OF_CLASS[cls] : 0;
+    var rate = OPTION_DISCOUNT[svc] || 0;
+    return rate ? floor1000(GLASS_FULL_BUNDLE[k] * (1 - rate)) : GLASS_FULL_BUNDLE[k];
   }
 
   /* 프리미엄 세차 요금을 차종마다 채움 (고급 세차 + 유막제거·발수코팅을 프리미엄 할인율로)
@@ -147,6 +170,10 @@
       if (sums.some(isNaN)) return null;
       return SIZE_LABEL.map(function (l, k) { return l + ' ' + fmt(sums[k], 'mans'); }).join(' · ');
     }
+    if (kind === 'glassbundle') {   /* data-p="glassbundle:" sizes 모양 · "glassbundle:1" 크기별 */
+      if (parts[0] !== '') return GLASS_FULL_BUNDLE[+parts[0]] == null ? null : fmt(GLASS_FULL_BUNDLE[+parts[0]], pf || 'mans');
+      return SIZE_LABEL.map(function (l, k) { return l + ' ' + fmt(GLASS_FULL_BUNDLE[k], pf === 'sizeswon' ? 'won' : 'mans'); }).join(' · ');
+    }
     if (kind === 'plusreg') { v = PLUS_REGULAR[parts[0]]; return v == null ? null : fmt(v, pf); }
     if (kind === 'plussave') { v = PLUS_REGULAR[parts[0]] - (TABLE[parts[0]] || {})['고급 세차']; return isNaN(v) ? null : fmt(v, pf); }
     if (kind === 'premsave') { v = PREMIUM_REGULAR[parts[0]] - (TABLE[parts[0]] || {})['프리미엄 세차']; return isNaN(v) ? null : fmt(v, pf); }
@@ -189,6 +216,7 @@
 
   var api = {
     TABLE: TABLE, OPTIONS: OPTIONS, RESIN: RESIN,
+    GLASS_FULL: GLASS_FULL, GLASS_FULL_BUNDLE: GLASS_FULL_BUNDLE, GLASS_PAIRS: GLASS_PAIRS, glassBundleFor: glassBundleFor,
     PREMIUM_ADDS: PREMIUM_ADDS, PREMIUM_REGULAR: PREMIUM_REGULAR, PLUS_ADDS: PLUS_ADDS, PLUS_REGULAR: PLUS_REGULAR,
     OPTION_DISCOUNT: OPTION_DISCOUNT, NO_DISCOUNT: NO_DISCOUNT, optionRate: optionRate, optionFor: optionFor,
     SIZE_OF_CLASS: SIZE_OF_CLASS, SIZE_LABEL: SIZE_LABEL,

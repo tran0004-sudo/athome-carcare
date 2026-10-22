@@ -586,3 +586,8 @@ html.ahc-admin .topbar .icon-btn[data-go="admin"]{display:inline-flex}
 /* 예약 화면 맨 위 '간편 예약 · 한 화면에서 바로 접수하세요' 안내 숨김 (자리 표시용 요소는 그대로 둠) */
 #booking form.booking-wizard-ready .booking-wizard-head{display:none !important;}
 #bookingForm .booking-wizard-head + .bk-saved{margin-top:0;}
+/* 프리미엄 카드: 전체 유리 업그레이드 줄 */
+:is(#home #washGuideSection,#menu .menu-stairs) .lx-upgrade{margin:12px 0 0;padding:9px 12px;border:1px dashed rgba(217,180,106,.45);border-radius:12px;font-size:13.5px;line-height:1.5;color:#d8ccb0;word-break:keep-all;}
+:is(#home #washGuideSection,#menu .menu-stairs) .lx-upgrade b{color:#e8c77f;font-weight:850;}
+:is(#home #washGuideSection,#menu .menu-stairs) .lx-upgrade span{font-weight:800;color:#f3dca0;white-space:nowrap;}
+:is(#home #washGuideSection,#menu .menu-stairs) .lx-upgrade small{display:block;font-size:12px;color:#a99d84;}
