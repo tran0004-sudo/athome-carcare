@@ -582,3 +582,7 @@ html.ahc-admin .topbar .icon-btn[data-go="admin"]{display:inline-flex}
 :is(#home #washGuideSection,#menu .menu-stairs) .pkg-save{display:inline-block;margin:4px 0 2px;padding:2px 8px;border-radius:999px;font-style:normal;font-size:12px;font-weight:850;color:#fff;background:#d4562b;}
 :is(#home #washGuideSection,#menu .menu-stairs) .lx-foot .pkg-save{color:#1a1408;background:linear-gradient(100deg,#f3dca0,#d9b46a);}
 :is(#home #washGuideSection,#menu .menu-stairs) .pkg-price b{display:block;}
+
+/* 예약 화면 맨 위 '간편 예약 · 한 화면에서 바로 접수하세요' 안내 숨김 (자리 표시용 요소는 그대로 둠) */
+#booking form.booking-wizard-ready .booking-wizard-head{display:none !important;}
+#bookingForm .booking-wizard-head + .bk-saved{margin-top:0;}
