@@ -624,7 +624,8 @@ function buildQuote(form) {
   if (base) lines.push([`${svc} (${cls})`, base]);
   options.forEach((name) => {
     const pct = optionRatePct(name, svc);
-    lines.push([pct ? `${name} (${svc} ${pct}% 할인)` : name, optionPrice(name, cls, svc)]);
+    const shown = (window.AHC_PRICES.PREMIUM_ADDS || []).includes(name) ? `${name}(전면)` : name;
+    lines.push([pct ? `${shown} (${svc} ${pct}% 할인)` : shown, optionPrice(name, cls, svc)]);
   });
   promos.forEach((promo) => lines.push([promo.label, -(promo.amount || 0), promo.gift || (promo.amount ? '' : '혜택 제공')]));
 
