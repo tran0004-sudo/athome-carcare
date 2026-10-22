@@ -591,3 +591,58 @@ html.ahc-admin .topbar .icon-btn[data-go="admin"]{display:inline-flex}
 :is(#home #washGuideSection,#menu .menu-stairs) .lx-upgrade b{color:#e8c77f;font-weight:850;}
 :is(#home #washGuideSection,#menu .menu-stairs) .lx-upgrade span{font-weight:800;color:#f3dca0;white-space:nowrap;}
 :is(#home #washGuideSection,#menu .menu-stairs) .lx-upgrade small{display:block;font-size:12px;color:#a99d84;}
+
+/* ===== 기본·고급 카드 고급 마감 (프리미엄 카드와 같은 완성도) ===== */
+#washGuideSection,.menu-stairs{--bs-g1:#0b7a63;--bs-g2:#0a5c4c;--bs-g3:#063f35;--bs-mint:#bfe6d8;--sg-1:#f3dca0;--sg-2:#c99a45;--sg-3:#8a5a12;}
+/* 카드: 얇은 그라데이션 테두리 + 깊은 그림자 */
+:is(#home #washGuideSection,#menu .menu-stairs) :is(.pkg-basic,.pkg-premium){position:relative;border:0 !important;border-radius:24px;overflow:hidden;}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-basic{box-shadow:0 16px 36px rgba(6,63,53,.14),0 2px 6px rgba(6,63,53,.06);}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-premium{box-shadow:0 16px 36px rgba(122,82,18,.16),0 2px 6px rgba(122,82,18,.06);}
+:is(#home #washGuideSection,#menu .menu-stairs) :is(.pkg-basic,.pkg-premium)::after{content:"";position:absolute;inset:0;border-radius:24px;padding:1.5px;pointer-events:none;z-index:4;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-basic::after{background:linear-gradient(135deg,#7fd1b6,rgba(11,122,99,.25) 40%,rgba(11,122,99,.1) 60%,#5fbf9f);}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-premium::after{background:linear-gradient(135deg,var(--sg-1),var(--sg-2) 35%,rgba(201,154,69,.25) 60%,var(--sg-2) 85%,var(--sg-1));}
+
+/* 헤더: 작은 영문 머리말 + 은은한 빛 */
+:is(#home #washGuideSection,#menu .menu-stairs) .pk-kicker{display:block;margin-bottom:6px;font-size:11px;font-weight:800;letter-spacing:.3em;}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-basic .pk-kicker{color:var(--bs-mint);}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-premium .pk-kicker{color:#fbe9bd;}
+:is(#home #washGuideSection,#menu .menu-stairs) :is(.pkg-basic,.pkg-premium) .pkg-head h3{text-shadow:0 2px 10px rgba(0,0,0,.18);}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-basic .pkg-head{background:
+  radial-gradient(110% 90% at 0% 0%,rgba(127,209,182,.22),transparent 55%),
+  linear-gradient(105deg,var(--bs-g3) 0%,var(--bs-g2) 45%,var(--bs-g1) 100%) !important;}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-premium .pkg-head{background:
+  radial-gradient(110% 90% at 0% 0%,rgba(255,236,190,.22),transparent 55%),
+  linear-gradient(105deg,#5e3d0c 0%,#80571a 45%,#a77a2c 100%) !important;}
+:is(#home #washGuideSection,#menu .menu-stairs) :is(.pkg-basic,.pkg-premium) .pkg-head::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.14) 50%,transparent 60%) !important;background-size:250% 100% !important;animation:lxShine 7s ease-in-out infinite;}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-premium .pkg-head::before{background:linear-gradient(115deg,transparent 40%,rgba(255,240,200,.24) 50%,transparent 60%) !important;background-size:250% 100% !important;}
+@media (prefers-reduced-motion:reduce){:is(#home #washGuideSection,#menu .menu-stairs) :is(.pkg-basic,.pkg-premium) .pkg-head::before{animation:none;}}
+/* 인기 배지: 크림 골드 알약 */
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-premium .pkg-badge{border:0 !important;color:#3d2806 !important;background:linear-gradient(100deg,#fff1cc,var(--sg-1) 45%,#d9b46a) !important;
+  box-shadow:0 4px 12px rgba(60,38,6,.28);padding:8px 16px;font-size:12.5px;letter-spacing:.06em;}
+
+/* 본문: 시간 알약 · 아이콘 링 · 구분선 다이아 */
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-basic .pkg-time{background:#fff !important;border:1.5px solid #cfe4db;color:#0a4d41;box-shadow:inset 0 1px 0 #fff,0 2px 8px rgba(6,63,53,.06);}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-premium .pkg-time{background:#fffaf0 !important;border:1.5px solid #e6c98a !important;color:#8a5a12;box-shadow:0 2px 8px rgba(122,82,18,.07);}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-basic .pk-ic{background:radial-gradient(circle at 30% 30%,#ffffff,#e3f1eb) !important;box-shadow:inset 0 0 0 1.5px #bfe0d3,0 3px 8px rgba(6,63,53,.08);}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-premium .pk-ic{background:radial-gradient(circle at 30% 30%,#fffdf6,#f7e6bd) !important;box-shadow:inset 0 0 0 1.5px #e6c98a,0 3px 8px rgba(122,82,18,.1);}
+:is(#home #washGuideSection,#menu .menu-stairs) :is(.pkg-basic,.pkg-premium) .pkg-sec+.pkg-sec::before{height:1px;left:4px;right:4px;}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-basic .pkg-sec+.pkg-sec::before{background:linear-gradient(90deg,transparent,#a9d3c3,transparent) !important;}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-premium .pkg-sec+.pkg-sec::before{background:linear-gradient(90deg,transparent,#e0bf78,transparent) !important;}
+:is(#home #washGuideSection,#menu .menu-stairs) :is(.pkg-basic,.pkg-premium) .pkg-sec+.pkg-sec::after{content:"";position:absolute;top:-3.5px;left:50%;width:7px;height:7px;transform:translateX(-50%) rotate(45deg);}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-basic .pkg-sec+.pkg-sec::after{background:#0b7a63;}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-premium .pkg-sec+.pkg-sec::after{background:#c99a45;}
+
+/* 혜택 줄: 왼쪽 강조선 */
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-basic .pkg-perk{background:linear-gradient(90deg,#e8f4ef,#f4faf7) !important;border-left:3px solid #0b7a63;}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-premium .pkg-perk{background:linear-gradient(90deg,#f8ebcd,#fcf5e4) !important;border-left:3px solid #c99a45;}
+
+/* 가격 · 예약 버튼 */
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-basic .pkg-foot{border-top:1px solid #dcebe4;}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-basic .pkg-price b{background:linear-gradient(180deg,#0b7a63,#063f35);-webkit-background-clip:text;background-clip:text;color:transparent;}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-premium .pkg-price b{background:linear-gradient(180deg,#a77a2c,#6b450c);-webkit-background-clip:text;background-clip:text;color:transparent;}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-basic .pkg-book{background:linear-gradient(100deg,var(--bs-g3),var(--bs-g1)) !important;box-shadow:0 6px 16px rgba(6,63,53,.25);}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-premium .pkg-book{background:linear-gradient(100deg,#6b450c,#a77a2c 60%,#c99a45) !important;box-shadow:0 6px 16px rgba(122,82,18,.28);}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-book{transition:transform .15s ease,box-shadow .15s ease;}
+:is(#home #washGuideSection,#menu .menu-stairs) .pkg-book:active{transform:translateY(1px);}
