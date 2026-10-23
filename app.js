@@ -140,7 +140,7 @@ const esc = (s = '') => String(s).replace(/[&<>'"]/g, (c) => ({
 
 const DEFAULT_PROMOS = [
   { id: 'first4', auto: 'first', text: '월세차 첫 달 ', highlight: '5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
-  { id: 'refer', text: '가족·지인 소개 시 ', highlight: '외부세차 1회', amount: 0, gift: '외부세차 1회 제공', services: [] },
+  { id: 'refer', text: '가족·지인 소개 시 ', highlight: '소개한 분께 10,000원 할인 쿠폰', amount: 0, gift: '소개받은 분 첫 결제 후 발급 · 3만 원 이상 예약 시 사용', services: [] },
   { id: 'apt5', auto: 'apt5', text: '같은 아파트 5대 이상 ', highlight: '차량당 5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
   { id: 'loyal', auto: 'loyal', text: '3개월 이용하실 때마다 ', highlight: '고급 왁스코팅 또는 전면 유막제거 1회 무료', amount: 0, gift: '고급 왁스코팅 또는 전면 유리 유막제거 중 택 1 무료', services: ['월 2회', '월 4회'] },
 ];
@@ -600,7 +600,14 @@ function buildQuote(form) {
     if (promo) promos.push({ label: promoLabel(promo), amount: promo.amount || 0, gift: promo.gift || '' });
   } else if (key.startsWith('coupon:')) {
     const coupon = (window.__myCoupons || []).find((item) => item.code === key.slice(7));
-    if (coupon) promos.push({ label: `${coupon.label} (${coupon.code})`, amount: coupon.amount || 0, gift: coupon.gift || '' });
+    if (coupon) {
+      // 소개 쿠폰(10,000원)은 3만 원 이상 예약에만 사용
+      const baseNow = PRICE_TABLE[cls] ? PRICE_TABLE[cls][svc] : 0;
+      const tooSmall = /소개/.test(coupon.label || '') && (baseNow || 0) < 30000;
+      promos.push(tooSmall
+        ? { label: `${coupon.label} (${coupon.code})`, amount: 0, gift: '3만 원 이상 예약 시 사용할 수 있어요' }
+        : { label: `${coupon.label} (${coupon.code})`, amount: coupon.amount || 0, gift: coupon.gift || '' });
+    }
   }
 
   const base = PRICE_TABLE[cls] ? PRICE_TABLE[cls][svc] : undefined;
