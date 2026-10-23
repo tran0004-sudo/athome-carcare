@@ -1,4 +1,4 @@
-const CACHE = 'athome-carcare-v238';
+const CACHE = 'athome-carcare-v239';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest?v=20261001-icon7', './data/content.json',
   './core.css?v=20261022-stairs2', './features.css?v=20261024-homefold',
