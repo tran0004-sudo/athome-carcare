@@ -43,7 +43,10 @@
     '중형 SUV':    { '월 4회': 87000,  '월 2회': 69000,  '일일 외부세차': 37000, '외부+내부세차': 57000, '고급 세차': 75000 },
     '대형 SUV':    { '월 4회': 91000,  '월 2회': 74000,  '일일 외부세차': 39000, '외부+내부세차': 65000, '고급 세차': 83000 },
     '프리미엄 SUV': { '월 4회': 105000, '월 2회': 84000,  '일일 외부세차': 45000, '외부+내부세차': 70000, '고급 세차': 90000 },
-    '미니밴':      { '월 4회': 120000, '월 2회': 102000, '일일 외부세차': 49000, '외부+내부세차': 75000, '고급 세차': 90000 }
+    '미니밴':      { '월 4회': 120000, '월 2회': 102000, '일일 외부세차': 49000, '외부+내부세차': 75000, '고급 세차': 90000 },
+    /* 승합 — 좌석이 많아 시트·레일 청소가 힘들고 차체가 큰 만큼 미니밴보다 높게 */
+    '승합 9인승':  { '월 4회': 130000, '월 2회': 112000, '일일 외부세차': 52000, '외부+내부세차': 85000, '고급 세차': 100000 },
+    '승합 11·12인승': { '월 4회': 145000, '월 2회': 125000, '일일 외부세차': 55000, '외부+내부세차': 100000, '고급 세차': 115000 }
   };
 
   /* 추가 옵션 — 차량 크기별 [소형, 중형, 대형] (원) */
@@ -85,15 +88,6 @@
   /* 프리미엄 세차 = 고급 세차 + 아래 옵션들을 프리미엄 할인율로 묶은 요금 (자동 계산) */
   var PREMIUM_ADDS = ['유리 유막제거', '발수코팅'];
 
-  /* 좌석이 많은 승합차 — 내부 작업(시트·레일 청소)이 늘어나는 만큼 추가 (원)
-     아래 모델 이름이 들어 있고 "N인승"이 붙은 차량에 적용. 외부세차는 추가 없음. */
-  var SEAT_MODELS = ['그랜드 스타렉스', '스타리아', '카니발'];
-  var SEAT_EXTRA = { 3: 0, 4: 0, 5: 5000, 7: 5000, 9: 10000, 11: 20000, 12: 25000 };
-  /* 화면 안내용 묶음 */
-  var SEAT_STEPS = [['3·4인승', 0], ['5·7인승', 5000], ['9인승', 10000], ['11인승', 20000], ['12인승', 25000]];
-  /* 좌석 추가 요금이 붙는 상품 (내부 작업이 있는 상품) */
-  var SEAT_SERVICES = ['외부+내부세차', '고급 세차', '프리미엄 세차', '월 2회', '월 4회'];
-
   /* 송진 제거 단계별 (원) — 심함은 현장 견적 */
   var RESIN = { '가벼움': 10000, '보통': 20000 };
 
@@ -101,7 +95,7 @@
   var SIZE_OF_CLASS = {
     '경차': 0, '소형 세단': 0,
     '중형 세단': 1, '대형 세단': 1, '소형 SUV': 1, '중형 SUV': 1,
-    '대형 SUV': 2, '프리미엄 SUV': 2, '미니밴': 2
+    '대형 SUV': 2, '프리미엄 SUV': 2, '미니밴': 2, '승합 9인승': 2, '승합 11·12인승': 2
   };
   var SIZE_LABEL = ['소형', '중형', '대형'];
 
@@ -146,18 +140,6 @@
     TABLE[cls]['프리미엄 세차'] = TABLE[cls]['고급 세차'] + floor1000(adds * (1 - PREMIUM_GLASS_RATE));
   });
 
-  /* 좌석 추가 요금: car 는 "기아 카니발 9인승" 같은 차량 이름 */
-  function seatCount(car) {
-    if (!car || !SEAT_MODELS.some(function (m) { return car.indexOf(m) >= 0; })) return 0;
-    var m = car.match(/(\d+)인승/);
-    return m ? +m[1] : 0;
-  }
-  function seatExtra(car, svc) {
-    if (SEAT_SERVICES.indexOf(svc) < 0) return 0;
-    var n = seatCount(car);
-    return n && SEAT_EXTRA[n] != null ? SEAT_EXTRA[n] : 0;
-  }
-
   /* ── 계산 ─────────────────────────────────────────────── */
   function dailyFrom(cls) {
     var p = TABLE[cls]; if (!p) return NaN;
@@ -192,9 +174,6 @@
       });
       if (sums.some(isNaN)) return null;
       return SIZE_LABEL.map(function (l, k) { return l + ' ' + fmt(sums[k], 'mans'); }).join(' · ');
-    }
-    if (kind === 'seats') {   /* data-p="seats:" — 인승별 추가 요금 안내 */
-      return SEAT_STEPS.map(function (st) { return st[0] + ' ' + (st[1] ? fmt(st[1], '+won') : '추가 없음'); }).join(' · ');
     }
     if (kind === 'glassbundle') {   /* data-p="glassbundle:" sizes 모양 · "glassbundle:1" 크기별 */
       if (parts[0] !== '') return GLASS_FULL_BUNDLE[+parts[0]] == null ? null : fmt(GLASS_FULL_BUNDLE[+parts[0]], pf || 'mans');
@@ -242,7 +221,6 @@
 
   var api = {
     TABLE: TABLE, OPTIONS: OPTIONS, RESIN: RESIN,
-    SEAT_MODELS: SEAT_MODELS, SEAT_EXTRA: SEAT_EXTRA, SEAT_STEPS: SEAT_STEPS, SEAT_SERVICES: SEAT_SERVICES, seatCount: seatCount, seatExtra: seatExtra,
     GLASS_FULL: GLASS_FULL, GLASS_FULL_BUNDLE: GLASS_FULL_BUNDLE, GLASS_PAIRS: GLASS_PAIRS, glassBundleFor: glassBundleFor,
     PREMIUM_ADDS: PREMIUM_ADDS, PREMIUM_REGULAR: PREMIUM_REGULAR, PLUS_ADDS: PLUS_ADDS, PLUS_REGULAR: PLUS_REGULAR,
     OPTION_DISCOUNT: OPTION_DISCOUNT, PREMIUM_GLASS_RATE: PREMIUM_GLASS_RATE, NO_DISCOUNT: NO_DISCOUNT, optionRate: optionRate, optionFor: optionFor,
