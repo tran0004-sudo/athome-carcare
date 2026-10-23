@@ -86,16 +86,11 @@
   var PREMIUM_ADDS = ['유리 유막제거', '발수코팅'];
 
   /* 좌석이 많은 승합차 — 내부 작업(시트·레일 청소)이 늘어나는 만큼 추가 (원)
-     모델 이름(예약 화면의 모델 목록 이름)에 키가 들어 있으면 적용. 외부세차는 추가 없음. */
-  var SEAT_EXTRA = {
-    '그랜드 스타렉스 밴 3인승': 0,
-    '그랜드 스타렉스 밴 5인승': 5000,
-    '그랜드 스타렉스 9인승': 10000,
-    '그랜드 스타렉스 11인승': 20000,
-    '그랜드 스타렉스 12인승': 25000
-  };
-  /* 화면 안내용 인승별 금액 (3인승 · 5인승 · 9인승 · 11인승 · 12인승) */
-  var SEAT_STEPS = [['3인승', 0], ['5인승', 5000], ['9인승', 10000], ['11인승', 20000], ['12인승', 25000]];
+     아래 모델 이름이 들어 있고 "N인승"이 붙은 차량에 적용. 외부세차는 추가 없음. */
+  var SEAT_MODELS = ['그랜드 스타렉스', '스타리아', '카니발'];
+  var SEAT_EXTRA = { 3: 0, 4: 0, 5: 5000, 7: 5000, 9: 10000, 11: 20000, 12: 25000 };
+  /* 화면 안내용 묶음 */
+  var SEAT_STEPS = [['3·4인승', 0], ['5·7인승', 5000], ['9인승', 10000], ['11인승', 20000], ['12인승', 25000]];
   /* 좌석 추가 요금이 붙는 상품 (내부 작업이 있는 상품) */
   var SEAT_SERVICES = ['외부+내부세차', '고급 세차', '프리미엄 세차', '월 2회', '월 4회'];
 
@@ -151,12 +146,16 @@
     TABLE[cls]['프리미엄 세차'] = TABLE[cls]['고급 세차'] + floor1000(adds * (1 - PREMIUM_GLASS_RATE));
   });
 
-  /* 좌석 추가 요금: car 는 "현대 그랜드 스타렉스 12인승" 같은 차량 이름 */
+  /* 좌석 추가 요금: car 는 "기아 카니발 9인승" 같은 차량 이름 */
+  function seatCount(car) {
+    if (!car || !SEAT_MODELS.some(function (m) { return car.indexOf(m) >= 0; })) return 0;
+    var m = car.match(/(\d+)인승/);
+    return m ? +m[1] : 0;
+  }
   function seatExtra(car, svc) {
-    if (SEAT_SERVICES.indexOf(svc) < 0 || !car) return 0;
-    var keys = Object.keys(SEAT_EXTRA);
-    for (var i = 0; i < keys.length; i++) if (car.indexOf(keys[i]) >= 0) return SEAT_EXTRA[keys[i]];
-    return 0;
+    if (SEAT_SERVICES.indexOf(svc) < 0) return 0;
+    var n = seatCount(car);
+    return n && SEAT_EXTRA[n] != null ? SEAT_EXTRA[n] : 0;
   }
 
   /* ── 계산 ─────────────────────────────────────────────── */
@@ -243,7 +242,7 @@
 
   var api = {
     TABLE: TABLE, OPTIONS: OPTIONS, RESIN: RESIN,
-    SEAT_EXTRA: SEAT_EXTRA, SEAT_STEPS: SEAT_STEPS, SEAT_SERVICES: SEAT_SERVICES, seatExtra: seatExtra,
+    SEAT_MODELS: SEAT_MODELS, SEAT_EXTRA: SEAT_EXTRA, SEAT_STEPS: SEAT_STEPS, SEAT_SERVICES: SEAT_SERVICES, seatCount: seatCount, seatExtra: seatExtra,
     GLASS_FULL: GLASS_FULL, GLASS_FULL_BUNDLE: GLASS_FULL_BUNDLE, GLASS_PAIRS: GLASS_PAIRS, glassBundleFor: glassBundleFor,
     PREMIUM_ADDS: PREMIUM_ADDS, PREMIUM_REGULAR: PREMIUM_REGULAR, PLUS_ADDS: PLUS_ADDS, PLUS_REGULAR: PLUS_REGULAR,
     OPTION_DISCOUNT: OPTION_DISCOUNT, PREMIUM_GLASS_RATE: PREMIUM_GLASS_RATE, NO_DISCOUNT: NO_DISCOUNT, optionRate: optionRate, optionFor: optionFor,
