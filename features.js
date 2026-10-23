@@ -991,6 +991,17 @@ try {
     localStorage.setItem(AUTH_KEY,JSON.stringify(s));
     return s.access_token;
   }
+  /* DB에 아직 apartment 칸이 없을 때(22번 SQL 실행 전)에도 계약 저장이 되도록 한 번 다시 시도 */
+  async function apiSave(path,options){
+    try{return await api(path,options);}
+    catch(e){
+      if(!/apartment/i.test(e.message||'')||!options.body)throw e;
+      const b=JSON.parse(options.body);delete b.apartment;
+      const r=await api(path,{...options,body:JSON.stringify(b)});
+      setTimeout(()=>note('저장했지만 아파트명은 아직 저장되지 않았어요. Supabase에서 22번 SQL을 실행해 주세요.',true),0);
+      return r;
+    }
+  }
   async function api(path,options={}) {
     const token=await session();
     if(!token)throw Error('관리자로 로그인한 후 이용해 주세요.');
@@ -1012,6 +1023,7 @@ try {
     f.elements.namedItem('phone').value=c?.phone||'';
     f.elements.namedItem('customerName').value=c?.customer_name||'';
     f.elements.namedItem('carModel').value=c?.car_model||'';
+    f.elements.namedItem('apartment').value=c?.apartment||'';
     f.elements.namedItem('monthlyVisits').value=c?.monthly_visits||'2';
     f.elements.namedItem('startsOn').value=c?.starts_on||'';
     f.elements.namedItem('expiresOn').value=c?.expires_on||'';
@@ -1032,11 +1044,48 @@ try {
         api('reservations?select=id,phone,status,done_at,scheduled_at,service_type,car_model,customer_name&status=in.(%ED%99%95%EC%A0%95,%EC%99%84%EB%A3%8C)&order=created_at.desc&limit=400')
       ]);
       contracts=c||[];links=l||[];jobs=r||[];
+      renderAptSummary();
       if(!contracts.some(v=>v.id===selectedId))selectedId=contracts[0]?.id||null;
       choose(selectedId);
       note('세차 일정을 등록하고, 세차 후 \'완료 · 1회 차감\'을 누르면 잔여 횟수가 줄어듭니다.');
     }catch(e){note(e.message,true);}
     finally{busy=false;}
+  }
+  /* 아파트별 월회원 현황 — 지금 이용 중인 월세차 계약만, 아파트명이 글자까지 같은 것끼리 */
+  const APT_GOAL=5;
+  function renderAptSummary() {
+    const out=$('vipAptSummary');if(!out)return;
+    const today=seoulDay(Date.now());
+    const groups=new Map();
+    for(const c of contracts){
+      const name=(c.apartment||'').trim();
+      if(c.status!=='active'||!(c.starts_on<=today&&today<=c.expires_on))continue;
+      const key=name||'(아파트명 미입력)';
+      if(!groups.has(key))groups.set(key,new Map());
+      groups.get(key).set(c.phone,c);   // 같은 번호는 1대로
+    }
+    const dl=$('vipAptList');
+    if(dl){dl.replaceChildren();[...new Set(contracts.map(c=>(c.apartment||'').trim()).filter(Boolean))].sort().forEach(n=>{const o=document.createElement('option');o.value=n;dl.append(o);});}
+    out.replaceChildren();
+    const head=node('div','vip-apt-head');
+    head.append(node('strong','','아파트별 월회원 현황'),node('small','','이용 중인 월세차 계약 기준 · 아파트명이 똑같은 것끼리 · '+APT_GOAL+'대 이상이면 차량당 5,000원 할인'));
+    out.append(head);
+    if(!groups.size){out.append(node('p','vip-ledger-empty','이용 중인 월세차 계약이 없습니다.'));return;}
+    const rows=[...groups.entries()].sort((a,b)=>(a[0]==='(아파트명 미입력)')-(b[0]==='(아파트명 미입력)')||b[1].size-a[1].size||a[0].localeCompare(b[0],'ko'));
+    const list=node('div','vip-apt-list');
+    for(const [name,members] of rows){
+      const n=members.size, done=n>=APT_GOAL, missing=name==='(아파트명 미입력)';
+      const d=document.createElement('details');d.className='vip-apt-row'+(done?' done':'')+(missing?' missing':'');
+      const sum=document.createElement('summary');
+      sum.append(node('b','',name),node('span','vip-apt-count',n+'대'),
+        node('em','vip-apt-state',missing?'계약에 아파트명을 넣어 주세요':done?'할인 대상':'할인까지 '+(APT_GOAL-n)+'대'));
+      const bar=node('i','vip-apt-bar');bar.style.setProperty('--p',Math.min(100,n/APT_GOAL*100)+'%');sum.append(bar);
+      d.append(sum);
+      const ul=node('ul','vip-apt-members');
+      for(const c of members.values())ul.append(node('li','',c.customer_name+' · '+(c.car_model||'차량')+' · 월 '+c.monthly_visits+'회 · ~'+c.expires_on));
+      d.append(ul);list.append(d);
+    }
+    out.append(list);
   }
   function renderList() {
     const out=$('vipContractList');if(!out)return;
@@ -1046,7 +1095,7 @@ try {
       const button=node('button','vip-ledger-row'+(c.id===selectedId?' selected':''));
       button.type='button';
       const b=node('strong','',c.customer_name+' · 월 '+c.monthly_visits+'회');
-      const small=node('small','',c.phone+' · '+c.starts_on+' ~ '+c.expires_on+' · '+({'active':'운영','paused':'일시중지','cancelled':'종료'}[c.status]||c.status));
+      const small=node('small','',(c.apartment?c.apartment+' · ':'')+c.phone+' · '+c.starts_on+' ~ '+c.expires_on+' · '+({'active':'운영','paused':'일시중지','cancelled':'종료'}[c.status]||c.status));
       button.append(b,small);
       button.addEventListener('click',()=>choose(c.id));
       out.append(button);
@@ -1214,8 +1263,8 @@ try {
       if(!confirm(c.customer_name+' 님 새 계약을 만들까요?\n'+s0+' ~ '+e0+' · 월 '+visits.value+'회'))return;
       if(busy)return;busy=true;
       try{
-        const saved=await api('vip_contracts',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({
-          phone:c.phone,customer_name:c.customer_name,car_model:c.car_model||'',monthly_visits:Number(visits.value),
+        const saved=await apiSave('vip_contracts',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify({
+          phone:c.phone,customer_name:c.customer_name,car_model:c.car_model||'',apartment:c.apartment||'',monthly_visits:Number(visits.value),
           starts_on:s0,expires_on:e0,anchor_on:s0,status:'active',note:'연장 계약 (이전: '+c.starts_on+' ~ '+c.expires_on+')'})});
         if(Array.isArray(saved)&&saved[0]?.id)selectedId=saved[0].id;
         busy=false;await load();note('새 계약을 만들었습니다: '+s0+' ~ '+e0+'. 이전 계약은 만료일까지 그대로 유지됩니다.');
@@ -1336,7 +1385,7 @@ try {
     const id=data.contractId;delete data.contractId;
     const payload={
       phone:phone(data.phone),customer_name:(data.customerName||'').trim(),
-      car_model:(data.carModel||'').trim(),monthly_visits:Number(data.monthlyVisits),
+      car_model:(data.carModel||'').trim(),apartment:(data.apartment||'').trim().slice(0,80),monthly_visits:Number(data.monthlyVisits),
       starts_on:data.startsOn,expires_on:data.expiresOn,anchor_on:data.anchorOn,
       status:data.status,note:(data.note||'').trim()
     };
@@ -1349,7 +1398,7 @@ try {
     busy=true;note('계약 저장 중입니다.');
     try{
       const path='vip_contracts'+(id?'?id=eq.'+encodeURIComponent(id):'');
-      const saved=await api(path,{method:id?'PATCH':'POST',body:JSON.stringify(payload),headers:{Prefer:'return=representation'}});
+      const saved=await apiSave(path,{method:id?'PATCH':'POST',body:JSON.stringify(payload),headers:{Prefer:'return=representation'}});
       if(!id && Array.isArray(saved) && saved[0]?.id) selectedId=saved[0].id;
       busy=false;
       await load();
@@ -1377,6 +1426,7 @@ try {
       ['tel','phone','고객 연락처 (010-0000-0000)','required'],
       ['text','customerName','고객 이름','required'],
       ['text','carModel','차량 모델'],
+      ['text','apartment','아파트명 (같은 아파트 할인 기준 · 글자까지 똑같이)'],
       ['date','startsOn','계약 시작일','required'],
       ['date','expiresOn','계약 만료일','required'],
       ['date','anchorOn','관리 기준일 · 첫 권장일','required']
@@ -1387,6 +1437,9 @@ try {
       if(type==='hidden'){form.append(control);continue;}
       const wrap=node('label','',label);wrap.append(control);form.append(wrap);
     }
+    const aptInput=form.querySelector('[name="apartment"]');
+    if(aptInput){aptInput.setAttribute('list','vipAptList');aptInput.maxLength=80;aptInput.placeholder='목록에서 고르면 같은 아파트로 정확히 묶여요';}
+    const aptList=document.createElement('datalist');aptList.id='vipAptList';form.append(aptList);
     const visitLabel=node('label','','월 이용 횟수');
     const plan=node('select');plan.name='monthlyVisits';
     for(const n of [2,4]){const opt=node('option','','월 '+n+'회');opt.value=String(n);plan.append(opt);}
@@ -1404,7 +1457,8 @@ try {
     detail.append(heading,form,connected);
     content.append(list,detail);
     const message=node('p','vip-ledger-message');message.id='vipAdminMessage';message.setAttribute('role','status');
-    section.append(title,hint,controls,message,content);
+    const apt=node('div','vip-apt-summary');apt.id='vipAptSummary';
+    section.append(title,hint,controls,message,apt,content);
     root.prepend(section);
     // Only load when the owner has opened the admin area, not when public users visit.
     document.addEventListener('click',e=>{
