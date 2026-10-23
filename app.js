@@ -139,8 +139,7 @@ const esc = (s = '') => String(s).replace(/[&<>'"]/g, (c) => ({
 }[c]));
 
 const DEFAULT_PROMOS = [
-  { id: 'first4', auto: 'first', text: '첫 달 월 4회 ', highlight: '10,000원 할인', amount: 10000, services: ['월 4회'] },
-  { id: 'first2', auto: 'first', text: '첫 달 월 2회 ', highlight: '5,000원 할인', amount: 5000, services: ['월 2회'] },
+  { id: 'first4', auto: 'first', text: '월세차 첫 달 ', highlight: '5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
   { id: 'refer', text: '가족·지인 소개 시 ', highlight: '외부세차 1회', amount: 0, gift: '외부세차 1회 제공', services: [] },
   { id: 'apt5', auto: 'apt5', text: '같은 아파트 5대 이상 ', highlight: '차량당 5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
   { id: 'loyal', auto: 'loyal', text: '3개월 이용하실 때마다 ', highlight: '고급 왁스코팅 또는 전면 유막제거 1회 무료', amount: 0, gift: '고급 왁스코팅 또는 전면 유리 유막제거 중 택 1 무료', services: ['월 2회', '월 4회'] },
@@ -1080,7 +1079,7 @@ function renderVipNudge() {
   const won = (n) => `${Math.round(n).toLocaleString('ko-KR')}원`;
   const daily4 = p['일일 외부세차'] * 3 + p['외부+내부세차'];
   const save = daily4 - p['월 4회'];
-  box.innerHTML = `<p>💡 같은 차를 <b>월 4회</b>로 맡기시면 1회 약 <b>${won(p['월 4회'] / 4)}</b> (일일 외부 ${won(p['일일 외부세차'])}).<br>매달 <b>${won(save)}</b> 아끼고, 첫 달 10,000원 할인까지 받으실 수 있어요.</p>
+  box.innerHTML = `<p>💡 같은 차를 <b>월 4회</b>로 맡기시면 1회 약 <b>${won(p['월 4회'] / 4)}</b> (일일 외부 ${won(p['일일 외부세차'])}).<br>매달 <b>${won(save)}</b> 아끼고, 첫 달 5,000원 할인까지 받으실 수 있어요.</p>
     <div class="vip-nudge-btns"><button type="button" class="primary-btn" data-vip-start="월 4회">월 4회로 바꾸기</button><button type="button" class="secondary-btn" data-go="vip">월세차 혜택 보기</button></div>`;
   box.classList.remove('hidden');
 }

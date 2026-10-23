@@ -12,21 +12,12 @@
   "promos": [
     {
       "id": "first4",
-      "text": "첫 달 월 4회 ",
-      "highlight": "10,000원 할인",
-      "amount": 10000,
-      "services": [
-        "월 4회"
-      ],
-      "auto": "first"
-    },
-    {
-      "id": "first2",
-      "text": "첫 달 월 2회 ",
+      "text": "월세차 첫 달 ",
       "highlight": "5,000원 할인",
       "amount": 5000,
       "services": [
-        "월 2회"
+        "월 2회",
+        "월 4회"
       ],
       "auto": "first"
     },
