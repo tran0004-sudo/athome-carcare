@@ -664,3 +664,6 @@ html.ahc-admin .topbar .icon-btn[data-go="admin"]{display:inline-flex}
 .vip-apt-bar::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--p);background:linear-gradient(90deg,#c99a45,#0b7a63);border-radius:99px}
 .vip-apt-row.done .vip-apt-bar::after{background:#0b7a63}
 .vip-apt-members{margin:0;padding:4px 14px 12px 28px;font-size:13px;color:#33423d;line-height:1.7}
+
+/* 홈: 월세차 안내·세차 과정·요금표 접기 카드 숨김 (2026-10-24) */
+#home .vip-banner-wrap[hidden],#home #processSection[hidden],#home #priceTableSection[hidden]{display:none !important;}
