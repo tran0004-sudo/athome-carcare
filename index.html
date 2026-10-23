@@ -833,14 +833,8 @@
           <form id="reviewForm" class="form-grid">
             <label>지역/이름<input name="author" placeholder="예: 사월동 고객" required></label>
             <label>차종<input name="car" placeholder="예: GV80"></label>
-            <label>연락처 <small class="field-hint">리뷰 혜택 쿠폰을 받으실 번호 (선택)</small><input name="phone" inputmode="tel" placeholder="010-0000-0000" autocomplete="off"></label>
-            <label>리뷰 혜택 선택<select name="reviewGift">
-              <option value="cash">3,000원 할인</option>
-              <option value="trunk">트렁크 청소 1회</option>
-            </select></label>
             <label>별점<select name="rating"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label>
             <label class="span-2">후기<textarea name="text" rows="4" placeholder="이용후기를 적어주세요." required></textarea></label>
-            <p class="span-2 form-privacy-note">연락처를 적으시면 쿠폰 발급·사용 확인에만 쓰고 1년 뒤 삭제합니다. <a href="privacy.html" target="_blank" rel="noopener">개인정보처리방침</a></p>
             <button class="primary-btn span-2" type="submit">후기 등록</button>
           </form>
         </article>
@@ -1025,7 +1019,7 @@
   </div>
   <div id="toast" class="toast"></div>
   <script src="prices.js?v=20261024-monthA"></script>
-  <script src="app.js?v=20261024-van"></script>
+  <script src="app.js?v=20261024-noreview"></script>
   <script src="supabase-integration.js?v=20261024-van"></script>
   <script src="features.js?v=20261022-stairs" defer></script>
 </body>
