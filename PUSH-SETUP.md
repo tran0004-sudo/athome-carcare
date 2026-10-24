@@ -3,6 +3,8 @@
 앱을 꺼둔 상태에서도 새 예약 알림을 받기 위한 설정입니다.
 아래 4단계를 순서대로 진행하세요. 한 번만 하면 됩니다.
 
+> **이미 알림을 쓰고 있다면** 맨 아래 「이미 설정된 알림 잠그기 (2026-10-24)」만 따라 하세요.
+
 ---
 
 ## 1단계. 데이터베이스 준비
@@ -27,6 +29,7 @@ Supabase 대시보드 → **Edge Functions** → **Secrets** (또는 Settings �
 | `VAPID_PUBLIC_KEY` | `BM4LZJ-Jr98hfBk0LMrTF4sf2GGiCbrILKTaJLFFsdrGqpEjwtUGb987ihqhy6dsANynnnVBXIkYmrcYujALEdU` |
 | `VAPID_PRIVATE_KEY` | 이 대화에서 전달받은 새 비공개키 — **Supabase Secrets에만 입력** |
 | `VAPID_SUBJECT` | `mailto:tran0004@gmail.com` |
+| `NOTIFY_WEBHOOK_SECRET` | 직접 만든 긴 비밀값 (아래 「비밀값 만드는 법」) — **채팅·저장소에 절대 적지 않기** |
 
 > **보안 주의** — 이전 VAPID 비공개키가 공개 저장소에 포함된 적이 있으므로 그 키는 사용하지 마세요.
 > 반드시 새 VAPID 키 쌍을 생성해 교체하고, PRIVATE KEY는 Supabase Secrets에만 저장하세요.
@@ -43,7 +46,8 @@ Supabase 대시보드 → **Edge Functions** → **Secrets** (또는 Settings �
 1. Supabase 대시보드 → **Edge Functions** → **Deploy a new function**
 2. 함수 이름: `notify-push`
 3. 편집창에 저장소의 `supabase/functions/notify-push/index.ts` 내용을 전부 붙여넣기
-4. **Verify JWT** 옵션을 **끕니다** (Database Webhook이 호출해야 하므로)
+4. **Verify JWT** 옵션을 **끕니다** (Database Webhook이 호출해야 하므로).
+   대신 함수가 `x-webhook-secret` 헤더를 `NOTIFY_WEBHOOK_SECRET`과 비교해서, 다르면 401로 거절합니다.
 5. **Deploy**
 
 ### 방법 B — CLI
@@ -69,8 +73,11 @@ Supabase 대시보드 → **Database** → **Webhooks** → **Create a new hook*
 | Type | **Supabase Edge Functions** |
 | Edge Function | `notify-push` |
 | Method | POST |
+| HTTP Headers | **Add a new header** → 이름 `x-webhook-secret`, 값은 2단계의 `NOTIFY_WEBHOOK_SECRET`과 **똑같이** |
 
 **Create webhook** 을 누르면 끝입니다.
+
+> 함수는 `reservations` 테이블의 **INSERT**일 때만 알림을 보냅니다. 수정(UPDATE)·삭제나 다른 테이블 호출은 알림 없이 끝납니다.
 
 ---
 
@@ -102,3 +109,43 @@ PC에서도 같은 방법으로 등록하면 양쪽 모두에 알림이 옵니�
 - **안드로이드** 는 설치 없이 크롬에서도 동작하지만, 설치하는 쪽이 안정적입니다.
 - 기기를 바꾸시면 새 기기에서 다시 **알림 켜기** 를 눌러주세요.
 - 오래 사용하지 않아 만료된 기기 등록은 자동으로 정리됩니다.
+
+---
+
+## 이미 설정된 알림 잠그기 (2026-10-24)
+
+예전 함수는 주소만 알면 누구나 가짜 "새 예약" 알림을 보낼 수 있었습니다.
+아래 **순서대로** 하면 알림이 끊기지 않고 잠깁니다. (함수를 먼저 배포하면 Secret이 없어서 알림이 멈춥니다.)
+
+### 비밀값 만드는 법
+크롬 주소창에 `about:blank` 를 열고 F12 → Console 탭에 아래를 붙여넣고 Enter:
+```js
+crypto.randomUUID() + crypto.randomUUID()
+```
+나온 긴 글자(따옴표 안쪽)를 복사해 메모장에 잠시 두세요. 이 값은 **어디에도 공유하지 마세요.**
+(휴대폰만 있으면 비밀번호 관리 앱의 '비밀번호 생성' 기능으로 40자 이상을 만들어도 됩니다.)
+
+### ① Secret 넣기
+Supabase 대시보드 → **Edge Functions** → **Secrets** → **Add new secret**
+- Name: `NOTIFY_WEBHOOK_SECRET`
+- Value: 위에서 만든 비밀값 → **Save**
+
+### ② Webhook에 헤더 추가
+**Database** → **Webhooks** → `new-reservation-push` 오른쪽 **⋯** → **Edit hook**
+- **HTTP Headers** → **Add a new header**
+- 이름 `x-webhook-secret`, 값은 ①과 **똑같은** 비밀값 → **Update webhook**
+
+### ③ 함수 다시 배포
+**Edge Functions** → `notify-push` → **Code** 탭
+- 저장소의 `supabase/functions/notify-push/index.ts` 내용을 전부 지우고 새로 붙여넣기
+- **Verify JWT** 는 꺼진 상태 그대로 → **Deploy updates**
+
+### ④ 확인
+1. **잠겼는지**: PC 터미널에서 (헤더 없이 호출)
+   ```bash
+   curl -i -X POST https://xejdhnwqqaamujkebvne.supabase.co/functions/v1/notify-push -d '{}'
+   ```
+   `HTTP/2 401` 이 나오고 휴대폰에 알림이 오지 않으면 정상입니다.
+2. **정상 알림**: 앱에서 이름을 `테스트`로 적고 예약을 하나 넣으면 관리자 휴대폰에 알림이 와야 합니다.
+   안 오면 **Edge Functions → notify-push → Logs** 에서 401이 찍혔는지 보세요 (①과 ②의 값이 다르면 401).
+3. **테스트 예약 지우기**: 관리자 화면 → 예약 관리에서 `테스트` 예약을 삭제하세요.
