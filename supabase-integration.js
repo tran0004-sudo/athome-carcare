@@ -1198,6 +1198,16 @@ ${linkLines ? '\n' + linkLines : ''}
   }
 
   window.requestReviewCoupon = (phone, choice) => requestCoupon(phone, 'review', null, choice);
+  // 손님 후기 → DB '승인 대기' 저장 (database/23_20261024_customer_review_submit.sql)
+  window.submitReviewToDb = async (review) => {
+    try {
+      return await rpc('submit_review', { p_author: review.author, p_car: review.car || null,
+        p_rating: Number(review.rating) || 5, p_text: review.text });
+    } catch (err) {
+      console.error('후기 저장 실패', err);
+      return { ok: false };
+    }
+  };
 
   async function useCoupon(code) {
     try { return await rpc('use_coupon', { p_code: code, p_phone: bookingPhone() }); }
@@ -2067,11 +2077,14 @@ ${linkLines ? '\n' + linkLines : ''}
     const stars = '★'.repeat(Math.max(1, Math.min(5, Number(r.rating) || 5)));
     return `<div class="member-row" data-review-row="${esc(r.id)}">
       <div>
-        <b>${esc(r.author)}</b>${r.car ? ' · ' + esc(r.car) : ''} <span style="color:#e0a500">${stars}</span>
+        ${r.visible === false ? '<span class="res-badge" style="background:#fff3dc;color:#8a5a12">승인 대기</span> ' : ''}<b>${esc(r.author)}</b>${r.car ? ' · ' + esc(r.car) : ''} <span style="color:#e0a500">${stars}</span>
         <div class="field-hint" style="margin:2px 0 0">${esc(r.text)}</div>
         ${r.source ? `<div class="field-hint" style="margin:2px 0 0;opacity:.7">출처: ${esc(r.source)}</div>` : ''}
       </div>
-      <button class="danger-btn" data-review-del="${esc(r.id)}">삭제</button>
+      <div style="display:flex;flex-direction:column;gap:6px;flex:0 0 auto">
+        <button class="${r.visible === false ? 'primary-btn' : 'secondary-btn'}" data-review-vis="${esc(r.id)}" data-vis="${r.visible === false ? '1' : '0'}">${r.visible === false ? '공개하기' : '숨기기'}</button>
+        <button class="danger-btn" data-review-del="${esc(r.id)}">삭제</button>
+      </div>
     </div>`;
   }
 
@@ -2081,7 +2094,7 @@ ${linkLines ? '\n' + linkLines : ''}
     if (!s) return;
     try {
       const r = await fetch(
-        `${SUPABASE_URL}/rest/v1/reviews?select=id,author,car,rating,text,source&order=created_at.desc&limit=100`,
+        `${SUPABASE_URL}/rest/v1/reviews?select=id,author,car,rating,text,source,visible,created_at&order=visible.asc,created_at.desc&limit=100`,
         { headers: api(s.access_token) }
       );
       if (!r.ok) throw new Error(await r.text());
@@ -2129,6 +2142,30 @@ ${linkLines ? '\n' + linkLines : ''}
     });
 
     card.querySelector('#reviewAdminList').addEventListener('click', async e => {
+      const vis = e.target.closest('[data-review-vis]');
+      if (vis) {
+        const s = await getSession();
+        if (!s) return;
+        const show = vis.dataset.vis === '1';
+        try {
+          const r = await fetch(`${SUPABASE_URL}/rest/v1/reviews?id=eq.${encodeURIComponent(vis.dataset.reviewVis)}`, {
+            method: 'PATCH',
+            headers: api(s.access_token, { 'Content-Type': 'application/json', Prefer: 'return=minimal' }),
+            body: JSON.stringify({ visible: show }),
+          });
+          if (!r.ok) throw new Error(await r.text());
+          toast(show ? '후기를 공개했습니다. 홈 화면에 보여요.' : '후기를 숨겼습니다.');
+          await renderReviewsAdmin(card);
+          if (!show) {
+            extraReviews = extraReviews.filter(x => x.id !== vis.dataset.reviewVis);
+            if (typeof state !== 'undefined' && state) { state.reviews = (state.reviews || []).filter(x => x.id !== vis.dataset.reviewVis); rerenderApp(); }
+          } else { await syncReviews(); }
+        } catch (err) {
+          console.error('후기 공개 변경 실패', err);
+          toast('변경에 실패했습니다.');
+        }
+        return;
+      }
       const btn = e.target.closest('[data-review-del]');
       if (!btn) return;
       const id = btn.dataset.reviewDel;
@@ -2377,7 +2414,7 @@ ${linkLines ? '\n' + linkLines : ''}
         </div>
         <!-- 고객 후기 -->
         <div id="adminSecReviews" class="hidden">
-          <p class="field-hint" style="margin:4px 0 12px">숨고·당근 등 다른 채널에 남은 후기를 옮겨 적거나, 직접 받은 후기를 등록하세요. 등록하면 홈 화면 후기 영역에 최신순으로 나타납니다.</p>
+          <p class="field-hint" style="margin:4px 0 12px">손님이 앱에서 쓴 후기는 '승인 대기'로 맨 위에 쌓여요. 내용을 확인하고 '공개하기'를 누르면 홈 화면에 보여요. 숨고·당근 등 다른 채널 후기는 아래에서 직접 등록하세요. 등록하면 홈 화면 후기 영역에 최신순으로 나타납니다.</p>
           <form id="reviewAddForm" class="coupon-issue">
             <label>고객 표기 <small>실명 대신 지역명으로 (예: 사월동 고객)</small><input name="author" placeholder="예: 사월동 고객" required></label>
             <label>차종<input name="car" placeholder="예: GV80"></label>

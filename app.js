@@ -445,13 +445,19 @@ function bindEvents() {
   const reviewForm = document.querySelector('#reviewForm');
   if (reviewForm) reviewForm.addEventListener('submit', (event) => {
     event.preventDefault();
-    const fd = new FormData(event.currentTarget);
-    state.reviews.unshift({
-      id: uid('r'), author: fd.get('author'), car: fd.get('car'),
-      rating: Number(fd.get('rating')), text: fd.get('text')
+    const formEl = event.currentTarget;
+    const fd = new FormData(formEl);
+    const review = { author: String(fd.get('author') || ''), car: String(fd.get('car') || ''),
+      rating: Number(fd.get('rating')), text: String(fd.get('text') || '') };
+    // 손님 후기는 DB에 '승인 대기'로 저장 → 사장님이 관리자 화면에서 공개해야 홈에 보임
+    if (typeof window.submitReviewToDb !== 'function') { toast('잠시 후 다시 시도해 주세요.'); return; }
+    const btn = formEl.querySelector('[type="submit"]'); if (btn) btn.disabled = true;
+    window.submitReviewToDb(review).then((result) => {
+      if (btn) btn.disabled = false;
+      if (!result?.ok) { toast(result?.reason || '후기를 보내지 못했어요. 잠시 후 다시 시도해 주세요.'); return; }
+      formEl.reset();
+      toast('소중한 후기 감사합니다! 확인 후 게시해 드릴게요.');
     });
-    save(); event.currentTarget.reset(); render();
-    toast('후기가 등록되었습니다.');
   });
 
   // 예약 폼 — supabase-integration.js 가 먼저 처리하므로 여기선 조용히 패스
