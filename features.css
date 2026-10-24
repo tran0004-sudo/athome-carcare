@@ -667,3 +667,57 @@ html.ahc-admin .topbar .icon-btn[data-go="admin"]{display:inline-flex}
 
 /* 홈: 월세차 안내·세차 과정·요금표 접기 카드 숨김 (2026-10-24) */
 #home .vip-banner-wrap[hidden],#home #processSection[hidden],#home #priceTableSection[hidden]{display:none !important;}
+
+/* ===== 홈 · 세차 3단계 대표 요금 (작은 카드 3개) ===== */
+#home .tier-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0 8px}
+#home .tm{position:relative;appearance:none;border:0;cursor:pointer;font:inherit;text-align:left;border-radius:16px;padding:12px 10px 12px;color:#fff;display:flex;flex-direction:column;gap:2px;min-height:132px;box-shadow:0 8px 20px rgba(6,63,53,.14)}
+#home .tm:active{transform:translateY(1px)}
+#home .tm-k{font-size:9.5px;font-weight:800;letter-spacing:.14em;opacity:.85}
+#home .tm b{font-size:16px;font-weight:850;letter-spacing:-.03em;margin-top:2px}
+#home .tm small{font-size:11.5px;font-weight:600;opacity:.9;line-height:1.35;word-break:keep-all}
+#home .tm strong{margin-top:auto;font-size:17px;font-weight:900;letter-spacing:-.02em}
+#home .tm em{position:absolute;top:8px;right:8px;font-style:normal;font-size:10px;font-weight:850;padding:2px 7px;border-radius:99px;background:#fff1cc;color:#5e3d0c}
+#home .tm-basic{background:linear-gradient(150deg,#0b7a63,#063f35)}
+#home .tm-plus{background:linear-gradient(150deg,#b5832a,#6b450c)}
+#home .tm-luxe{background:linear-gradient(150deg,#2a312e,#121614);box-shadow:inset 0 0 0 1px rgba(217,180,106,.6),0 8px 20px rgba(0,0,0,.2)}
+#home .tm-luxe .tm-k,#home .tm-luxe b,#home .tm-luxe strong{color:#f3dea6}
+#home .tm-luxe small{color:#cfc2a3}
+#home .tier-mini-note{margin:4px 2px 14px;font-size:12.5px;color:#5f706a;line-height:1.5;word-break:keep-all}
+#home #washGuideSection .stairs[hidden]{display:none !important}
+@media(max-width:360px){#home .tm b{font-size:14.5px}#home .tm strong{font-size:15.5px}}
+
+/* ===== 요금 탭 · 내 차 요금만 보기 ===== */
+.my-car-price{margin:0 16px 16px;padding:16px;border-radius:18px;background:#fff;border:1.5px solid #cfe4db;box-shadow:0 10px 24px rgba(6,63,53,.08)}
+.mcp-pick{display:flex;flex-direction:column;gap:6px;font-size:14px;font-weight:850;color:#0a4d41}
+.mcp-pick select{font:inherit;font-size:15px;font-weight:700;padding:12px;border-radius:12px;border:1.5px solid #b9d6ca;background:#f7fbf9;color:#173b33}
+.mcp-empty{margin:12px 2px 0;font-size:13px;color:#5f706a}
+.mcp-cls{margin:14px 2px 4px;font-size:19px;font-weight:900;color:#173b33}
+.mcp-cls small{display:block;font-size:12px;font-weight:600;color:#6b7c76;margin-top:2px}
+.mcp-g{margin:12px 2px 6px;font-size:13px;font-weight:850;color:#0a5c4c}
+.mcp-g small{font-weight:600;color:#6b7c76;margin-left:4px}
+.mcp-list{list-style:none;margin:0;padding:0;border:1px solid #e1ebe6;border-radius:12px;overflow:hidden}
+.mcp-list li{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid #e9f0ec}
+.mcp-list li:first-child{border-top:0}
+.mcp-list span{font-size:14.5px;font-weight:700;color:#263c35}
+.mcp-list span small{display:block;font-size:11.5px;font-weight:500;color:#6b7c76;margin-top:1px}
+.mcp-list b{font-size:15.5px;font-weight:900;color:#0a4d41;white-space:nowrap}
+.mcp-book{appearance:none;border:0;cursor:pointer;font:inherit;font-size:12.5px;font-weight:800;padding:7px 11px;border-radius:9px;color:#fff;background:#0a5c4c}
+.mcp-note{margin:10px 2px 0;font-size:12px;color:#5f706a;line-height:1.5}
+/* 3단계 구성은 접어 두기 */
+details.menu-stairs>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;padding:14px 16px;margin:0 0 8px;border-radius:14px;background:#fff;border:1.5px solid #d5e2da}
+details.menu-stairs>summary::-webkit-details-marker{display:none}
+details.menu-stairs>summary::after{content:"펼치기";font-size:13px;font-weight:800;color:#1f7a55;border:1.5px solid #1f7a55;border-radius:99px;padding:5px 12px}
+details.menu-stairs[open]>summary::after{content:"접기";background:#1f7a55;color:#fff}
+
+/* ===== 예약 화면 맨 위 빈 구분선 없애기 ===== */
+#bookingForm h4.bk-sec:first-of-type{border-top:0 !important;padding-top:0 !important;margin-top:0 !important}
+/* 홈 '꼭 확인해 주세요'는 접어 두기 */
+#home .guide-fold>summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding-right:76px;position:relative}
+#home .guide-fold>summary::-webkit-details-marker{display:none}
+#home .guide-fold>summary h3{margin:0 !important}
+#home .guide-fold .gf-sub{flex-basis:100%;font-size:12.5px;color:#6b7c76;padding-left:27px}
+#home .guide-fold>summary::after{content:"펼치기";position:absolute;right:0;top:50%;transform:translateY(-50%);font-size:12.5px;font-weight:800;color:#1f7a55;border:1.5px solid #1f7a55;border-radius:99px;padding:5px 11px}
+#home .guide-fold[open]>summary::after{content:"접기";background:#1f7a55;color:#fff}
+#home .guide-fold[open]>summary{margin-bottom:14px}
+#home .tm em{top:-9px;right:8px;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+#home .tier-mini{margin-top:14px}

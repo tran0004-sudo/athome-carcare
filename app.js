@@ -1149,6 +1149,7 @@ window.addEventListener('hashchange',function(){try{var h=(location.hash||'').re
     document.querySelectorAll('[data-stairs-slot]').forEach((slot) => {
       if (!src) return;
       const copy = src.cloneNode(true);
+      copy.hidden = false;   // 홈에서는 숨겨 둔 원본, 요금 탭에서는 보이게
       slot.replaceWith(copy);
     });
     document.addEventListener('click', (e) => {
@@ -1162,4 +1163,68 @@ window.addEventListener('hashchange',function(){try{var h=(location.hash||'').re
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
+})();
+
+/* ===== 요금 탭 · 내 차 요금만 보기 ===== */
+(function () {
+  const KEY = 'ahcMyCarClass';
+  function init() {
+    const sel = document.getElementById('myCarClass');
+    const out = document.getElementById('myCarResult');
+    if (!sel || !out || !window.AHC_PRICES) return;
+    const P = window.AHC_PRICES;
+    // 아코디언의 예시 모델 글자를 가져와 선택지에 같이 표시
+    const models = {};
+    document.querySelectorAll('#priceAccordion .pw-name').forEach((el) => {
+      const name = (el.firstChild && el.firstChild.textContent || '').trim();
+      const m = el.querySelector('.pw-models');
+      if (name) models[name] = m ? m.textContent.trim() : '';
+    });
+    Object.keys(P.TABLE).forEach((cls) => {
+      const o = document.createElement('option'); o.value = cls;
+      o.textContent = models[cls] ? `${cls} (${models[cls].replace(/ 등$/, '')})` : cls;
+      sel.append(o);
+    });
+    const won = (n) => `${Math.round(n).toLocaleString('ko-KR')}원`;
+    function show(cls) {
+      const t = P.TABLE[cls];
+      if (!t) { out.innerHTML = '<p class="mcp-empty">차종을 고르면 그 차의 요금만 바로 보여 드려요.</p>'; return; }
+      const row = (label, svc, sub) => `<li><span>${label}${sub ? `<small>${sub}</small>` : ''}</span><b>${won(t[svc])}</b><button type="button" class="mcp-book" data-go="booking" data-pick-service="${svc}" data-pick-class="${cls}">예약</button></li>`;
+      out.innerHTML = `
+        <p class="mcp-cls">${cls}${models[cls] ? `<small>${models[cls]}</small>` : ''}</p>
+        <p class="mcp-g">일일세차</p>
+        <ul class="mcp-list">
+          ${row('외부세차', '일일 외부세차', '도장·유리·휠·타이어')}
+          ${row('기본 세차', '외부+내부세차', '외부 + 내부')}
+          ${row('고급 세차', '고급 세차', '+ 가죽시트 코팅·프리미엄 왁스')}
+          ${row('프리미엄 세차', '프리미엄 세차', '+ 전면 유리 유막제거·발수')}
+        </ul>
+        <p class="mcp-g">월세차 <small>실내관리 월 1회 포함</small></p>
+        <ul class="mcp-list">
+          ${row('월 2회', '월 2회', `1회 약 ${won(t['월 2회'] / 2)}`)}
+          ${row('월 4회', '월 4회', `1회 약 ${won(t['월 4회'] / 4)}`)}
+        </ul>
+        <p class="mcp-note">추가 옵션은 아래 '추가 옵션'에서 확인하세요 · 고급·월세차 고르면 옵션 할인</p>`;
+    }
+    let saved = '';
+    try { saved = localStorage.getItem(KEY) || ''; } catch (_) {}
+    if (saved && P.TABLE[saved]) sel.value = saved;
+    show(sel.value);
+    sel.addEventListener('change', () => {
+      try { localStorage.setItem(KEY, sel.value); } catch (_) {}
+      show(sel.value);
+    });
+    // 예약 버튼: 차종도 미리 넣어 줌
+    out.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-pick-class]');
+      if (!b) return;
+      setTimeout(() => {
+        const f = document.getElementById('bookingForm'); if (!f) return;
+        const cs = f.querySelector('#carClassSelect'); const ch = f.querySelector('#carClassHidden');
+        if (cs && !cs.disabled) { cs.value = b.dataset.pickClass; cs.dispatchEvent(new Event('change', { bubbles: true })); }
+        if (ch && !ch.value) ch.value = b.dataset.pickClass;
+      }, 60);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
