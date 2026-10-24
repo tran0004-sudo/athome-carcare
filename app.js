@@ -833,13 +833,14 @@ function bindBookingExtras() {
     const model = modelSel.value;
     const isEtc = !brand || model === ETC || (brand === '기타');
     customWrap.classList.toggle('hidden', !isEtc || !brand);
+    form.querySelector('#carCustomNote')?.classList.toggle('hidden', !isEtc || !brand);
     customInput.required = isEtc && !!brand;
 
     if (isEtc) {
       const typed = (customInput.value || '').trim();
       hiddenCar.value = typed ? (brand && brand !== '기타' ? `${brand} ${typed}` : typed) : '';
       setCarClass(classSel.value, false);
-      if (hint) hint.textContent = '차종 구분을 직접 선택해주세요';
+      if (hint) hint.textContent = '직접 선택해 주세요 · 모르면 카톡으로 사진 보내 주세요';
       return;
     }
     hiddenCar.value = model ? `${brand} ${model}` : '';
