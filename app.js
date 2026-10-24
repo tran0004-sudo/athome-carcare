@@ -139,10 +139,11 @@ const esc = (s = '') => String(s).replace(/[&<>'"]/g, (c) => ({
 }[c]));
 
 const DEFAULT_PROMOS = [
-  { id: 'first4', auto: 'first', text: '월세차 첫 달 ', highlight: '5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
+  { id: 'first4', auto: 'first', text: '월세차 첫 달 ', highlight: '5,000원 할인', amount: 5000, services: ['월 2회', '월 4회', '통학·업무차 월 4회'] },
   { id: 'refer', text: '가족·지인 소개 시 ', highlight: '소개한 분께 10,000원 할인 쿠폰', amount: 0, gift: '소개받은 분 첫 결제 후 발급 · 3만 원 이상 예약 시 사용', services: [] },
-  { id: 'apt5', auto: 'apt5', text: '같은 아파트 5대 이상 ', highlight: '차량당 5,000원 할인', amount: 5000, services: ['월 2회', '월 4회'] },
-  { id: 'loyal', auto: 'loyal', text: '3개월 이용하실 때마다 ', highlight: '고급 왁스코팅 또는 전면 유막제거 1회 무료', amount: 0, gift: '고급 왁스코팅 또는 전면 유리 유막제거 중 택 1 무료', services: ['월 2회', '월 4회'] },
+  { id: 'apt5', auto: 'apt5', text: '같은 아파트 5대 이상 ', highlight: '차량당 5,000원 할인', amount: 5000, services: ['월 2회', '월 4회', '통학·업무차 월 4회'] },
+  { id: 'biz2', auto: 'biz2', text: '같은 사업장 2대 이상 ', highlight: '차량당 5,000원 할인', amount: 5000, services: ['월 2회', '월 4회', '통학·업무차 월 4회'] },
+  { id: 'loyal', auto: 'loyal', text: '3개월 이용하실 때마다 ', highlight: '고급 왁스코팅 또는 전면 유막제거 1회 무료', amount: 0, gift: '고급 왁스코팅 또는 전면 유리 유막제거 중 택 1 무료', services: ['월 2회', '월 4회', '통학·업무차 월 4회'] },
 ];
 
 function normalize(data = {}) {
@@ -357,7 +358,7 @@ function renderSettings() {
   });
 }
 
-let autoBenefits = { first: false, apt5: false, loyal: false };
+let autoBenefits = { first: false, apt5: false, loyal: false, biz2: false };
 let myCoupons = [];
 let selectedBenefit = '';
 
@@ -633,7 +634,7 @@ function buildQuote(form) {
   });
   promos.forEach((promo) => lines.push([promo.label, -(promo.amount || 0), promo.gift || (promo.amount ? '' : '혜택 제공')]));
 
-  const monthly = svc === '월 2회' || svc === '월 4회';
+  const monthly = window.AHC_PRICES.isMonthly(svc);
   const total = Math.max(0, lines.reduce((sum, [, price]) => sum + price, 0));
   const ready = Boolean(base);
   const discount = promos.reduce((sum, promo) => sum + (promo.amount || 0), 0);
@@ -663,7 +664,7 @@ function refreshOptionChips(form) {
     const chip = box.closest('label');
     // 전기차·수소차는 고전압 부품 보호를 위해 엔진룸 클리닝 불가
     const svcNow = form.querySelector('[name="service"]')?.value || '';
-    const monthlyNow = svcNow === '월 2회' || svcNow === '월 4회';
+    const monthlyNow = window.AHC_PRICES.isMonthly(svcNow);
     const hide = (box.value === '엔진룸 클리닝' && isEvModel(currentModelName(form)))
       || (box.value === '월세차 고급 업그레이드' && !monthlyNow)
       || ((window.AHC_PRICES.PLUS_ADDS || ['고급 왁스코팅']).includes(box.value) && (svcNow === '고급 세차' || svcNow === '프리미엄 세차'))
@@ -735,7 +736,7 @@ function renderOptionNotice(form) {
     const up = Math.round(((window.AHC_PRICES.OPTION_DISCOUNT || {})['고급 세차'] || 0) * 100);
     if (up) msgs.push(`💡 고급 세차로 올리면 가죽시트 코팅·프리미엄 왁스가 더해지고, 고른 옵션도 ${up}% 할인돼요.`);
   }
-  if ((svcSel === '월 2회' || svcSel === '월 4회') && form.querySelector('[name="options"][value="유리 유막제거"]:checked, [name="options"][value="발수코팅"]:checked')) {
+  if (window.AHC_PRICES.isMonthly(svcSel) && form.querySelector('[name="options"][value="유리 유막제거"]:checked, [name="options"][value="발수코팅"]:checked')) {
     msgs.push('💧 유막제거·발수코팅은 3개월에 한 번이면 충분해요. 월세차는 3개월 이용 시 전면 유막제거 1회가 무료예요 (고급 왁스코팅과 택 1).');
   }
   const fullGlass = (window.AHC_PRICES.GLASS_FULL || []).filter((n) => form.querySelector(`[name="options"][value="${n}"]:checked`));
@@ -1203,7 +1204,8 @@ window.addEventListener('hashchange',function(){try{var h=(location.hash||'').re
         <p class="mcp-g">월세차 <small>실내관리 월 1회 포함</small></p>
         <ul class="mcp-list">
           ${row('월 2회', '월 2회', `1회 약 ${won(t['월 2회'] / 2)}`)}
-          ${row('월 4회', '월 4회', `1회 약 ${won(t['월 4회'] / 4)}`)}
+          ${row('월 4회', '월 4회', `1회 약 ${won(t['월 4회'] / 4)} · 실내 1회`)}
+          ${t['통학·업무차 월 4회'] ? row('통학·업무차 월 4회', '통학·업무차 월 4회', `실내 2회 · 1회 약 ${won(t['통학·업무차 월 4회'] / 4)}`) : ''}
         </ul>
         <p class="mcp-note">추가 옵션은 아래 '추가 옵션'에서 확인하세요 · 고급·월세차 고르면 옵션 할인</p>`;
     }
@@ -1226,6 +1228,32 @@ window.addEventListener('hashchange',function(){try{var h=(location.hash||'').re
         if (ch && !ch.value) ch.value = b.dataset.pickClass;
       }, 60);
     });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+
+/* ===== 통학·업무차 월 4회: 미니밴·승합만 선택 가능 / 같은 사업장 2대 이상 할인 표시 ===== */
+(function () {
+  function init() {
+    const f = document.getElementById('bookingForm'); if (!f || !window.AHC_PRICES) return;
+    const P = window.AHC_PRICES;
+    const svc = f.querySelector('[name="service"]');
+    const opt = svc && [...svc.options].find((o) => o.value === P.BIZ_PLAN);
+    const cls = () => f.querySelector('#carClassHidden')?.value || f.querySelector('#carClassSelect')?.value || '';
+    const bizNote = f.querySelector('#bizPlanNote');
+    function sync() {
+      const ok = P.BIZ_PLAN_CLASSES.includes(cls());
+      if (opt) { opt.hidden = !ok; opt.disabled = !ok; }
+      if (svc && svc.value === P.BIZ_PLAN && !ok && cls()) { svc.value = '월 4회'; svc.dispatchEvent(new Event('change', { bubbles: true })); }
+      if (bizNote) bizNote.classList.toggle('hidden', svc?.value !== P.BIZ_PLAN);
+      const n = Number(f.querySelector('[name="bizCount"]')?.value || 1);
+      const name = (f.querySelector('[name="bizName"]')?.value || '').trim();
+      const on = n >= 2 && name.length >= 2;
+      if (autoBenefits.biz2 !== on) window.dispatchEvent(new CustomEvent('benefits:update', { detail: { biz2: on } }));
+    }
+    f.addEventListener('change', () => setTimeout(sync, 0));
+    f.addEventListener('input', (e) => { if (e.target.name === 'bizName') setTimeout(sync, 0); });
+    sync();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();

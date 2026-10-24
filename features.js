@@ -1858,7 +1858,7 @@ try {
       if(t){t.dataset.kind='guest';t.textContent='비회원도 로그인·회원가입 없이 예약할 수 있습니다. 예약 정보는 일정 확인 연락에 사용됩니다.';}
       if(!opts?.keepService)serviceChange('일일 외부세차');
     } else if(mode==='monthly') {
-      if(t){t.dataset.kind='monthly';t.textContent='월 2회 또는 월 4회 정기관리 신규 신청입니다. 접수 후 관리자가 계약 조건과 일정을 확인합니다.';}
+      if(t){t.dataset.kind='monthly';t.textContent='월 2회 · 월 4회 · 통학·업무차 월 4회 정기관리 신규 신청입니다. 접수 후 관리자가 계약 조건과 일정을 확인합니다.';}
       if(!opts?.keepService)serviceChange('월 2회');
     } else {
       if(t){t.dataset.kind='existing';t.textContent='기존 월세차 방문 요청입니다. 계약 잔여 횟수와 예약 가능 일정은 관리자 확인 후 적용되며, 제출만으로 횟수가 차감되지 않습니다.';}
@@ -1903,12 +1903,12 @@ try {
     });
     f.querySelector('[name="service"]')?.addEventListener('change',function(e){
       if(f.dataset.bookingMode==='existing' && e.target.value!=='기타 상담'){
-        setMode(/^월 [24]회$/.test(e.target.value)?'monthly':'guest',{keepService:true});
+        setMode(/^(월 [24]회|통학·업무차 월 4회)$/.test(e.target.value)?'monthly':'guest',{keepService:true});
       }
-      if(f.dataset.bookingMode==='guest' && /^월 [24]회$/.test(e.target.value)){
+      if(f.dataset.bookingMode==='guest' && /^(월 [24]회|통학·업무차 월 4회)$/.test(e.target.value)){
         setMode('monthly',{keepService:true});
       }
-      if(f.dataset.bookingMode==='monthly' && !/^월 [24]회$/.test(e.target.value)){
+      if(f.dataset.bookingMode==='monthly' && !/^(월 [24]회|통학·업무차 월 4회)$/.test(e.target.value)){
         setMode('guest',{keepService:true});
       }
     });

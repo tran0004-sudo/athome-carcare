@@ -25,7 +25,7 @@
   <link rel="icon" href="icons/icon-192.png?v=20261001-icon7" />
   <link rel="apple-touch-icon" href="icons/icon-192.png?v=20261001-icon7" />
   <link rel="stylesheet" href="core.css?v=20261022-stairs2" />
-  <link rel="stylesheet" href="features.css?v=20261024-homeback" />
+  <link rel="stylesheet" href="features.css?v=20261024-biz" />
   <title>대구·경산 출장세차·월세차 | 집앞세차 앳홈카케어</title>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"AutoWash","name":"집앞세차 앳홈카케어","alternateName":["앳홈카케어","At Home Car Care"],
@@ -530,6 +530,7 @@
                   <ul class="pw-lines">
                     <li><dfn>월 4회</dfn><b data-p="미니밴|월 4회" data-pf="man">15.5만원</b></li>
                     <li><dfn>월 2회</dfn><b data-p="미니밴|월 2회" data-pf="man">10.5만원</b></li>
+                    <li><dfn>통학·업무차 월 4회 <small>실내 2회 포함</small></dfn><b data-p="미니밴|통학·업무차 월 4회" data-pf="man">17.4만원</b></li>
                     <li><dfn>고급 업그레이드 <small>월 1회 고급 세차</small></dfn><b data-p="optc:월세차 고급 업그레이드|미니밴" data-pf="+man">+3만원</b></li>
                   </ul>
                 </div>
@@ -558,6 +559,7 @@
                   <ul class="pw-lines">
                     <li><dfn>월 4회</dfn><b data-p="승합 9~12인승|월 4회" data-pf="man">18.6만원</b></li>
                     <li><dfn>월 2회</dfn><b data-p="승합 9~12인승|월 2회" data-pf="man">13.2만원</b></li>
+                    <li><dfn>통학·업무차 월 4회 <small>실내 2회 포함</small></dfn><b data-p="승합 9~12인승|통학·업무차 월 4회" data-pf="man">21.7만원</b></li>
                     <li><dfn>고급 업그레이드 <small>월 1회 고급 세차</small></dfn><b data-p="optc:월세차 고급 업그레이드|승합 9~12인승" data-pf="+man">+3만원</b></li>
                   </ul>
                 </div>
@@ -782,6 +784,7 @@
         <div class="vip-benefits">
           <article class="vip-card"><span class="vip-ic">🎁</span><h4>첫 달 할인</h4><p>월 2회·월 4회 모두 첫 달 <b>5,000원</b> 할인이 자동으로 적용돼요.</p></article>
           <article class="vip-card"><span class="vip-ic">✨</span><h4>고급 세차 업그레이드</h4><p>월 2회·월 4회 모두 매달 1회를 <b>고급 세차</b>(프리미엄 가죽시트 코팅 + 프리미엄 왁스 시공)로 업그레이드할 수 있어요. <small class="vip-worth">차량 크기별 월 <span data-p="opt:월세차 고급 업그레이드" data-pf="+range">+20,000~30,000원</span></small></p></article>
+          <article class="vip-card"><span class="vip-ic">🚐</span><h4>통학·업무차 월 4회</h4><p>학원·어린이집 통학차, 업무용 승합차는 실내가 빨리 더러워져요. 한 달 4번 방문 중 <b>2번은 실내까지</b> 관리해요.<br><small class="vip-worth">미니밴 <span data-p="미니밴|통학·업무차 월 4회" data-pf="won">174,000원</span> · 승합 9~12인승 <span data-p="승합 9~12인승|통학·업무차 월 4회" data-pf="won">217,000원</span> · 같은 사업장 2대 이상 차량당 5,000원 할인</small></p></article>
           <article class="vip-card"><span class="vip-ic">🏆</span><h4>3개월 이용 감사 혜택</h4><p>3개월 이용하실 때마다 <b>고급 왁스코팅</b> 또는 <b>전면 유리 유막제거</b> 중 하나를 1회 무료로 해드려요.<br><small class="vip-worth">옵션 요금 기준 왁스 <span data-p="opt:고급 왁스코팅" data-pf="sizes">소형 2만 · 중형 2.5만 · 대형 3만</span> · 유막제거 <span data-p="opt:유리 유막제거" data-pf="sizes">소형 1.5만 · 중형 1.8만 · 대형 2.2만</span> 상당</small></p></article>
           <article class="vip-card"><span class="vip-ic">🏢</span><h4>같은 아파트 함께 신청</h4><p>같은 아파트에서 <b>5대 이상</b> 신청하시면 차량당 <b>5,000원</b> 할인돼요.</p></article>
           <article class="vip-card"><span class="vip-ic">📋</span><h4>매달 차량 관리 리포트</h4><p>한 달 동안의 <b>작업 전후 사진</b>과 차량 상태, <b>다음 달 추천 관리</b>를 정리해 보내드려요.</p></article>
@@ -869,11 +872,15 @@
               <option>프리미엄 세차</option>
               <option>월 2회</option>
               <option>월 4회</option>
+              <option value="통학·업무차 월 4회">통학·업무차 월 4회 (실내 2회 · 미니밴·승합)</option>
               <option>기타 상담</option>
             </select></label>
             <h4 class="span-2 bk-sec">📍 방문 정보</h4>
             <label data-vip-step="2">예약자 이름<input name="customerName" placeholder="예: 홍길동" autocomplete="name" required></label>
             <label data-vip-step="2">연락처<input name="phone" inputmode="tel" placeholder="010-0000-0000" autocomplete="tel" required></label>
+            <p class="span-2 biz-plan-note hidden" id="bizPlanNote" data-vip-step="1">🚐 <b>통학·업무차 월 4회</b>: 한 달 4번 방문 중 <b>2번은 실내까지</b> 관리해요. 운행이 끝난 저녁에 작업해서 다음 날 아침엔 깨끗한 차로 운행하실 수 있어요.</p>
+            <label data-vip-step="2">사업장명 <small class="field-hint">업무용·통학 차량이면 (선택)</small><input name="bizName" placeholder="예: ○○학원, ○○어린이집" autocomplete="organization"></label>
+            <label data-vip-step="2">함께 맡기는 차량 <small class="field-hint">같은 사업장 2대 이상이면 차량당 5,000원 할인</small><select name="bizCount"><option value="1">1대</option><option value="2">2대</option><option value="3">3대 이상</option></select></label>
             <label data-vip-step="2">아파트명<input name="apartment" placeholder="예: 중산지구 ○○아파트" required></label>
             <label data-vip-step="2">차량 번호<input name="plate" placeholder="예: 12가 3456" autocomplete="off" required></label>
             <label data-vip-step="2">상세 주소 <small class="field-hint">동·호수 또는 주차 위치</small><input name="address" placeholder="예: 103동 지하 2층 B구역" autocomplete="off"></label>
@@ -995,9 +1002,9 @@
     </nav>
   </div>
   <div id="toast" class="toast"></div>
-  <script src="prices.js?v=20261024-van2"></script>
-  <script src="app.js?v=20261024-van2"></script>
-  <script src="supabase-integration.js?v=20261024-van2"></script>
-  <script src="features.js?v=20261024-apt" defer></script>
+  <script src="prices.js?v=20261024-biz"></script>
+  <script src="app.js?v=20261024-biz"></script>
+  <script src="supabase-integration.js?v=20261024-biz"></script>
+  <script src="features.js?v=20261024-biz" defer></script>
 </body>
 </html>

@@ -726,3 +726,7 @@ details.menu-stairs[open]>summary::after{content:"접기";background:#1f7a55;col
 #bookingForm .car-custom-note{margin:-4px 0 4px;padding:10px 12px;border-radius:12px;background:#fff8e8;border:1px solid #f0d9a4;font-size:13px;line-height:1.6;color:#5b4310;word-break:keep-all}
 #bookingForm .car-custom-note a{color:#0a5c4c;font-weight:800;text-decoration:underline}
 #bookingForm .car-custom-note.hidden{display:none}
+
+/* 예약 · 통학·업무차 플랜 안내 */
+#bookingForm .biz-plan-note{margin:-2px 0 4px;padding:10px 12px;border-radius:12px;background:#eef6f2;border:1px solid #cfe4db;font-size:13px;line-height:1.6;color:#21443a;word-break:keep-all}
+#bookingForm .biz-plan-note.hidden{display:none}

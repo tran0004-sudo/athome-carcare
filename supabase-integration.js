@@ -1281,7 +1281,7 @@ ${linkLines ? '\n' + linkLines : ''}
 
   function normalizeService(svc) {
     if (svc === '월 2회') return '월2회';
-    if (svc === '월 4회') return '월4회';
+    if (svc === '월 4회' || svc === '통학·업무차 월 4회') return '월4회';
     if (svc === '일일 외부세차' || svc === '외부+내부세차' || svc === '고급 세차' || svc === '프리미엄 세차') return '일일세차';
     return '기타';
   }
@@ -1302,7 +1302,7 @@ ${linkLines ? '\n' + linkLines : ''}
     // Route labels are for operator triage only; they never grant VIP entitlement.
     const bookingIntentNote = form.dataset.bookingMode === 'existing'
       ? '[예약 구분: 기존 월세차 방문 요청 · 계약 및 잔여 횟수는 관리자 확인 후 연결]'
-      : (form.dataset.bookingMode === 'monthly' || exactSvc === '월 2회' || exactSvc === '월 4회')
+      : (form.dataset.bookingMode === 'monthly' || window.AHC_PRICES.isMonthly(exactSvc))
         ? '[예약 구분: 월세차 신규 신청 · 계약 확정 전]'
         : '[예약 구분: 비회원 일일세차]';
     const options  = fd.getAll('options').map(v => String(v).trim()).filter(Boolean);
@@ -1324,7 +1324,7 @@ ${linkLines ? '\n' + linkLines : ''}
       service_type:   normalizeService(exactSvc),
       preferred_date: fd.get('preferredDate') || null,
       preferred_time: fd.get('preferredTime') || null,
-      memo: `${bookingIntentNote}${fd.get('privacyConsent') ? `\n[개인정보 수집·이용 동의: ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}]` : ''}\n[희망 서비스: ${exactSvc}]${options.length ? `\n[추가 옵션: ${options.join(', ')}]` : ''}${promoLabels.length ? `\n[적용 혜택: ${promoLabels.join(', ')}]` : ''}${referrer ? `\n[추천인: ${referrer}]` : ''}${quoteTotal && quoteTotal !== '-' ? `\n[예상 금액: ${quoteTotal}]` : ''}${memo ? `\n${memo}` : ''}`,
+      memo: `${bookingIntentNote}${fd.get('privacyConsent') ? `\n[개인정보 수집·이용 동의: ${new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })}]` : ''}\n[희망 서비스: ${exactSvc}]${options.length ? `\n[추가 옵션: ${options.join(', ')}]` : ''}${promoLabels.length ? `\n[적용 혜택: ${promoLabels.join(', ')}]` : ''}${referrer ? `\n[추천인: ${referrer}]` : ''}${String(fd.get('bizName') || '').trim() ? `\n[사업장: ${String(fd.get('bizName')).trim()} · 함께 맡기는 차량 ${fd.get('bizCount') || 1}대]` : ''}${quoteTotal && quoteTotal !== '-' ? `\n[예상 금액: ${quoteTotal}]` : ''}${memo ? `\n${memo}` : ''}`,
       status: '접수',
     };
 
@@ -1386,8 +1386,8 @@ ${linkLines ? '\n' + linkLines : ''}
 
   const SCOPE_SERVICES = {
     m2: ['월 2회'],
-    m4: ['월 4회'],
-    monthly: ['월 2회', '월 4회'],
+    m4: ['월 4회', '통학·업무차 월 4회'],
+    monthly: ['월 2회', '월 4회', '통학·업무차 월 4회'],
     any: null,
   };
 
@@ -1538,6 +1538,7 @@ ${linkLines ? '\n' + linkLines : ''}
   const SERVICE_TEXT = {
     '월 2회': '월 2회 정기 방문세차로 진행했습니다.',
     '월 4회': '월 4회 정기 방문세차로 진행했습니다.',
+    '통학·업무차 월 4회': '통학·업무차 월 4회 정기관리(실내 2회 포함)로 진행했습니다.',
     '일일 외부세차': '일일 외부세차로 진행했습니다.',
     '외부+내부세차': '외부세차와 실내세차를 함께 진행했습니다.',
     '고급 세차': '외부·내부 세차에 프리미엄 가죽시트 코팅과 프리미엄 왁스 시공까지 진행했습니다.',

@@ -67,7 +67,15 @@
 
   /* 상위 상품을 고르면 추가 옵션 할인 (할인한 금액은 1,000원 단위로 내림)
      숫자만 바꾸면 예약 화면·카드 문구가 모두 따라 바뀝니다. 0 이면 할인 없음. */
-  var OPTION_DISCOUNT = { '고급 세차': 0.1, '프리미엄 세차': 0.15, '월 2회': 0.1, '월 4회': 0.1 };
+  var OPTION_DISCOUNT = { '고급 세차': 0.1, '프리미엄 세차': 0.15, '월 2회': 0.1, '월 4회': 0.1, '통학·업무차 월 4회': 0.1 };
+
+  /* 통학·업무차 월 4회 = 월 4회 중 실내 2회 (외부 2 + 외부·내부 2)를 30% 할인, 1,000원 단위 반올림
+     영업용 승합·미니밴에만 있는 상품입니다. */
+  var BIZ_PLAN = '통학·업무차 월 4회';
+  var BIZ_PLAN_CLASSES = ['미니밴', '승합 9~12인승'];
+  var BIZ_PLAN_RATE = 0.30;
+  var MONTHLY_SERVICES = ['월 2회', '월 4회', BIZ_PLAN];
+  function isMonthly(svc) { return MONTHLY_SERVICES.indexOf(svc) >= 0; }
   /* 프리미엄에 포함된 전면 유막제거·발수코팅 할인율 — 고급 세차 할인율과 같게 둬야
      "프리미엄 ≤ 고급 + 같은 옵션" 과 "프리미엄 > 기본 + 같은 옵션" 순서가 지켜집니다. */
   var PREMIUM_GLASS_RATE = 0.1;
@@ -124,6 +132,12 @@
     var k = SIZE_OF_CLASS[cls] != null ? SIZE_OF_CLASS[cls] : 0;
     return GLASS_FULL_BUNDLE[k];   // 묶음가 자체가 할인가 — 상품 할인은 중복 적용하지 않음
   }
+
+  /* 통학·업무차 월 4회 요금 채움 */
+  BIZ_PLAN_CLASSES.forEach(function (cls) {
+    var t = TABLE[cls]; if (!t) return;
+    t[BIZ_PLAN] = Math.round((t['일일 외부세차'] * 2 + t['외부+내부세차'] * 2) * (1 - BIZ_PLAN_RATE) / 1000) * 1000;
+  });
 
   /* 프리미엄 세차 요금을 차종마다 채움 (고급 세차 + 유막제거·발수코팅을 프리미엄 할인율로)
      "따로 하면" 비교용 금액 (모두 정가):
@@ -220,6 +234,7 @@
 
   var api = {
     TABLE: TABLE, OPTIONS: OPTIONS, RESIN: RESIN,
+    BIZ_PLAN: BIZ_PLAN, BIZ_PLAN_CLASSES: BIZ_PLAN_CLASSES, MONTHLY_SERVICES: MONTHLY_SERVICES, isMonthly: isMonthly,
     GLASS_FULL: GLASS_FULL, GLASS_FULL_BUNDLE: GLASS_FULL_BUNDLE, GLASS_PAIRS: GLASS_PAIRS, glassBundleFor: glassBundleFor,
     PREMIUM_ADDS: PREMIUM_ADDS, PREMIUM_REGULAR: PREMIUM_REGULAR, PLUS_ADDS: PLUS_ADDS, PLUS_REGULAR: PLUS_REGULAR,
     OPTION_DISCOUNT: OPTION_DISCOUNT, PREMIUM_GLASS_RATE: PREMIUM_GLASS_RATE, NO_DISCOUNT: NO_DISCOUNT, optionRate: optionRate, optionFor: optionFor,
