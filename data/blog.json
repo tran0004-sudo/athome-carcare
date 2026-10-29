@@ -2,6 +2,14 @@
   "blog": "https://blog.naver.com/athomecarcare",
   "posts": [
     {
+      "title": "햇빛 아래 보이는 동그란 잔기스(스월마크), 생기는 원인과 예방",
+      "link": "https://blog.naver.com/athomecarcare/224446980887",
+      "date": "2026-10-29",
+      "category": "차관리 상식",
+      "summary": "안녕하세요, 집앞세차 앳홈카케어입니다. 차를 세차한 뒤 햇빛 아래에서 보면 도장면에 잔기스가 가득 보이는 경험이 있으신가요. 닦을수록 오히려 잔기스가 늘어나는 것 같아 당혹스럽기도 합니다. 이런 잔…",
+      "thumb": "https://blogthumb.pstatic.net/MjAyNjEwMTlfMSAg/MDAxNzkyNDEwODE2MjIy.jhDrTDy5cd4_YQTXwkTRWOIBJxWVYgctlJR9ztJamuQg.sEg0F5sk684_Evl4QitNBdrxGjlZLPuyrJlKkcwQBXUg.PNG/card_01.png?type=s3"
+    },
+    {
       "title": "왁스 실런트 차이와 유리막 코팅, 어떤 것이 도장에 좋을까",
       "link": "https://blog.naver.com/athomecarcare/224446980191",
       "date": "2026-10-28",
@@ -88,14 +96,6 @@
       "category": "차관리 상식",
       "summary": "안녕하세요, 집앞세차 앳홈카케어입니다. 날씨가 추워지면 앞유리가 뿌옇게 되거나 워셔액이 아예 안 나오는 경험을 하시는 분들이 있습니다. 여름 내내 쓰던 워셔액을 겨울에도 그대로 두면 생기는 문제입니…",
       "thumb": "https://blogthumb.pstatic.net/MjAyNjEwMTlfMjMy/MDAxNzkyNDA3OTIyOTY5.PiBO4gwgmwE6EBvdOrSrjdMfSLTkETCSg4hI8OEJAHEg.34gvchFfPiyuX39RL8swZRf8z2hPGMRIJ2Div6QlYfQg.PNG/card_01.png?type=s3"
-    },
-    {
-      "title": "날씨가 추워지면 타이어 공기압 경고등이 켜지는 이유",
-      "link": "https://blog.naver.com/athomecarcare/224445479357",
-      "date": "2026-10-18",
-      "category": "차관리 상식",
-      "summary": "안녕하세요, 집앞세차 앳홈카케어입니다. 날씨가 갑자기 추워진 아침, 별다른 이상이 없었는데 계기판에 타이어 공기압 경고등이 켜져 있는 경우가 있습니다. 펑크인지 당황하게 되는 상황이지만, 실제로는 …",
-      "thumb": "https://blogthumb.pstatic.net/MjAyNjEwMThfNDIg/MDAxNzkyMzAwNzUxMDc5.buMoUfFxGy21IpTCXCMjFFBk_2fF8ckT5BX9D4nvET4g.AueS41KmdBw5XoULGCEv_Tsx-vGND0kF2E_WJe2sNnMg.PNG/card_01.png?type=s3"
     }
   ]
 }
