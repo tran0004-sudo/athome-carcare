@@ -2,6 +2,14 @@
   "blog": "https://blog.naver.com/athomecarcare",
   "posts": [
     {
+      "title": "에어컨 켤 때 냄새가 난다면, 에어컨 필터를 확인해 보세요",
+      "link": "https://blog.naver.com/athomecarcare/224459485790",
+      "date": "2026-11-01",
+      "category": "차관리 상식",
+      "summary": "안녕하세요, 집앞세차 앳홈카케어입니다. 날씨가 변할 때마다 에어컨이나 히터를 켜게 됩니다. 그런데 가동하는 순간 퀴퀴한 냄새가 올라오는 경우가 있어요. 창문을 열어도 잠시뿐이고, 끄면 다시 나오기도…",
+      "thumb": "https://blogthumb.pstatic.net/MjAyNjEwMzBfMjI5/MDAxNzkzMzYxNjI1NTM3.HoG9Iv9WlSDCkdr4na8WcoJ5HkfT0gJSF5uLObyQnQkg.-_Woi7r3CzTkIU8w3eeky4Httm5V5Cs9XVpWIK4onoYg.PNG/card_01.png?type=s3"
+    },
+    {
       "title": "가죽시트 갈라짐, 세정과 보습으로 막을 수 있어요",
       "link": "https://blog.naver.com/athomecarcare/224459484193",
       "date": "2026-10-31",
@@ -88,14 +96,6 @@
       "category": "차관리 상식",
       "summary": "안녕하세요, 집앞세차 앳홈카케어입니다. 겨울 아침 차에 타면 앞유리가 뿌옇게 김서려 시야가 막히는 경우가 있습니다. 히터를 틀어도 좀처럼 빨리 없어지지 않아 답답한 경험을 하신 분들도 많습니다. 오…",
       "thumb": "https://blogthumb.pstatic.net/MjAyNjEwMTlfMTE5/MDAxNzkyNDA4NTkyODI2.hsEsOjtEAsw42CHsH0Qr8T0kjNGyw5kI7tmqsDPARrsg.sknTv5r9HH5Fiya8ivBnsFgxXqDPKCN427Fofcmx2LIg.PNG/card_01.png?type=s3"
-    },
-    {
-      "title": "겨울철 자동차 배터리 방전, 미리 막는 방법",
-      "link": "https://blog.naver.com/athomecarcare/224446974567",
-      "date": "2026-10-21",
-      "category": "차관리 상식",
-      "summary": "안녕하세요, 집앞세차 앳홈카케어입니다. 날씨가 갑자기 추워지면 평소에는 잘 걸리던 시동이 어느 날 갑자기 안 걸리는 경험을 하시는 분들이 있습니다. 겨울철에 배터리 방전이 특히 잦아지는 데는 이유가…",
-      "thumb": "https://blogthumb.pstatic.net/MjAyNjEwMTlfMTIz/MDAxNzkyNDA4MzEwNDMw.Y4G9ee238nJJ2eMWrh_ojkuT17j-Xflab6D2PnA7uu0g.2X6l98iTqZrF0RLOTKdId-UPdUhr2lFqweNEkxeBOTUg.PNG/card_01.png?type=s3"
     }
   ]
 }
