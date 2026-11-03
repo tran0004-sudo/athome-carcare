@@ -2,6 +2,14 @@
   "blog": "https://blog.naver.com/athomecarcare",
   "posts": [
     {
+      "title": "자동차 매트, 털기만 하면 충분하지 않은 이유",
+      "link": "https://blog.naver.com/athomecarcare/224459487718",
+      "date": "2026-11-03",
+      "category": "차관리 상식",
+      "summary": "안녕하세요, 집앞세차 앳홈카케어입니다. 차를 탈 때마다 발을 딛는 매트는 생각보다 오염이 빠르게 쌓이는 곳입니다. 털거나 발로 툭툭 쳐서 흙을 털어내는 방식으로 관리하시는 분들이 많은데, 그것만으로…",
+      "thumb": "https://blogthumb.pstatic.net/MjAyNjEwMzBfODkg/MDAxNzkzMzYxNjU3MTQ1.llPdUb15MtnbbN2DrVNutmJ6smTA8lucEcG5-XdCqNsg.YZ4ED3gmpoWSHhXOXAsToJLq_WyHsvufMomfvEQtIs4g.PNG/card_01.png?type=s3"
+    },
+    {
       "title": "대구 신매동 그랜저 외부세차·실내세차 작업 일지",
       "link": "https://blog.naver.com/athomecarcare/224460381954",
       "date": "2026-11-02",
@@ -88,14 +96,6 @@
       "category": "차관리 상식",
       "summary": "안녕하세요, 집앞세차 앳홈카케어입니다. 세차를 할 때 자동세차와 손세차 중 어느 쪽이 도장면에 더 좋은지 궁금하신 분들이 많습니다. 둘 다 오염을 씻어내는 방식이지만 도장에 미치는 영향이 조금 다릅…",
       "thumb": "https://blogthumb.pstatic.net/MjAyNjEwMTlfMTcx/MDAxNzkyNDA5NzEyOTEz.ZfXZnSoEyC2mY-XARFo5S1jKMSigbkbVivNPeZ4F0Q0g.JEcZkvB2vP63CfUeMP-CCuHSk9PQnAftrCFWcT3gVBsg.PNG/card_01.png?type=s3"
-    },
-    {
-      "title": "흰색 차에 생기는 갈색 점, 철분 오염과 철분제거제",
-      "link": "https://blog.naver.com/athomecarcare/224446976983",
-      "date": "2026-10-24",
-      "category": "차관리 상식",
-      "summary": "안녕하세요, 집앞세차 앳홈카케어입니다. 흰색이나 은색 차를 가지고 계신 분이라면 도장면에 작은 갈색 점이 생긴 걸 본 적이 있을 겁니다. 세차를 해도 안 지워지는 그 점의 정체는 브레이크 분진, 즉…",
-      "thumb": "https://blogthumb.pstatic.net/MjAyNjEwMTlfMjA4/MDAxNzkyNDA5MjI0OTAx.3nU8tDCS7nFjpAfYgLEEsI2Cehq00bA2OtwmBj46GBQg.jTbxRK2YmYTboC7ycQZruQ7Dr28r5MPLi4mlXYmTRNMg.PNG/card_01.png?type=s3"
     }
   ]
 }
