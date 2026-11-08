@@ -753,6 +753,13 @@ function renderOptionNotice(form) {
   if (form.querySelector('[name="options"][value="송진 제거"]:checked')) {
     msgs.push(`🌲 송진 제거는 가벼움 ${won(window.AHC_PRICES.RESIN['가벼움'])} 기준이며, 현장에서 상태(가벼움·보통·심함)를 확인한 뒤 요금이 추가될 수 있어요. 보통 ${won(window.AHC_PRICES.RESIN['보통'])} · 심함은 현장 견적이며, 작업 전에 금액을 먼저 안내드립니다.`);
   }
+  if (form.querySelector('[name="options"][value="페인트 클렌징"]:checked')) {
+    const waxIncluded = svcSel === '고급 세차' || svcSel === '프리미엄 세차';
+    const waxPicked = form.querySelector('[name="options"][value="고급 왁스코팅"]:checked');
+    msgs.push(waxIncluded || waxPicked
+      ? '✨ 페인트 클렌징으로 묵은 왁스·산화막을 벗긴 뒤 왁스로 보호막을 입혀 마무리해요.'
+      : '✨ 페인트 클렌징은 기존 왁스 막까지 벗겨내요. 도장 보호를 위해 고급 왁스코팅을 함께 고르시는 걸 추천해요.');
+  }
   if (form.querySelector('[name="options"][value="엔진룸 클리닝"]:checked')) {
     msgs.push('🔧 엔진룸 클리닝은 엔진이 식은 상태에서 진행하며, 누유가 심한 경우 정비가 먼저 필요할 수 있어요.');
   }

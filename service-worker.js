@@ -1,8 +1,8 @@
-const CACHE = 'athome-carcare-v249';
+const CACHE = 'athome-carcare-v250';
 const ASSETS = [
   './', './index.html', './manifest.webmanifest?v=20261001-icon7', './data/content.json',
   './core.css?v=20261022-stairs2', './features.css?v=20261024-pt2',
-  './prices.js?v=20261024-biz', './app.js?v=20261024-biz', './supabase-integration.js?v=20261024-biz', './features.js?v=20261024-biz',
+  './prices.js?v=20261108-cleanse', './app.js?v=20261108-cleanse', './supabase-integration.js?v=20261024-biz', './features.js?v=20261024-biz',
   './icons/icon-192.png?v=20261001-icon7', './icons/icon-512.png?v=20261001-icon7', './icons/icon-maskable-512.png?v=20261001-icon7',
   './privacy.html', './price.html'
 ];
