@@ -159,6 +159,7 @@
             <p class="stairs-note">외부만 원하시면 <b>외부세차 <span data-p="경차|일일 외부세차" data-pf="won~">28,000원~</span></b> · 차종별 금액은 요금 탭에서 확인하세요.</p>
           </div>
           <p class="guide-time-note">소요시간은 차량 크기 · 오염도 · 주차 환경에 따라 달라질 수 있어요.</p>
+          <p class="guide-time-note guide-dirty-note">⚠️ 반려동물 털·흙모래·음식물 얼룩·장기간 미세차 등 <b>오염이 심한 차량은 현장 확인 후 실내 집중세차 요금(<span data-p="opt:실내 집중세차" data-pf="sizes">소형 1.5만 · 중형 1.8만 · 대형 2.2만</span>)이 추가될 수 있어요.</b> 작업 전에 사진과 금액을 먼저 안내드리고 동의하실 때만 진행해요. 동의하지 않으시면 기본 범위로 세차해 드려요.</p>
           <div class="guide-check">
             <h3>꼭 확인해 주세요</h3>
             <div class="guide-check-grid">
@@ -931,7 +932,7 @@
               <div class="quote-head"><span>예상 금액</span><em id="quoteCar">차량을 선택해주세요</em></div>
               <ul class="quote-lines" id="quoteLines"></ul>
               <div class="quote-total"><span id="quoteTotalLabel">합계</span><b id="quoteTotal">-</b></div>
-              <p class="quote-note">차량 상태·오염도에 따라 금액이 달라질 수 있습니다. 최종 금액은 접수 후 안내드립니다.</p>
+              <p class="quote-note" id="quoteNote">⚠️ 반려동물 털·흙모래·음식물 얼룩·장기간 미세차 등 <b>오염이 심한 차량은 현장 확인 후 실내 집중세차 요금(<span data-p="opt:실내 집중세차" data-pf="sizes">소형 1.5만 · 중형 1.8만 · 대형 2.2만</span>)이 추가될 수 있어요.</b> 작업 전에 사진과 금액을 먼저 안내드리고 동의하실 때만 진행해요. 동의하지 않으시면 기본 범위로 세차해 드려요.</p>
             </div>
             <div class="span-2 vip-nudge hidden" id="vipNudge" data-vip-step="1"></div>
             <div class="span-2 booking-wizard-controls"><button type="button" class="secondary-btn" id="wizardPrev" hidden>← 이전 단계</button><button type="button" class="primary-btn" id="wizardNext">다음: 방문 정보 입력 →</button></div>
@@ -1012,7 +1013,7 @@
   </div>
   <div id="toast" class="toast"></div>
   <script src="prices.js?v=20261108-cleanse"></script>
-  <script src="app.js?v=20261108-cleanse"></script>
+  <script src="app.js?v=20261108-dirty"></script>
   <script src="supabase-integration.js?v=20261024-biz"></script>
   <script src="features.js?v=20261024-biz" defer></script>
 </body>

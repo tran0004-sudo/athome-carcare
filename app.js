@@ -791,6 +791,21 @@ function renderQuote(form) {
     })
     .join('');
   totalEl.textContent = q.ready ? won(q.total) : `${won(q.total)} + 세차 요금 상담`;
+  renderDirtyNote(form, q.cls);
+}
+
+/* 오염이 심한 차량 추가요금 안내 — 금액은 실내 집중세차 요금과 같음 */
+function renderDirtyNote(form, cls) {
+  const note = form.querySelector('#quoteNote');
+  if (!note) return;
+  if (form.querySelector('[name="options"][value="실내 집중세차"]:checked')) {
+    note.innerHTML = '실내 집중세차를 고르셨어요. 오염이 심한 실내도 이 옵션으로 꼼꼼히 진행하며, 그 밖에 추가 작업이 필요하면 작업 전에 사진과 금액을 먼저 안내드려요.';
+    return;
+  }
+  const amount = cls in SIZE_OF_CLASS
+    ? `+${won(optionPrice('실내 집중세차', cls))}`
+    : esc(window.AHC_PRICES.text('opt:실내 집중세차', 'sizes'));
+  note.innerHTML = `⚠️ 반려동물 털·흙모래·음식물 얼룩·장기간 미세차 등 <b>오염이 심한 차량은 현장 확인 후 실내 집중세차 요금(${amount})이 추가될 수 있어요.</b> 작업 전에 사진과 금액을 먼저 안내드리고 동의하실 때만 진행해요. 동의하지 않으시면 기본 범위로 세차해 드려요.`;
 }
 
 function bindBookingExtras() {
