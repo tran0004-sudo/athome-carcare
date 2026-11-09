@@ -747,3 +747,6 @@ details.menu-stairs[open]>summary::after{content:"접기";background:#1f7a55;col
 
 /* 실내 단독 세차 카드 제목 보조 글씨 */
 .interior-only-card h2 small{display:block;margin-top:2px;font-size:.78em;font-weight:600;color:var(--muted,#667)}
+/* 사용 용품(더클래스) 표기 */
+.brand-note{display:block;margin-top:1px;font-size:.78em;font-weight:500;opacity:.75}
+.interior-only-card .brand-line{margin:8px 0 4px;padding:10px 12px;border-radius:10px;background:rgba(11,122,100,.07);font-size:.9em;line-height:1.5}

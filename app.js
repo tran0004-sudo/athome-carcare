@@ -758,7 +758,7 @@ function renderOptionNotice(form) {
   if (svcSel === '실내 단독 세차' && PRICE_TABLE[clsSel]) {
     const both = PRICE_TABLE[clsSel]['실내 단독 세차'] + PRICE_TABLE[clsSel]['일일 외부세차'];
     const plus = PRICE_TABLE[clsSel]['고급 세차'];
-    msgs.push(`🧽 실내 단독 세차는 고급 세차 수준 실내 관리에 프리미엄 가죽시트 코팅까지 포함이에요.${both > plus ? ` 외부까지 원하시면 고급 세차(${won(plus)})가 따로 하는 것보다 ${won(both - plus)} 이득이에요.` : ''}`);
+    msgs.push(`🧽 실내 단독 세차는 고급 세차 수준 실내 관리에 가죽시트 세정·코팅(더클래스 가죽 전용 용품)까지 포함이에요.${both > plus ? ` 외부까지 원하시면 고급 세차(${won(plus)})가 따로 하는 것보다 ${won(both - plus)} 이득이에요.` : ''}`);
   }
   if (form.querySelector('[name="options"][value="페인트 클렌징"]:checked')) {
     const waxIncluded = svcSel === '고급 세차' || svcSel === '프리미엄 세차';
