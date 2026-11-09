@@ -750,3 +750,48 @@ details.menu-stairs[open]>summary::after{content:"접기";background:#1f7a55;col
 /* 사용 용품(더클래스) 표기 */
 .brand-note{display:block;margin-top:1px;font-size:.78em;font-weight:500;opacity:.75}
 .interior-only-card .brand-line{margin:8px 0 4px;padding:10px 12px;border-radius:10px;background:rgba(11,122,100,.07);font-size:.9em;line-height:1.5}
+/* ===== 실내세차 7단계 (요금 화면) ===== */
+.interior7{padding:0!important}
+.i7-head{padding:24px 22px 26px;background:linear-gradient(135deg,#0b6e5c,#0a8a70);color:#fff}
+.i7-kicker,.i7-sub::before{display:inline-block;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:1.5px}
+.i7-kicker{background:rgba(255,255,255,.16)}
+.i7-head h2{margin:10px 0 8px;font-size:30px;line-height:1.2;letter-spacing:-1px;color:#fff}
+.i7-head h2 em{font-style:normal;color:#ffe066}
+.i7-head p{margin:0;font-size:13.5px;line-height:1.6;opacity:.92}
+.i7-head p b{color:#ffe9a0}
+.i7-sub{margin:20px 22px 12px;font-size:19px}
+.i7-steps{list-style:none;margin:0 22px;padding:0;display:grid;gap:9px}
+.i7-steps li{display:flex;gap:12px;align-items:flex-start;padding:13px 14px;border:1px solid var(--line);border-radius:14px;background:#f7fbfa}
+.i7-steps li.i7-gold{background:var(--cream);border-color:#f2e2ad}
+.i7-n{flex:0 0 30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#0b5d4e;color:#fff;font-weight:900;font-size:14px}
+.i7-steps b{font-size:15px}
+.i7-steps p{margin:3px 0 0;color:var(--muted);font-size:12.5px;line-height:1.55}
+.i7-steps p b{font-size:inherit;color:var(--green)}
+.i7-brand{color:var(--green)}
+.i7-tag{display:inline-block;margin-top:6px;padding:3px 8px;border-radius:8px;background:#fff;border:1px solid #f0d98c;color:#8a6510;font-size:11px;font-weight:800}
+.i7-banner{margin:22px 22px 0;padding:16px 18px;border-radius:14px;background:#0b5d4e;color:#fff;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.i7-banner b{font-size:17px;line-height:1.35}.i7-banner em{font-style:normal;color:#ffe066}
+.i7-banner span{font-size:12px;opacity:.88;text-align:right;line-height:1.5}
+.i7-tbl{margin:8px 22px 0;overflow-x:auto}
+.i7-tbl table{width:100%;border-collapse:collapse;font-size:13.5px}
+.i7-tbl th,.i7-tbl td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.i7-tbl thead th{font-size:12.5px;color:var(--muted)}
+.i7-tbl th[scope=row],.i7-tbl thead th:first-child{text-align:left}
+.i7-tbl th[scope=row] small{display:block;font-weight:500;font-size:11px;color:var(--muted)}
+.i7-tbl .i7-hl{background:#fff7df}
+.i7-tbl thead .i7-hl small{display:block;font-weight:600;font-size:10.5px}
+.i7-tbl td.i7-hl b{font-size:14.5px}.i7-tbl td.i7-hl em{display:block;font-style:normal;font-size:11px;font-weight:800;color:#c88a00}
+.i7-note{margin:16px 22px 0;padding:14px 16px;border:1.5px solid #f2d27a;border-radius:14px;background:#fffbea;display:flex;gap:12px}
+.i7-note>b{flex:0 0 auto;color:#d79a00;font-size:16px}
+.i7-note p{margin:0;font-size:13px;line-height:1.6}.i7-note p b{color:#b2331f}
+.i7-chips{list-style:none;margin:16px 22px 0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.i7-chips li{padding:10px;border:1px solid var(--line);border-radius:12px;text-align:center}
+.i7-chips b{display:block;font-size:13px;color:var(--green)}.i7-chips small{font-size:11px;color:var(--muted)}
+.i7-cta{display:block;margin:16px 22px 22px;text-align:center;text-decoration:none}
+@media (max-width:480px){.i7-head h2{font-size:26px}.i7-banner{flex-direction:column;align-items:flex-start}.i7-banner span{text-align:left}.i7-tbl th,.i7-tbl td{padding:9px 5px}.i7-chips b{font-size:12px}}
+.i7-tbl{overflow-x:visible}
+.i7-tbl table{table-layout:fixed}
+.i7-tbl col.c1{width:46%}.i7-tbl col.c2{width:24%}.i7-tbl col.c3{width:30%}
+.i7-tbl th[scope=row]{white-space:normal;word-break:keep-all}
+.i7-chips li{word-break:keep-all}
+@media (max-width:480px){.i7-tbl table{font-size:12.5px}.i7-tbl td.i7-hl b{font-size:13.5px}.i7-chips{gap:6px}.i7-chips li{padding:9px 6px}.i7-chips small{font-size:10.5px}}

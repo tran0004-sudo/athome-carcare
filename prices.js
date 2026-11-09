@@ -203,6 +203,11 @@
       if (parts[0] !== '') return GLASS_FULL_BUNDLE[+parts[0]] == null ? null : fmt(GLASS_FULL_BUNDLE[+parts[0]], pf || 'mans');
       return SIZE_LABEL.map(function (l, k) { return l + ' ' + fmt(GLASS_FULL_BUNDLE[k], pf === 'sizeswon' ? 'won' : 'mans'); }).join(' · ');
     }
+    if (kind === 'indiff') {   /* data-p="indiff:경차" 외부+내부 − 외부 (실내 추가 금액) · "indiff:" 가장 적은 금액 */
+      var diffOf = function (c) { return TABLE[c]['외부+내부세차'] - TABLE[c]['일일 외부세차']; };
+      if (parts[0] === '') return fmt(Math.min.apply(null, Object.keys(TABLE).map(diffOf)), pf);
+      return TABLE[parts[0]] ? fmt(diffOf(parts[0]), pf) : null;
+    }
     if (kind === 'plusreg') { v = PLUS_REGULAR[parts[0]]; return v == null ? null : fmt(v, pf); }
     if (kind === 'plussave') { v = PLUS_REGULAR[parts[0]] - (TABLE[parts[0]] || {})['고급 세차']; return isNaN(v) ? null : fmt(v, pf); }
     if (kind === 'premsave') { v = PREMIUM_REGULAR[parts[0]] - (TABLE[parts[0]] || {})['프리미엄 세차']; return isNaN(v) ? null : fmt(v, pf); }
