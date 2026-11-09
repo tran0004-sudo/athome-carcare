@@ -668,6 +668,8 @@ function refreshOptionChips(form) {
     const hide = (box.value === '엔진룸 클리닝' && isEvModel(currentModelName(form)))
       || (box.value === '월세차 고급 업그레이드' && !monthlyNow)
       || ((window.AHC_PRICES.PLUS_ADDS || ['고급 왁스코팅']).includes(box.value) && (svcNow === '고급 세차' || svcNow === '프리미엄 세차'))
+      // 실내 단독 세차에는 가죽시트 코팅 포함
+      || (box.value === '가죽시트 코팅' && svcNow === '실내 단독 세차')
       // 프리미엄 세차에 이미 포함된 옵션(유막제거·발수코팅)은 중복 선택 막기
       || (svcNow === '프리미엄 세차' && (window.AHC_PRICES.PREMIUM_ADDS || []).includes(box.value))
       // 프리미엄은 전체 유리를 '프리미엄 전체 유리 업그레이드'로만 받음
@@ -752,6 +754,11 @@ function renderOptionNotice(form) {
   }
   if (form.querySelector('[name="options"][value="송진 제거"]:checked')) {
     msgs.push(`🌲 송진 제거는 가벼움 ${won(window.AHC_PRICES.RESIN['가벼움'])} 기준이며, 현장에서 상태(가벼움·보통·심함)를 확인한 뒤 요금이 추가될 수 있어요. 보통 ${won(window.AHC_PRICES.RESIN['보통'])} · 심함은 현장 견적이며, 작업 전에 금액을 먼저 안내드립니다.`);
+  }
+  if (svcSel === '실내 단독 세차' && PRICE_TABLE[clsSel]) {
+    const both = PRICE_TABLE[clsSel]['실내 단독 세차'] + PRICE_TABLE[clsSel]['일일 외부세차'];
+    const plus = PRICE_TABLE[clsSel]['고급 세차'];
+    msgs.push(`🧽 실내 단독 세차는 고급 세차 수준 실내 관리에 프리미엄 가죽시트 코팅까지 포함이에요.${both > plus ? ` 외부까지 원하시면 고급 세차(${won(plus)})가 따로 하는 것보다 ${won(both - plus)} 이득이에요.` : ''}`);
   }
   if (form.querySelector('[name="options"][value="페인트 클렌징"]:checked')) {
     const waxIncluded = svcSel === '고급 세차' || svcSel === '프리미엄 세차';

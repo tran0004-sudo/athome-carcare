@@ -744,3 +744,6 @@ details.menu-stairs[open]>summary::after{content:"접기";background:#1f7a55;col
 #menu .mpt-save{display:block;text-align:center;text-decoration:none}
 #menu .mpt-hint{margin:8px 2px 0;font-size:12px;color:#6b7c76;text-align:center}
 @media(min-width:761px){#menu .menu-ptable{max-width:720px;margin-left:auto;margin-right:auto}}
+
+/* 실내 단독 세차 카드 제목 보조 글씨 */
+.interior-only-card h2 small{display:block;margin-top:2px;font-size:.78em;font-weight:600;color:var(--muted,#667)}

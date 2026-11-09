@@ -134,6 +134,16 @@
     return GLASS_FULL_BUNDLE[k];   // 묶음가 자체가 할인가 — 상품 할인은 중복 적용하지 않음
   }
 
+  /* 실내 단독 세차 — 고급 세차 수준 실내 관리(가죽시트 코팅 포함), 크기별 [소형, 중형, 대형]
+     승합은 시트·레일이 많아 따로 정함. 조건: 외부+내부보다 싸고, (실내 단독 + 외부)는 고급 세차보다 비싸게 */
+  var INTERIOR_ONLY = '실내 단독 세차';
+  var INTERIOR_ONLY_PRICE = [35000, 40000, 50000];
+  var INTERIOR_ONLY_CLASS = { '승합 9~12인승': 70000 };
+  Object.keys(TABLE).forEach(function (cls) {
+    var sz = SIZE_OF_CLASS[cls] != null ? SIZE_OF_CLASS[cls] : 0;
+    TABLE[cls][INTERIOR_ONLY] = INTERIOR_ONLY_CLASS[cls] || INTERIOR_ONLY_PRICE[sz];
+  });
+
   /* 통학·업무차 월 4회 요금 채움 */
   BIZ_PLAN_CLASSES.forEach(function (cls) {
     var t = TABLE[cls]; if (!t) return;
@@ -237,6 +247,7 @@
     TABLE: TABLE, OPTIONS: OPTIONS, RESIN: RESIN,
     BIZ_PLAN: BIZ_PLAN, BIZ_PLAN_CLASSES: BIZ_PLAN_CLASSES, MONTHLY_SERVICES: MONTHLY_SERVICES, isMonthly: isMonthly,
     GLASS_FULL: GLASS_FULL, GLASS_FULL_BUNDLE: GLASS_FULL_BUNDLE, GLASS_PAIRS: GLASS_PAIRS, glassBundleFor: glassBundleFor,
+    INTERIOR_ONLY: INTERIOR_ONLY,
     PREMIUM_ADDS: PREMIUM_ADDS, PREMIUM_REGULAR: PREMIUM_REGULAR, PLUS_ADDS: PLUS_ADDS, PLUS_REGULAR: PLUS_REGULAR,
     OPTION_DISCOUNT: OPTION_DISCOUNT, PREMIUM_GLASS_RATE: PREMIUM_GLASS_RATE, NO_DISCOUNT: NO_DISCOUNT, optionRate: optionRate, optionFor: optionFor,
     SIZE_OF_CLASS: SIZE_OF_CLASS, SIZE_LABEL: SIZE_LABEL,
