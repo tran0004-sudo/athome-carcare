@@ -629,7 +629,8 @@ function buildQuote(form) {
   options.forEach((name) => {
     if (bundled && glassFull.includes(name)) return;
     const pct = optionRatePct(name, svc);
-    const shown = (window.AHC_PRICES.PREMIUM_ADDS || []).includes(name) ? `${name}(전면)` : name;
+    let shown = (window.AHC_PRICES.PREMIUM_ADDS || []).includes(name) ? `${name}(전면)` : name;
+    if (window.AHC_PRICES.isLeatherUpgrade && window.AHC_PRICES.isLeatherUpgrade(name, svc)) shown = `${name} 업그레이드 (포함된 코팅 차감)`;
     lines.push([pct ? `${shown} (${svc} ${pct}% 할인)` : shown, optionPrice(name, cls, svc)]);
   });
   promos.forEach((promo) => lines.push([promo.label, -(promo.amount || 0), promo.gift || (promo.amount ? '' : '혜택 제공')]));
@@ -670,6 +671,8 @@ function refreshOptionChips(form) {
       || ((window.AHC_PRICES.PLUS_ADDS || ['고급 왁스코팅']).includes(box.value) && (svcNow === '고급 세차' || svcNow === '프리미엄 세차'))
       // 실내 단독 세차에는 가죽시트 코팅 포함
       || (box.value === '가죽시트 코팅' && svcNow === '실내 단독 세차')
+      // 가죽시트 집중세정에는 코팅이 포함 — 둘 중 하나만
+      || (box.value === '가죽시트 코팅' && form.querySelector('[name="options"][value="가죽시트 집중세정"]:checked'))
       // 프리미엄 세차에 이미 포함된 옵션(유막제거·발수코팅)은 중복 선택 막기
       || (svcNow === '프리미엄 세차' && (window.AHC_PRICES.PREMIUM_ADDS || []).includes(box.value))
       // 프리미엄은 전체 유리를 '프리미엄 전체 유리 업그레이드'로만 받음
@@ -680,6 +683,12 @@ function refreshOptionChips(form) {
     const small = chip?.querySelector('small');
     if (!small || !OPTION_PRICES[box.value]) return;
     if (box.value === '송진 제거') { small.textContent = `+${won(window.AHC_PRICES.RESIN['가벼움'])}~ (상태별)`; return; }
+    if (window.AHC_PRICES.isLeatherUpgrade && window.AHC_PRICES.isLeatherUpgrade(box.value, svcNow)) {
+      const up = optionPrice(box.value, known ? cls : '경차', svcNow);
+      small.textContent = `+${won(up)}${known ? '' : '~'} (코팅 포함 상품 업그레이드)`;
+      chip?.classList.remove('opt-sale');
+      return;
+    }
     const pct = optionRatePct(box.value, svcNow);
     const regular = known ? optionPrice(box.value, cls) : OPTION_PRICES[box.value][0];
     const now = known ? optionPrice(box.value, cls, svcNow) : optionPrice(box.value, '경차', svcNow);
@@ -759,6 +768,9 @@ function renderOptionNotice(form) {
     const both = PRICE_TABLE[clsSel]['실내 단독 세차'] + PRICE_TABLE[clsSel]['일일 외부세차'];
     const plus = PRICE_TABLE[clsSel]['고급 세차'];
     msgs.push(`🧽 실내 단독 세차는 고급 세차 수준 실내 관리에 가죽시트 세정·코팅(더클래스 가죽 전용 용품)까지 포함이에요.${both > plus ? ` 외부까지 원하시면 고급 세차(${won(plus)})가 따로 하는 것보다 ${won(both - plus)} 이득이에요.` : ''}`);
+  }
+  if (form.querySelector('[name="options"][value="가죽시트 집중세정"]:checked')) {
+    msgs.push('🧴 가죽시트 집중세정: 마프라 가죽 전용 세제로 시트를 한 자리씩 집중 세정한 뒤 보호 코팅까지 해 드려요. 깊게 밴 이염은 한 번에 다 빠지지 않을 수 있어요. 가죽(인조가죽 포함) 시트 전용이에요.');
   }
   if (form.querySelector('[name="options"][value="페인트 클렌징"]:checked')) {
     const waxIncluded = svcSel === '고급 세차' || svcSel === '프리미엄 세차';

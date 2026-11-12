@@ -54,6 +54,7 @@
     '고급 왁스코팅':          [20000, 25000, 30000],
     '페인트 클렌징':          [30000, 40000, 50000],   // DA 광택기로 묵은 왁스·산화막·때 제거 (보호막은 왁스로 마무리 권장)
     '가죽시트 코팅':          [15000, 18000, 22000],   // 고급·프리미엄 세차에는 포함
+    '가죽시트 집중세정':      [30000, 35000, 45000],   // 마프라 가죽 전용 세제로 집중 세정 후 코팅 — 코팅 포함 상품은 차액만
     '월세차 고급 업그레이드': [20000, 25000, 30000],   // 월세차 매달 1회 고급 세차 업그레이드
     '실내 집중세차':          [15000, 18000, 22000],
     '트렁크 청소':            [10000, 10000, 15000],
@@ -116,14 +117,20 @@
   });
 
   /* 옵션 할인율 (상품 기준) */
+  /* 가죽시트 집중세정 — 가죽시트 코팅이 이미 들어간 상품은 차액(집중세정 − 코팅)만 받음, 추가 할인 없음 */
+  var LEATHER_DEEP = '가죽시트 집중세정';
+  var COATING_INCLUDED = ['고급 세차', '프리미엄 세차', '실내 단독 세차'];
+  function isLeatherUpgrade(name, svc) { return name === LEATHER_DEEP && COATING_INCLUDED.indexOf(svc) >= 0; }
   function optionRate(name, svc) {
+    if (isLeatherUpgrade(name, svc)) return 0;
     if (NO_DISCOUNT.indexOf(name) >= 0) return 0;
     return OPTION_DISCOUNT[svc] || 0;
   }
   /* 차종·상품에 맞는 옵션 요금 (할인 적용) */
   function optionFor(name, cls, svc) {
     var t = OPTIONS[name]; if (!t) return NaN;
-    var base = t[SIZE_OF_CLASS[cls] != null ? SIZE_OF_CLASS[cls] : 0];
+    var k = SIZE_OF_CLASS[cls] != null ? SIZE_OF_CLASS[cls] : 0, base = t[k];
+    if (isLeatherUpgrade(name, svc)) return base - OPTIONS['가죽시트 코팅'][k];
     var rate = optionRate(name, svc);
     return rate ? floor1000(base * (1 - rate)) : base;
   }
@@ -254,7 +261,7 @@
     GLASS_FULL: GLASS_FULL, GLASS_FULL_BUNDLE: GLASS_FULL_BUNDLE, GLASS_PAIRS: GLASS_PAIRS, glassBundleFor: glassBundleFor,
     INTERIOR_ONLY: INTERIOR_ONLY,
     PREMIUM_ADDS: PREMIUM_ADDS, PREMIUM_REGULAR: PREMIUM_REGULAR, PLUS_ADDS: PLUS_ADDS, PLUS_REGULAR: PLUS_REGULAR,
-    OPTION_DISCOUNT: OPTION_DISCOUNT, PREMIUM_GLASS_RATE: PREMIUM_GLASS_RATE, NO_DISCOUNT: NO_DISCOUNT, optionRate: optionRate, optionFor: optionFor,
+    OPTION_DISCOUNT: OPTION_DISCOUNT, PREMIUM_GLASS_RATE: PREMIUM_GLASS_RATE, NO_DISCOUNT: NO_DISCOUNT, optionRate: optionRate, optionFor: optionFor, isLeatherUpgrade: isLeatherUpgrade,
     SIZE_OF_CLASS: SIZE_OF_CLASS, SIZE_LABEL: SIZE_LABEL,
     dailyFrom: dailyFrom, monthlySave: monthlySave, fmt: fmt, text: text, render: render
   };
