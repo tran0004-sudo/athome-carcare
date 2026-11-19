@@ -2,6 +2,14 @@
   "blog": "https://blog.naver.com/athomecarcare",
   "posts": [
     {
+      "title": "아이 카시트 청소 방법과 차량 실내 위생 관리법",
+      "link": "https://blog.naver.com/athomecarcare/224479708141",
+      "date": "2026-11-19",
+      "category": "차관리 상식",
+      "summary": "안녕하세요, 집앞세차 앳홈카케어입니다. 아이와 함께 차를 자주 타다 보면 카시트 아래와 시트 틈새에 과자 부스러기, 음료 자국이 쌓이기 쉽습니다. 눈에 잘 띄지 않아 그냥 지나치기 쉬운데, 오래 두…",
+      "thumb": "https://blogthumb.pstatic.net/MjAyNjExMTZfMTQ5/MDAxNzk0ODMxODgxODE0.E405uoJHRPNlD_UdGaqiTW9HBuUENhpJ8BZksuEFxTEg.NUV2zrlzu6x8nx_DUaA98szq2_s7sCHUBA_l5dl-15Mg.PNG/card_01.png?type=s3"
+    },
+    {
       "title": "경산 K5 실내세차 작업 일지",
       "link": "https://blog.naver.com/athomecarcare/224479608219",
       "date": "2026-11-18",
@@ -88,14 +96,6 @@
       "category": "출장세차 작업일지",
       "summary": "대구 신매동에서 그랜저 외부세차·실내세차를 진행했습니다. 직접 방문해서 작업했고, 소요 시간은 2시간이었어요. 이번 차량은 실내 오염이 심한 편이었습니다. 작업 전과 작업 후 사진을 같은 방향에서 …",
       "thumb": "https://blogthumb.pstatic.net/MjAyNjEwMzFfMTkz/MDAxNzkzNDQ0NTMzOTIw.Okh0IyLNbr9140L07ksxb7Pyl-rLolv8_bqU9btmpIUg.k0_u4LauaZkJbHwEb1yLdc6h00S_JxviKGUeKy3DuBgg.JPEG/%BC%BC%C2%F7%C8%C4_%284%29.jpg?type=s3"
-    },
-    {
-      "title": "신차 첫 세차, 출고 후 언제 어떻게 하는 게 좋을까요",
-      "link": "https://blog.naver.com/athomecarcare/224459486506",
-      "date": "2026-11-02",
-      "category": "차관리 상식",
-      "summary": "안녕하세요, 집앞세차 앳홈카케어입니다. 신차를 출고하고 나서 첫 세차를 언제, 어떻게 해야 할지 고민하시는 분들이 있습니다. 자동세차를 이용해도 되는지, 아니면 기다렸다가 해야 하는지 궁금해하시는 …",
-      "thumb": "https://blogthumb.pstatic.net/MjAyNjEwMzBfMjMg/MDAxNzkzMzYxNzE5MTc5.vMshxUWkbiVcMsqoYhB8N8tcXHuCobidtBzgx0TgT9wg.OSuC2tCU3VrT2s0Zb41ZYc7Jmi_s09B-T-6HQEpH5uog.PNG/card_01.png?type=s3"
     }
   ]
 }
