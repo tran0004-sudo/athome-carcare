@@ -2,6 +2,14 @@
   "blog": "https://blog.naver.com/athomecarcare",
   "posts": [
     {
+      "title": "엔진룸 세척, 해도 괜찮을까? 주의할 점 정리",
+      "link": "https://blog.naver.com/athomecarcare/224492035220",
+      "date": "2026-11-26",
+      "category": "출장세차 작업일지",
+      "summary": "안녕하세요, 집앞세차 앳홈카케어입니다. 엔진룸 세척을 해도 괜찮은지 물어보시는 분들이 있습니다. 물을 뿌리면 차에 문제가 생기지 않을까 걱정하시는 경우가 많습니다. 엔진룸에는 오일, 먼지, 그을음이…",
+      "thumb": "https://blogthumb.pstatic.net/MjAyNjExMTZfMzUg/MDAxNzk0ODM1NzQ0NTY0.0_IfT30jAHLe5Uv1J3R0PggL1s4ZB_zOlGnwoqwFMvQg.SDttvFKVHzdBvsSVnjNHoaAXTQakavlRnIiNhdP4cOIg.PNG/card_01.png?type=s3"
+    },
+    {
       "title": "차 안에 밴 담배 냄새, 방향제로 없앨 수 없는 이유",
       "link": "https://blog.naver.com/athomecarcare/224492034294",
       "date": "2026-11-25",
@@ -88,14 +96,6 @@
       "category": "차관리 상식",
       "summary": "안녕하세요, 집앞세차 앳홈카케어입니다. 도로 공사 구간을 지나다 보면 차 하부나 옆면에 검은 얼룩이 묻어 있는 걸 발견하는 경우가 있습니다. 아스팔트에서 튄 타르가 달라붙은 것인데, 물로 씻거나 그…",
       "thumb": "https://blogthumb.pstatic.net/MjAyNjEwMzBfMTc0/MDAxNzkzMzYxNjg5MDU5.3VDkbkW8qyZDB8_FGmCAUVk_ScCui2zDrGZ_K8PWRKQg.-QDKJ87QTZSqsdQB1lkKz4l__oWPrQ1wWynMBF32smog.PNG/card_01.png?type=s3"
-    },
-    {
-      "title": "자동차 매트, 털기만 하면 충분하지 않은 이유",
-      "link": "https://blog.naver.com/athomecarcare/224459487718",
-      "date": "2026-11-03",
-      "category": "차관리 상식",
-      "summary": "안녕하세요, 집앞세차 앳홈카케어입니다. 차를 탈 때마다 발을 딛는 매트는 생각보다 오염이 빠르게 쌓이는 곳입니다. 털거나 발로 툭툭 쳐서 흙을 털어내는 방식으로 관리하시는 분들이 많은데, 그것만으로…",
-      "thumb": "https://blogthumb.pstatic.net/MjAyNjEwMzBfODkg/MDAxNzkzMzYxNjU3MTQ1.llPdUb15MtnbbN2DrVNutmJ6smTA8lucEcG5-XdCqNsg.YZ4ED3gmpoWSHhXOXAsToJLq_WyHsvufMomfvEQtIs4g.PNG/card_01.png?type=s3"
     }
   ]
 }
