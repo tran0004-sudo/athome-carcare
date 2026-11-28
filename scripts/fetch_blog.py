@@ -16,6 +16,12 @@ BLOG_ID = "athomecarcare"
 RSS_URL = f"https://rss.blog.naver.com/{BLOG_ID}.xml"
 OUT = Path(__file__).resolve().parent.parent / "data" / "blog.json"
 MAX_ITEMS = 12
+# 앱에는 이 카테고리 글만 보여 줍니다 (차관리 상식 등은 제외)
+ONLY_CATEGORY = "작업일지"
+
+
+def is_worklog(category):
+    return ONLY_CATEGORY in re.sub(r"\s+", "", (category or "").replace("\xa0", ""))
 
 
 def text_of(el, tag):
@@ -48,6 +54,8 @@ def main():
             date = parsedate_to_datetime(pub).strftime("%Y-%m-%d")
         except Exception:
             date = ""
+        if not is_worklog(text_of(it, "category")):
+            continue
         link = text_of(it, "link").split("?")[0]
         items.append({
             "title": text_of(it, "title"),
